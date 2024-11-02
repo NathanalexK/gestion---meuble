@@ -104,5 +104,52 @@ public class SidebarMock {
                     .addSubmenu(
                         new Menu("Fabrication")
                     )
+            ).addMenu(
+                new Menu("Ventes")
+                        .withIcon("bx bx-box")
+                        .addSubmenu(
+                                new Menu("Proformat")
+                                        .withIcon("bx bx-receipt")
+                                        .withLien("")
+                                        .withRoles()
+                                        .addSubmenu(
+                                                new Menu("Inserer dem. Proformat")
+                                                        .withIcon("bx bx-plus")
+                                                        .withLien("/proformat/formClient")
+                                        )
+                                        .addSubmenu(
+                                                new Menu("Validation Proformat")
+                                                        .withIcon("bx bx-task")
+                                                        .withLien("/proformat/listClient")
+                                        )
+                        )
+                        .addSubmenu(
+                            new Menu("Bon de Commande")
+                                .withIcon("bx bx-receipt")
+                                .withLien("")
+                                .withRoles()
+                                .addSubmenu(
+                                    new Menu("Validation")
+                                        .withIcon("bx bx-task")
+                                        .withLien("/bon-commande/validation")
+                                        .withRoles(UserRole.DIRECTION, UserRole.DEPT_FINANCE)
+                                )
+                                .addSubmenu(
+                                        new Menu("Liste")
+                                                .withLien("/bon-commande/listClient")
+                                                .withIcon("bx bx-list-ol")
+                                )
+                        )
+                        .addSubmenu(
+                            new Menu("Bon de Reception")
+                                .withIcon("bx bx-receipt")
+                                .withLien("/bon-reception/list")
+                                .withRoles()
+                        )
+                        .addSubmenu(
+                            new Menu("Facture Achat")
+                                .withIcon("bx bx-file-blank")
+                                .withLien("/facture/list")
+                        )
             );
 }

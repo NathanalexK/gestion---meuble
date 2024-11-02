@@ -1,5 +1,7 @@
 package com.source.meuble.achat.proformat;
 
+import com.source.meuble.achat.Client.Client;
+import com.source.meuble.achat.Client.ClientService;
 import com.source.meuble.achat.Fornisseur.Fournisseur;
 import com.source.meuble.achat.Fornisseur.FournisseurService;
 import com.source.meuble.achat.besoin.Besoin;
@@ -34,14 +36,18 @@ public class ProformatController {
     private final LayoutService layoutService;
     private final BesoinService besoinService;
     private final FournisseurService fournisseurService;
+    private final ProduitService produitService;
+    private final ClientService clientService;
 
-    public ProformatController(ProformatService proformatService, CentreRepository centreRepository, ProduitService marchandiseService, LayoutService layoutService, BesoinService besoinService, FournisseurService fournisseurService) {
+    public ProformatController(ProformatService proformatService, CentreRepository centreRepository, ProduitService marchandiseService, LayoutService layoutService, BesoinService besoinService, FournisseurService fournisseurService, ProduitService produitService, ClientService clientService) {
         this.proformatService = proformatService;
         this.centreRepository = centreRepository;
         this.marchandiseService = marchandiseService;
         this.layoutService = layoutService;
         this.besoinService = besoinService;
         this.fournisseurService = fournisseurService;
+        this.produitService = produitService;
+        this.clientService = clientService;
     }
 
 //    @GetMapping("/liste")
@@ -68,11 +74,28 @@ public class ProformatController {
         return mav;
     }
 
+    @GetMapping("/formClient")
+    public ModelAndView showFormClient() throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout("proformat/formClient");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("produits", produitService.findAll());
+        mav.addObject("clients", clientService.findAll());
+        return mav;
+    }
+
     @GetMapping("/list")
     public ModelAndView showList() throws NoUserLoggedException, NoExerciceFoundException {
         Layout layout = layoutService.getLayout("proformat/list");
         ModelAndView mav = layout.getModelAndView();
-        mav.addObject("proformats", proformatService.getAllProformats());
+        mav.addObject("proformats", proformatService.getAllProformatsFournisseur());
+        return mav;
+    }
+
+    @GetMapping("/listClient")
+    public ModelAndView showListClient() throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout("proformat/listClient");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("proformats", proformatService.getAllProformatsClient());
         return mav;
     }
 
@@ -81,6 +104,17 @@ public class ProformatController {
         @RequestParam("id") Proformat proformat
     ) throws NoUserLoggedException, NoExerciceFoundException {
         Layout layout = layoutService.getLayout("proformat/details");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("proformat", proformat);
+        mav.addObject("pfs", proformat.getFilles());
+        return mav;
+    }
+
+    @GetMapping("/detailsClient")
+    public ModelAndView showDetailsClient(
+            @RequestParam("id") Proformat proformat
+    ) throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout("proformat/detailsClient");
         ModelAndView mav = layout.getModelAndView();
         mav.addObject("proformat", proformat);
         mav.addObject("pfs", proformat.getFilles());
@@ -114,6 +148,15 @@ public class ProformatController {
         return new Redirection("/proformat/list").getUrl();
     }
 
+    @PostMapping("/demandeClient")
+    public String demanderProformatClient(
+            @RequestParam("produit[]") List<Produit> produits,
+            @RequestParam("client") Client client
+    ) {
+        proformatService.demanderProformat(produits, client);
+        return new Redirection("/proformat/listClient").getUrl();
+    }
+
     @PostMapping("/ajouter-prix")
     public String ajouterPrixProformat(
         @RequestParam("proformat") Proformat proformat,
@@ -121,6 +164,9 @@ public class ProformatController {
         @RequestParam("prix[]") List<Double> prixList
     ) throws Exception {
         proformatService.ajouterPrixProformat(proformat, pfs.toArray(new ProformatFille[0]), prixList.toArray(new Double[0]));
-        return new Redirection("/proformat/details?id="+proformat.getId()).getUrl();
+        if (proformat.getIdClient() == null)
+            return new Redirection("/proformat/details?id="+proformat.getId()).getUrl();
+
+        return new Redirection("/proformat/detailsClient?id="+proformat.getId()).getUrl();
     }
 }
