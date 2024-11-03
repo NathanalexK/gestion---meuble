@@ -6,6 +6,7 @@ import com.source.meuble.analytique.produit.Produit;
 import com.source.meuble.analytique.produit.ProduitService;
 import com.source.meuble.auth.AuthService;
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.exception.UnallowedRoleException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,7 +52,8 @@ public class BesoinController {
     public String save(
         @RequestParam("prd") Produit produit,
         @RequestParam("qte") Double qte,
-        @RequestParam("date")LocalDate date
+        @RequestParam("date")LocalDate date,
+        RedirectAttributes atts
     ) throws NoUserLoggedException {
         Utilisateur u = authService.requireUser();
         Besoin besoin = new Besoin();
@@ -60,8 +63,8 @@ public class BesoinController {
         besoin.setIdMarchandise(produit);
         besoin.setQuantite(BigDecimal.valueOf(qte));
         besoinService.saveBesoin(besoin);
-
-        return new Redirection("/home/achat").getUrl();
+        atts.addFlashAttribute("swal", Alert.success("Demenade de besoin inséré avec succès!"));
+        return new Redirection("/besoin/form").getUrl();
     }
 
     @GetMapping("/list")
@@ -73,8 +76,10 @@ public class BesoinController {
     }
 
     @GetMapping("/valider")
-    public String valider(@RequestParam("idBesoin") Besoin besoin) throws UnallowedRoleException, NoUserLoggedException {
+    public String valider(@RequestParam("idBesoin") Besoin besoin, RedirectAttributes atts) throws UnallowedRoleException, NoUserLoggedException {
+        Utilisateur u = authService.requireUser();
         besoinService.validerBesoin(besoin);
+        atts.addFlashAttribute("swal", Alert.success("Besoin: BES000" + besoin.getId() + " a été validé avec succès par: " + u.getUsername()));
         return new Redirection("/besoin/list").getUrl();
     }
 }

@@ -14,7 +14,16 @@
     List<ProformatFille> pfs = ((List<ProformatFille>) request.getAttribute("pfs"));
 %>
 
-<form action="/proformat/ajouter-prix" method="POST">
+<script>
+    const questions1 = [
+        'Avez vous reverifié les prix avant de valider?'
+    ];
+    const questions2 = [
+        'Voulez-vous vraiment generer un bon de commande pour cette proformat?'
+    ]
+</script>
+
+<form action="/proformat/ajouter-prix" method="POST" id="proformaForm">
     <div class="card">
         <input type="hidden" name="proformat" value="<%=proformat.getId()%>">
         <h5 class="card-header">
@@ -56,12 +65,18 @@
             </table>
             <div class="d-flex m-3 justify-content-center">
                 <div>
-                    <button type="submit" class="btn btn-primary">Valider Proformat</button>
+                    <%
+                        if(!proformat.isValide()) {
+                    %>
+                    <button type="button" onclick="showAlertBeforeSubmit(event, 'proformaForm', questions1)" class="btn btn-primary">Valider Proformat</button>
+                    <%
+                        }
+                    %>
                     <%
                         if(proformat.isValide()) {
                     %>
-                        <a href="/bon-commande/generer?type=fournisseur&id=<%=proformat.getId()%>">
-                            <button type="button" class="btn btn-warning">Generer Bon de Commande</button>
+                        <a href="/bon-commande/generer?type=fournisseur&id=<%=proformat.getId()%>" onclick="showAlert(event, this, questions2)">
+                            <button  type="button" class="btn btn-warning">Generer Bon de Commande</button>
                         </a>
                     <%
                         }

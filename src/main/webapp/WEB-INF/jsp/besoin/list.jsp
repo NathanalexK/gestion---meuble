@@ -11,6 +11,16 @@
     List<Besoin> besoins = ((List<Besoin>) request.getAttribute("besoins"));
 %>
 
+<script>
+    const questions = [
+        'Est-ce que les prix correspondent au proforma?',
+        'Est-ce que les fonds sont encore disponibles pour l’achat?',
+        'Validation interne effectué?'
+    ]
+
+</script>
+
+
 <div class="card">
     <h5 class="card-header">Liste des Besoins a Valider</h5>
     <div class="table-responsive text-nowrap">
@@ -36,7 +46,7 @@
                     <td><%=besoin.getRole().name()%></td>
                     <td><%=besoin.getDaty()%></td>
                     <td>
-                        <a href="/besoin/valider?idBesoin=<%=besoin.getId()%>"><button class="btn btn-primary">Valider</button></a>
+                        <a onclick="showAlert(event, this, questions)" href="/besoin/valider?idBesoin=<%=besoin.getId()%>"><button class="btn btn-primary">Valider</button></a>
                     </td>
                 </tr>
             <%
@@ -47,3 +57,4 @@
         </table>
     </div>
 </div>
+

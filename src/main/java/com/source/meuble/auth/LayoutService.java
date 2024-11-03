@@ -6,6 +6,7 @@ import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
 import com.source.meuble.utilisateur.Utilisateur;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
 @Service
@@ -35,6 +36,15 @@ public class LayoutService {
         layout.setModelAndView(mav);
         layout.setExercice(exo);
         layout.setUtilisateur(u);
+        return layout;
+    }
+
+    public Layout getLayout(Model model, String page) throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = getLayout(page);
+        ModelAndView mav = layout.getModelAndView();
+        if(model.containsAttribute("swal")) {
+            mav.addObject("swal", model.getAttribute("swal"));
+        }
         return layout;
     }
 }

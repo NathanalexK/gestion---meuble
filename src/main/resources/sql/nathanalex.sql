@@ -8,10 +8,9 @@ insert into role(id, nom) values (1, 'DIRECTEUR');
 insert into role(id, nom) values (2, 'FINANCE');
 insert into role(id, nom) values (3, 'ACHAT');
 insert into role(id, nom) values (4, 'VENTE');
-insert into role(id, nom) values (5, 'ACHAT');
-insert into role(id, nom) values (6, 'INVENTAIRE');
-insert into role(id, nom) values (7, 'PRODUCTION');
-insert into role(id, nom) values (8, 'RH');
+insert into role(id, nom) values (5, 'INVENTAIRE');
+insert into role(id, nom) values (6, 'PRODUCTION');
+insert into role(id, nom) values (7, 'RH');
 
 
 alter table besoin drop column id_demandeur;

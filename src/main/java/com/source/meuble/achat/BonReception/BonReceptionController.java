@@ -7,6 +7,7 @@ import com.source.meuble.analytique.produit.Produit;
 import com.source.meuble.analytique.produit.ProduitService;
 import com.source.meuble.auth.AuthService;
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.stock.mouvementStock.MouvementStockService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -69,11 +71,13 @@ public class BonReceptionController {
     @PostMapping("/generer")
     public String genererBR(
         @RequestParam("idBc")BonCommande bc,
-        @RequestParam("dateReception") LocalDate dateReception
+        @RequestParam("dateReception") LocalDate dateReception,
+        RedirectAttributes atts
     ) throws NoUserLoggedException {
         authService.requireUser();
         bonReceptionService.genererBR(bc, dateReception);
-        return new Redirection("/bon-commande/details?id="+bc.getId()).getUrl();
+        atts.addFlashAttribute("swal", Alert.success("Bon Reception géneré avec succès pour le bon de commande: BC000" + bc.getId()));
+        return new Redirection("/bon-commande/details?id="+bc.getId()+ "&type=fournisseur").getUrl();
     }
 
 //    @GetMapping("/details")
