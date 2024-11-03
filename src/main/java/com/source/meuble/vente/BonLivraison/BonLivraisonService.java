@@ -60,7 +60,7 @@ public class BonLivraisonService {
         Optional<BonCommande> optionalBonCommande=bonCommandeService.findById(idBc);
         if (optionalBonCommande.isPresent()) {
             BonCommande bon = optionalBonCommande.get();
-            BonLivraison br=this.genererBr(bon,daty);
+            BonLivraison br=this.genererBl(bon,daty);
             List<BonCommandeFille> bcFilles= bonCommandeService.findFilleByIdMere(bon.getId());
             this.genereBonLivraisonFille(bcFilles,br);
 //            mouvementStockService.achatWithMouvementEtat2(br);
@@ -74,7 +74,7 @@ public class BonLivraisonService {
         if(dateReception == null) dateReception = LocalDate.now();
 
         BonLivraison bl = new BonLivraison();
-        bl.setDateReception(dateReception);
+        bl.setDateLivraison(dateReception);
         bl.setEtat(0);
         bl.setIdBc(bc);
         bl = bonLivraisonRepository.save(bl);
@@ -99,10 +99,10 @@ public class BonLivraisonService {
         return bl;
     }
 
-    public BonLivraison genererBr(BonCommande bonCommande, LocalDate daty){
+    public BonLivraison genererBl(BonCommande bonCommande, LocalDate daty){
         BonLivraison br=new BonLivraison();
         br.setIdBc(bonCommande);
-        br.setDateReception(daty);
+        br.setDateLivraison(daty);
         return bonLivraisonRepository.save(br);
     }
 

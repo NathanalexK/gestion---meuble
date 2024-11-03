@@ -46,7 +46,7 @@ public class BonLivraisonController {
     public ModelAndView showList() throws NoUserLoggedException, NoExerciceFoundException {
         Layout layout = layoutService.getLayout("bon-reception/list");
         ModelAndView mav = layout.getModelAndView();
-        mav.addObject("brs", bonLivraisonService.findAll());
+        mav.addObject("bls", bonLivraisonService.findAll());
         return mav;
     }
 
