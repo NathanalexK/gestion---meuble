@@ -5,8 +5,10 @@ import com.source.meuble.achat.BonReception.BonReceptionFille.BonReceptionFille;
 
 import com.source.meuble.achat.Facture.Facture;
 import com.source.meuble.achat.Facture.FactureFille.FactureFille;
+import com.source.meuble.achat.Facture.FactureRepository;
 import com.source.meuble.analytique.produit.Produit;
 import com.source.meuble.analytique.produit.ProduitService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.stock.etatStock.EtatStock;
 import com.source.meuble.stock.etatStock.EtatStockService;
 import com.source.meuble.util.Redirection;
@@ -23,11 +25,14 @@ public class MouvementStockService {
     private final MouvementStockRepository mouvementStockRepository;
     private final EtatStockService etatStockService;
    private final ProduitService marchandiseService;
+    private final FactureRepository factureRepository;
 
-    public MouvementStockService(MouvementStockRepository mouvementStockRepository, EtatStockService etatStockService, ProduitService marchandiseService) {
+    public MouvementStockService(MouvementStockRepository mouvementStockRepository, EtatStockService etatStockService, ProduitService marchandiseService,
+                                 FactureRepository factureRepository) {
         this.mouvementStockRepository = mouvementStockRepository;
         this.etatStockService = etatStockService;
         this.marchandiseService = marchandiseService;
+        this.factureRepository = factureRepository;
     }
 
     public MouvementStock saveMouvementStock(MouvementStock mouvementStock){
@@ -113,8 +118,8 @@ public class MouvementStockService {
         for(FactureFille fille: filles) {
             MouvementStock mvt = new MouvementStock();
             mvt.setMarchandise(fille.getIdMarchandise());
-            mvt.setEntree(fille.getQuantite().doubleValue());
-            mvt.setSortie(0.00);
+            mvt.setQte(fille.getQuantite().doubleValue());
+            mvt.setTypeMvt(TypeMvt.ENTREE);
             mvt.setPrixUnitaire(fille.getPrix().doubleValue());
             mvt.setDateEnregistrement(facture.getDateFacture());
             mvts.add(mvt);
@@ -125,5 +130,40 @@ public class MouvementStockService {
         for(MouvementStock mvt: mvts) {
             etatStockService.genererEtatStock(mvt);
         }
+    }
+
+    @Transactional
+    public List<MouvementStock> genererMvtStockFromFacture(Facture facture) throws Exception {
+        if(facture.getEtat() == 0) {
+            throw new Alert("Facture doit etre validé avant de generer stock");
+        }
+
+        if(facture.getEtat() == 2) {
+            throw new Alert("Stock déjà generé pour cette Facture");
+        }
+
+        List<FactureFille> filles = facture.getFilles();
+        List<MouvementStock> mvts = new ArrayList<>();
+
+        for(FactureFille fille: filles) {
+            MouvementStock mvt = new MouvementStock();
+            mvt.setMarchandise(fille.getIdMarchandise());
+            mvt.setQte(fille.getQuantite().doubleValue());
+            mvt.setTypeMvt(TypeMvt.ENTREE);
+            mvt.setPrixUnitaire(fille.getPrix().doubleValue());
+            mvt.setDateEnregistrement(facture.getDateFacture());
+            mvts.add(mvt);
+        }
+
+        mvts = mouvementStockRepository.saveAll(mvts);
+        facture.setEtat(2);
+        factureRepository.save(facture);
+        return mvts;
+    }
+
+    @Transactional
+    public void genererMvtStockAvecEtatFromFacture(Facture facture) throws Exception {
+        List<MouvementStock> mvts = genererMvtStockFromFacture(facture);
+        etatStockService.genererEtatStockFromMvtStock(mvts);
     }
 }

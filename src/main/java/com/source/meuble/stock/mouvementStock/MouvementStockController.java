@@ -2,10 +2,13 @@ package com.source.meuble.stock.mouvementStock;
 
 import com.source.meuble.achat.BonReception.BonReception;
 import com.source.meuble.achat.BonReception.BonReceptionFille.BonReceptionFille;
+import com.source.meuble.achat.Facture.Facture;
 import com.source.meuble.achat.bonCommande.bonCommandeFille.BonCommandeFille;
 import com.source.meuble.analytique.produit.Produit;
 import com.source.meuble.analytique.produit.ProduitService;
+import com.source.meuble.auth.AuthService;
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.stock.etatStock.EtatStock;
@@ -19,6 +22,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -43,9 +47,11 @@ public class MouvementStockController {
     ProduitMarchandiseService produitMarchandiseService;
     @Autowired
     private LayoutService layoutService;
+    @Autowired
+    private AuthService authService;
 
     @GetMapping("/achatForm")
-    public String achatForm(){
+    public String achatForm() {
         return "achat";
     }
 
@@ -55,6 +61,21 @@ public class MouvementStockController {
         ModelAndView mav = layout.getModelAndView();
         mav.addObject("mvts", mouvementStockService.findAllMouvement());
         return mav;
+    }
+
+    @PostMapping("/generer-stock")
+    public String genererStock(
+        @RequestParam("idFacture") Facture facture,
+        RedirectAttributes atts
+    ) throws Exception {
+        authService.requireUser();
+        try {
+            mouvementStockService.genererMvtStockAvecEtatFromFacture(facture);
+            atts.addFlashAttribute("alert", "Stock Generé avec succès pour la facture: FC000" + facture.getId());
+        } catch (Exception e) {
+            throw new Alert(e.getMessage());
+        }
+        return new Redirection("/facture/details?id="+facture.getId()).getUrl();
     }
 
 //    @PostMapping("/achat")
@@ -145,7 +166,7 @@ public class MouvementStockController {
 //    }
 
     @GetMapping("stock/mouvementStock")
-    public ModelAndView allMouvementStock(){
+    public ModelAndView allMouvementStock() {
         ModelAndView modelAndView = new ModelAndView("template");
 
         List<MouvementStock> mouvementStocks = mouvementStockService.findAllMouvement();

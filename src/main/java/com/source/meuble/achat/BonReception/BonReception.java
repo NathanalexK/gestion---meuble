@@ -28,6 +28,10 @@ public class BonReception extends Etat {
     @Column(name = "date_reception")
     private LocalDate dateReception;
 
+    //0: Non validée
+    //1: Validée par dept finance
+    //2: Validee par direction
+    //3: Facture generé
     @Column(name = "etat")
     private Integer etat;
 

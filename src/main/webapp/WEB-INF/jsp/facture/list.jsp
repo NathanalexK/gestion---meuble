@@ -21,6 +21,7 @@
                 <th>ID Bon de Reception</th>
                 <th>Fournisseur</th>
                 <th>Date</th>
+                <th>Etat</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -34,6 +35,7 @@
                 <td>BR000<%=facture.getIdBr().getId()%></td>
                 <td>FRN000<%=facture.getIdFournisseur().getId()%> - <%=facture.getIdFournisseur().getNom()%></td>
                 <td><%=facture.getDateFacture()%></td>
+                <td><%=facture.getEtatHtml()%></td>
                 <td>
                     <a href="/facture/details?id=<%=facture.getId()%>">
                         <button class="btn btn-primary">Voir Details</button>

@@ -68,7 +68,7 @@ public class FactureService {
     }
 
     @Transactional
-    public Facture genererFactureAvecStock(@NonNull BonReception br) throws Exception {
+    public Facture genererFactureFromBR(@NonNull BonReception br) throws Exception {
         if(br.getEtat() == 2) {
             throw new Alert("Facture déjà generé");
         }
@@ -98,8 +98,7 @@ public class FactureService {
         factureFilleRepository.saveAll(ffs);
         br.setEtat(2);
         facture.setFilles(ffs);
-        mouvementStockService.genererFromFactureAchatAvecStock(facture);
-
+//        mouvementStockService.genererFromFactureAchatAvecStock(facture);
         return facture;
     }
 
@@ -107,6 +106,14 @@ public class FactureService {
         Facture facture = this.genererFacture(bonReception);
         factureFilleService.genererAllFactureFille(facture, bonReception.getIdBc());
         return facture;
+    }
+
+    public Facture validerFacture(Facture facture) throws Alert {
+        if(facture.getEtat() != 0) {
+            throw new Alert("Facture déjà validé");
+        }
+        facture.setEtat(1);
+        return factureRepository.save(facture);
     }
 }
 

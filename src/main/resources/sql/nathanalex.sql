@@ -85,3 +85,19 @@ alter table facture add column date_facture date;
 
 alter table mouvement_stock add column designation varchar(100);
 
+alter table mouvement_stock drop column quantite;
+alter table mouvement_stock add column quantite numeric(15,2);
+
+create table type_mvt (
+    id smallint primary key,
+    nom varchar(20)
+);
+
+insert into type_mvt values (0, 'ENTREE');
+insert into type_mvt values (1, 'SORTIE');
+
+alter table facture add column etat integer default 0;
+
+
+
+

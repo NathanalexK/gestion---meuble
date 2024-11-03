@@ -32,6 +32,18 @@ public class Utilisateur {
         this.username = username;
     }
 
+    public boolean hasRole(UserRole... roles) {
+        if(roles.length == 0) return true;
+
+        for(UserRole role: roles) {
+            if(this.getRole() == role) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public String getSidebar(String currentUrl) {
         return SidebarMock.DEFAULT_SIDEBAR.getHtml(this, currentUrl);
     }

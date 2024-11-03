@@ -30,6 +30,11 @@ public class MouvementStock {
 
 //    @Column(name = "nature")
 //    private Integer nature;
+    @Column(name = "quantite")
+    private Double qte;
+
+    @Column(name = "nature")
+    private TypeMvt typeMvt;
 
     @Column(name = "entree")
     private Double entree;
@@ -75,6 +80,17 @@ public class MouvementStock {
     public Double getSortie() {
         if(sortie == null) return 0.00;
         return sortie;
+    }
+
+    public String getNatureHtml() {
+        String html = "";
+        if(typeMvt == TypeMvt.ENTREE) {
+            html += "<span class=\"badge bg-label-primary me-1\">Entree</span>";
+
+        } else if (typeMvt == TypeMvt.SORTIE) {
+            html += "<span class=\"badge bg-label-warning me-1\">Sortie</span>";
+        }
+        return html;
     }
 
 //    public void calculPrixTotal(){

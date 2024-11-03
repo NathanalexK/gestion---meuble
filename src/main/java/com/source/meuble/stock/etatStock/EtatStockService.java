@@ -1,11 +1,14 @@
 package com.source.meuble.stock.etatStock;
 
+import com.source.meuble.pieces.Etat;
 import com.source.meuble.stock.mouvementStock.MouvementStock;
+import com.source.meuble.stock.mouvementStock.TypeMvt;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -86,6 +89,40 @@ public class EtatStockService {
         newStock.setPrixUnitaire(mvt.getPrixUnitaire().doubleValue());
 
         return etatStockRepository.save(newStock);
+    }
+
+    @Transactional
+    public List<EtatStock> genererEtatStockFromMvtStock(List<MouvementStock> mvts) throws Exception {
+        List<EtatStock> etatStocks = new ArrayList<>();
+
+        for(MouvementStock mvt: mvts) {
+            EtatStock lastStock =  etatStockRepository.findLastEtatStockProduit(mvt.getMarchandise());
+
+            if(lastStock == null) {
+                lastStock = new EtatStock();
+                lastStock.setMarchandise(mvt.getMarchandise());
+                lastStock.setQte(0.00);
+            }
+
+            EtatStock newStock = new EtatStock();
+
+            double qte = 0.00;
+            if(mvt.getTypeMvt() == TypeMvt.ENTREE) {
+                qte = mvt.getQte();
+
+            } else if(mvt.getTypeMvt() == TypeMvt.SORTIE) {
+                qte = -mvt.getQte();
+            }
+
+            newStock.setMarchandise(lastStock.getMarchandise());
+            newStock.setQte(lastStock.getQte() + qte);
+            newStock.setDateEnregistrement(mvt.getDateEnregistrement());
+            newStock.setPrixUnitaire(mvt.getPrixUnitaire().doubleValue());
+
+            etatStocks.add(etatStockRepository.save(newStock));
+        }
+
+        return etatStocks;
     }
 
 //    @Transactional

@@ -1,6 +1,8 @@
 <%@ page import="com.source.meuble.achat.Facture.Facture" %>
 <%@ page import="java.util.List" %>
-<%@ page import="com.source.meuble.achat.Facture.FactureFille.FactureFille" %><%--
+<%@ page import="com.source.meuble.achat.Facture.FactureFille.FactureFille" %>
+<%@ page import="com.source.meuble.utilisateur.Utilisateur" %>
+<%@ page import="com.source.meuble.utilisateur.UserRole" %><%--
   Created by IntelliJ IDEA.
   User: Nathanalex
   Date: 01/11/2024
@@ -9,6 +11,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    Utilisateur u = ((Utilisateur) request.getAttribute("u"));
     Facture facture = ((Facture) request.getAttribute("facture"));
     List<FactureFille> filles = ((List<FactureFille>) request.getAttribute("filles"));
 %>
@@ -52,19 +55,42 @@
                     <tr>
                         <td class="bold">Etat:</td>
                         <td>
+                            <%=facture.getEtatHtml()%>
                         </td>
                     </tr>
                 </table>
 
                 <div class="d-flex justify-content-end m-2 gap-2">
 
-                    <a href="">
-                        <button class="btn btn-primary">Valider et Generer Stock</button>
-                    </a>
-                    <form action="/facture/generer" method="post">
-                        <input type="hidden" name="idBr" value="<%=facture.getId()%>"/>
-                        <button type="submit" class="btn btn-warning">Payer</button>
+                    <%
+                        if(facture.getEtat() == 0 && u.hasRole(UserRole.DIRECTION)) {
+                    %>
+                    <form action="/facture/valider" method="post">
+                        <input type="hidden" name="idFacture" value="<%=facture.getId()%>">
+                        <button type="submit" class="btn btn-primary">Valider Facture</button>
                     </form>
+                    <%
+                        }
+                    %>
+
+                    <%
+                        if(facture.getEtat() == 1 && u.hasRole(UserRole.DIRECTION)) {
+                    %>
+                    <form action="/mouvement-stock/generer-stock" method="post">
+                        <input type="hidden" name="idFacture" value="<%=facture.getId()%>">
+                        <button type="submit" class="btn btn-warning">Generer Stock</button>
+                    </form>
+                    <%
+                        }
+                    %>
+
+<%--                    <a href="">--%>
+<%--                        <button class="btn btn-primary">Valider et Generer Stock</button>--%>
+<%--                    </a>--%>
+<%--                    <form action="/facture/generer" method="post">--%>
+<%--                        <input type="hidden" name="idBr" value="<%=facture.getId()%>"/>--%>
+<%--                        <button type="submit" class="btn btn-warning">Payer</button>--%>
+<%--                    </form>--%>
                 </div>
             </div>
         </div>

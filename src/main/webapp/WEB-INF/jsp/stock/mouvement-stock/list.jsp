@@ -22,8 +22,8 @@
                 <th>ID</th>
                 <th>Produit</th>
                 <th>Date</th>
-                <th>Entree</th>
-                <th>Sortie</th>
+                <th>Quantie</th>
+                <th>Type Mouvement</th>
                 <th>Prix Unitaire</th>
             </tr>
             </thead>
@@ -35,8 +35,8 @@
                     <td>MVT000<%=mvt.getId()%></td>
                     <td>PRD000<%=mvt.getMarchandise().getId()%> - <%=mvt.getMarchandise().getLibelle()%></td>
                     <td><%=mvt.getDateEnregistrement()%></td>
-                    <td><%=mvt.getEntree()%></td>
-                    <td><%=mvt.getSortie()%></td>
+                    <td><%=mvt.getQte()%></td>
+                    <td><%=mvt.getNatureHtml()%></td>
                     <td class="text-right"><%=mvt.getPrixUnitaire()%></td>
                 </tr>
             <%
