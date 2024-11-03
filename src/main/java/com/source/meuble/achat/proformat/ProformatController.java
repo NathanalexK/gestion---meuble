@@ -12,6 +12,7 @@ import com.source.meuble.analytique.produit.Produit;
 import com.source.meuble.analytique.produit.ProduitService;
 import com.source.meuble.auth.AuthService;
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -30,8 +32,7 @@ import java.util.List;
 public class ProformatController {
 
     private final ProformatService proformatService;
-    private final CentreRepository centreRepository;
-    private final ProduitService marchandiseService;
+
 
     private final LayoutService layoutService;
     private final BesoinService besoinService;
@@ -39,10 +40,8 @@ public class ProformatController {
     private final ProduitService produitService;
     private final ClientService clientService;
 
-    public ProformatController(ProformatService proformatService, CentreRepository centreRepository, ProduitService marchandiseService, LayoutService layoutService, BesoinService besoinService, FournisseurService fournisseurService, ProduitService produitService, ClientService clientService) {
+    public ProformatController(ProformatService proformatService, LayoutService layoutService, BesoinService besoinService, FournisseurService fournisseurService, ProduitService produitService, ClientService clientService) {
         this.proformatService = proformatService;
-        this.centreRepository = centreRepository;
-        this.marchandiseService = marchandiseService;
         this.layoutService = layoutService;
         this.besoinService = besoinService;
         this.fournisseurService = fournisseurService;
@@ -142,9 +141,11 @@ public class ProformatController {
     @PostMapping("/demande")
     public String demanderProformat(
         @RequestParam("besoin[]") List<Besoin> besoins,
-        @RequestParam("fournisseur")Fournisseur fournisseur
+        @RequestParam("fournisseur")Fournisseur fournisseur,
+        RedirectAttributes atts
     ) {
         proformatService.demanderProformat(besoins, fournisseur);
+        atts.addFlashAttribute("swal", Alert.success("Proformat a été bien generé"));
         return new Redirection("/proformat/list").getUrl();
     }
 
@@ -161,11 +162,14 @@ public class ProformatController {
     public String ajouterPrixProformat(
         @RequestParam("proformat") Proformat proformat,
         @RequestParam("pf[]") List<ProformatFille> pfs,
-        @RequestParam("prix[]") List<Double> prixList
+        @RequestParam("prix[]") List<Double> prixList,
+        RedirectAttributes atts
     ) throws Exception {
         proformatService.ajouterPrixProformat(proformat, pfs.toArray(new ProformatFille[0]), prixList.toArray(new Double[0]));
-        if (proformat.getIdClient() == null)
-            return new Redirection("/proformat/details?id="+proformat.getId()).getUrl();
+        atts.addFlashAttribute("swal", Alert.success("Prix bien ajouté pour le proformat: PF000" + proformat.getId()));
+        if (proformat.getIdClient() == null) {
+            return new Redirection("/proformat/details?id=" + proformat.getId()).getUrl();
+        }
 
         return new Redirection("/proformat/detailsClient?id="+proformat.getId()).getUrl();
     }

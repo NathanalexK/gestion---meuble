@@ -12,6 +12,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
+
 <%
     Utilisateur u = ((Utilisateur) request.getAttribute("u"));
     BonCommande bc = ((BonCommande) request.getAttribute("bc"));
@@ -19,10 +20,40 @@
 
 %>
 
+<script>
+    const questions = [];
+
+    <%
+        if(u.hasRole(UserRole.DEPT_FINANCE) && bc.getEtat() == 0) {
+    %>
+        questions.push("Est-ce que les fonds disponibles sont assez pour l’achat?");
+        questions.push("Est-ce qu’il y a le budget pour l’achat?");
+    <%
+        }
+    %>
+
+    <%
+        if(u.hasRole(UserRole.DIRECTION) && bc.getEtat() == 1) {
+    %>
+        questions.push("Vous valider cette commande?");
+    <%
+        }
+    %>
+
+    const commandeQuestion = [
+        "Voulez-vous vraiment faire une commande?"
+    ];
+
+    const brQuestion = [
+        "Voulez-vous generer un bon de reception?"
+    ]
+
+</script>
+
 <%
     if(u.getRole() == UserRole.DIRECTION && bc.isValide()) {
 %>
-<form action="/bon-commande/commander" method="post">
+<form action="/bon-commande/commander" method="post" id="commandeForm">
     <div class="flex">
         <div class="d-flex justify-content-center">
             <div class="card mb-4 w-50">
@@ -41,8 +72,8 @@
                         <input type="date" id="i2" class="form-control" name="dateLivraison" value="<%=LocalDate.now()%>">
                     </div>
 
-
-                    <button type="submit" class="btn btn-primary">Commander</button>
+                    <input type="hidden" name="type" value="fournisseur">
+                    <button type="button" class="btn btn-primary" onclick="showAlertBeforeSubmit(event, 'commandeForm', commandeQuestion)">Commander</button>
                 </div>
             </div>
         </div>
@@ -55,7 +86,7 @@
 <%
     if(bc.getEtat() == 3) {
 %>
-<form action="/bon-reception/generer" method="post">
+<form action="/bon-reception/generer" method="post" id="brForm">
     <div class="flex">
         <div class="d-flex justify-content-center">
             <div class="card mb-4 w-50">
@@ -65,13 +96,14 @@
                 </div>
                 <div class="card-body">
                     <input type="hidden" name="idBc" value="<%=bc.getId()%>">
+                    <input type="hidden" name="type" value="fournisseur">
                     <div class="mb-3">
                         <label class="form-label" for="i3">Date Reception: </label>
                         <input type="date" id="i3" class="form-control" name="dateReception" value="<%=bc.getDateLivraison()%>">
                     </div>
 
 
-                    <button type="submit" class="btn btn-primary">Generer Bon de Reception</button>
+                    <button type="button" class="btn btn-primary" onclick="showAlertBeforeSubmit(event, 'brForm', brQuestion)">Generer Bon de Reception</button>
                 </div>
             </div>
         </div>
@@ -121,6 +153,18 @@
             %>
             </tbody>
         </table>
+
+        <%
+            if((u.hasRole(UserRole.DEPT_FINANCE) && bc.getEtat() == 0) || (u.hasRole(UserRole.DIRECTION) && bc.getEtat() == 1)) {
+        %>
+        <div class="d-flex justify-content-center m-2">
+            <a href="/bon-commande/valider?id=<%=bc.getId()%>" onclick="showAlert(event, this, questions)">
+                <button class="btn btn-warning" >Valider</button>
+            </a>
+        </div>
+        <%
+            }
+        %>
 
 
     </div>

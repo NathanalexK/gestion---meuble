@@ -90,10 +90,12 @@ public class BonCommandeService {
     }
 
     @Transactional
-    public BonCommande validerBonCommande(BonCommande bc) {
+    public BonCommande validerBonCommande(BonCommande bc) throws Alert {
         if(bc.getEtat() < 2) {
             bc.setEtat(bc.getEtat() + 1);
             bonCommandeRepository.save(bc);
+        } else {
+            throw new Alert("Bon de Commande déjà validée");
         }
         return bc;
     }

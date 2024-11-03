@@ -26,7 +26,6 @@ public class BonCommandeFille {
     @Column(name = "quantite")
     private Double quantite;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_produit")
     private Produit idMarchandise;

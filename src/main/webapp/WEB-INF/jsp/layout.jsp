@@ -1,10 +1,11 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.source.meuble.utilisateur.Utilisateur" %>
+<%@ page import="com.source.meuble.exception.Alert" %>
 
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%
     String msg = ((String) request.getAttribute("msg"));
-    String alert = ((String) request.getAttribute("alert"));
+    Alert alert = ((Alert) request.getAttribute("swal"));
 
 //  List<Utilisateur> users = ((List<Utilisateur>) request.getAttribute("users"));
 //  DataTable<Utilisateur> table = new DataTable<>();
@@ -42,7 +43,15 @@
 <%
     if (alert != null) {
 %>
-<script>alert("<%=alert%>")</script>
+<%--    sdfsdfsdvm--%>
+    <script>
+        Swal.fire({
+            title: '<%=alert.getTitle()%>',
+            text: '<%=alert.getMessage()%>',
+            icon: '<%=alert.getType()%>',
+            confirmButtonText: 'OK'
+        });
+    </script>
 <%
     }
 %>
@@ -457,5 +466,82 @@
 <%--&lt;%&ndash;<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>&ndash;%&gt;--%>
 <%--<!-- Include Bootstrap JS -->--%>
 <%--&lt;%&ndash;<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>&ndash;%&gt;--%>
+<script src="${pageContext.request.contextPath}/assets/js/sweetalert2.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/popover.js"></script>
+
+<script>
+    function showAlert(event, element, questions) {
+        event.preventDefault();
+
+        let html = '<ul>';
+        questions.forEach((question) => {
+            html += '<li>' + question + '</li>';
+        })
+        html += '</ul>';
+
+        var lienHref = element.getAttribute('href');
+        Swal.fire({
+            title: 'Confirmation :',
+            html: html,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#696cff',
+            cancelButtonColor: '#ffab00',
+            confirmButtonText: 'Valider',
+            cancelButtonText: 'Annuler',
+            width: '800px',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = lienHref;
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                console.log('Action annulée!!');
+            }
+        });
+    }
+
+    function showAlertBeforeSubmit(event, idForm, questions) {
+        // event.preventDefault();
+
+        let html = '<ul>';
+        questions.forEach((question) => {
+            html += '<li>' + question + '</li>';
+        })
+        html += '</ul>';
+
+        Swal.fire({
+            title: 'Confirmation :',
+            html: html,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#696cff',
+            cancelButtonColor: '#ffab00',
+            confirmButtonText: 'Valider',
+            cancelButtonText: 'Annuler',
+            width: '800px',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(idForm).submit();
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                console.log('Action annulée!!');
+            }
+        });
+    }
+</script>
+
+<%
+    if (alert != null) {
+%>
+<%--    sdfsdfsdvm--%>
+<script>
+    Swal.fire({
+        title: '<%=alert.getTitle()%>',
+        text: '<%=alert.getMessage()%>',
+        icon: '<%=alert.getType()%>',
+        confirmButtonText: 'OK'
+    });
+</script>
+<%
+    }
+%>
 
 

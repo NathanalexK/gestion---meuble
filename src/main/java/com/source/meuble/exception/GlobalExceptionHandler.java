@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Alert.class)
     public String handleAlert(Alert e, HttpServletRequest req, RedirectAttributes atts) {
         String referer = req.getHeader("Referer");
-        atts.addFlashAttribute("alert", e.getMessage());
+        atts.addFlashAttribute("swal", e);
 
         return new Redirection(referer != null ? referer : "/").getUrl();
     }

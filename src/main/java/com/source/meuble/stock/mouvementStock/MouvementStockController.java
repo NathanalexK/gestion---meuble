@@ -15,6 +15,7 @@ import com.source.meuble.stock.etatStock.EtatStock;
 import com.source.meuble.stock.etatStock.EtatStockService;
 import com.source.meuble.stock.produitMarchandise.ProduitMarchandise;
 import com.source.meuble.stock.produitMarchandise.ProduitMarchandiseService;
+import com.source.meuble.util.AlertType;
 import com.source.meuble.util.Layout;
 import com.source.meuble.util.Redirection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +72,9 @@ public class MouvementStockController {
         authService.requireUser();
         try {
             mouvementStockService.genererMvtStockAvecEtatFromFacture(facture);
-            atts.addFlashAttribute("alert", "Stock Generé avec succès pour la facture: FC000" + facture.getId());
+            atts.addFlashAttribute("swal", Alert.success("Stock Generé avec succès pour la facture: FC000" + facture.getId()));
         } catch (Exception e) {
-            throw new Alert(e.getMessage());
+            throw new Alert(AlertType.WARNING, "Echec", e.getMessage());
         }
         return new Redirection("/facture/details?id="+facture.getId()).getUrl();
     }

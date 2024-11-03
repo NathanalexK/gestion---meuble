@@ -14,7 +14,13 @@
     List<Fournisseur> frns = ((List<Fournisseur>) request.getAttribute("fournisseurs"));
 %>
 
-<form action="/proformat/demande" method="post">
+<script>
+    const questions = [
+        'Est-ce que les besoins ne sont pas disponibles en stock?'
+    ];
+</script>
+
+<form action="/proformat/demande" method="post" id="proformatForm">
     <div class="flex">
         <div class="d-flex justify-content-center">
             <div class="card mb-4 w-50">
@@ -38,7 +44,7 @@
                     </div>
 
 
-                    <button type="submit" class="btn btn-primary">Valider</button>
+                    <button onclick="showAlertBeforeSubmit(event, 'proformatForm', questions)" type="button" class="btn btn-primary">Valider</button>
                 </div>
             </div>
         </div>

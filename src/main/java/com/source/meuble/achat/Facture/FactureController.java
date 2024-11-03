@@ -8,6 +8,7 @@ import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.exception.UnallowedRoleException;
+import com.source.meuble.util.AlertType;
 import com.source.meuble.util.Layout;
 import com.source.meuble.util.Redirection;
 import com.source.meuble.utilisateur.UserRole;
@@ -70,7 +71,7 @@ public class FactureController {
         authService.allowRoles(UserRole.DIRECTION);
 
         factureService.validerFacture(facture);
-        atts.addFlashAttribute("alert", "Facture: FC000" +facture.getId() + " validée");
+        atts.addFlashAttribute("swal", new Alert(AlertType.SUCCESS, "Succès","Facture: FC000" +facture.getId() + " validée"));
 
         return new Redirection("/facture/details?id="+facture.getId()).getUrl();
     }
