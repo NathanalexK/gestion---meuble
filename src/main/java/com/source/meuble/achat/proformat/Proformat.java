@@ -1,5 +1,6 @@
 package com.source.meuble.achat.proformat;
 
+import com.source.meuble.achat.Client.Client;
 import com.source.meuble.achat.Fornisseur.Fournisseur;
 import com.source.meuble.achat.proformat.proformatFille.ProformatFille;
 import com.source.meuble.pieces.Etat;
@@ -25,8 +26,9 @@ public class Proformat extends Etat {
     @JoinColumn(name = "id_fournisseur")
     private Fournisseur idFournisseur;
 
-    @Column(name = "id_client")
-    private Integer idClient;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_client")
+    private Client idClient;
 
     @Column(name = "daty")
     private LocalDate daty;

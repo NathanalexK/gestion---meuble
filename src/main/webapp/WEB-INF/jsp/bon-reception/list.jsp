@@ -13,7 +13,7 @@
 %>
 
 <div class="card">
-    <h5 class="card-header">Liste Bon de Commande</h5>
+    <h5 class="card-header">Liste Bon de Recéption</h5>
     <div class="table-responsive text-nowrap">
         <table class="table">
             <thead>

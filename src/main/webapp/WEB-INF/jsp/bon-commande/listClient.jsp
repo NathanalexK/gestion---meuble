@@ -33,12 +33,12 @@
                 <tr>
                     <td>BC000<%=bc.getId()%></td>
                     <td>PF000<%=bc.getIdProformat().getId()%></td>
-                    <td>FRN000<%=bc.getIdFournisseur().getId()%> - <%=bc.getIdFournisseur().getNom()%></td>
+                    <td>CLI000<%=bc.getIdClient().getId()%> - <%=bc.getIdClient().getNom()%></td>
                     <td><%=bc.getEtatHtml()%></td>
                     <td><%=bc.getDateCommande()%></td>
                     <td><%=bc.getDateLivraison() != null ? bc.getDateLivraison() : "-" %></td>
                     <td>
-                        <a href="/bon-commande/details?type=fournisseur&id=<%=bc.getId()%>">
+                        <a href="/bon-commande/details?type=client&id=<%=bc.getId()%>">
                             <button class="btn btn-primary">Voir Details</button>
                         </a>
 

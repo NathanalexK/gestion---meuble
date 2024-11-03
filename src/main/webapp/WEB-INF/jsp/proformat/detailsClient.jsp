@@ -19,7 +19,7 @@
         <input type="hidden" name="proformat" value="<%=proformat.getId()%>">
         <h5 class="card-header">
             <strong>Details du Proformat: </strong> PF000<%=proformat.getId()%> du <%=proformat.getDaty()%> <br>
-            <strong> Fournisseur: </strong> FRN000<%=proformat.getIdFournisseur().getId()%> - <%=proformat.getIdFournisseur().getNom()%> <br>
+            <strong> Client demandeur: </strong> CLI000<%=proformat.getIdClient().getId()%> - <%=proformat.getIdClient().getNom()%> <br>
             <strong>Etat: <%=proformat.getEtatHtml()%></strong>
 
         </h5>
@@ -60,8 +60,8 @@
                     <%
                         if(proformat.isValide()) {
                     %>
-                        <a href="/bon-commande/generer?type=fournisseur&id=<%=proformat.getId()%>">
-                            <button type="button" class="btn btn-warning">Generer Bon de Commande</button>
+                        <a href="/bon-commande/generer?type=client&id=<%=proformat.getId()%>">
+                            <button type="button" class="btn btn-warning">Generer Bon de Commande [Envoyer au client]</button>
                         </a>
                     <%
                         }

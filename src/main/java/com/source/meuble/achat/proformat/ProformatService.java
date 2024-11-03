@@ -1,5 +1,6 @@
 package com.source.meuble.achat.proformat;
 
+import com.source.meuble.achat.Client.Client;
 import com.source.meuble.achat.Fornisseur.Fournisseur;
 import com.source.meuble.achat.besoin.Besoin;
 import com.source.meuble.achat.proformat.proformatFille.ProformatFille;
@@ -74,8 +75,32 @@ public class ProformatService {
         return proformat;
     }
 
-    public List<Proformat> getAllProformats() {
-        return proformatRepository.findAll();
+    public Proformat demanderProformat(List<Produit> produits, Client client) {
+        Proformat proformat = new Proformat();
+        proformat.setDaty(LocalDate.now());
+        proformat.setIdClient(client);
+        proformat = proformatRepository.save(proformat);
+
+        List<ProformatFille> pfs = new ArrayList<>();
+        for(Produit produit: produits) {
+            ProformatFille proformatFille = new ProformatFille();
+            proformatFille.setIdProformat(proformat);
+//            proformatFille.setQte(besoin.getQuantite().doubleValue());
+            proformatFille.setQte(1.00);
+            proformatFille.setIdMarchandise(produit);
+            pfs.add(proformatFille);
+        }
+
+        proformatFilleRepository.saveAll(pfs);
+        return proformat;
+    }
+
+    public List<Proformat> getAllProformatsFournisseur() {
+        return proformatRepository.findByIdFournisseurNotNullAndIdClientNull();
+    }
+
+    public List<Proformat> getAllProformatsClient() {
+        return proformatRepository.findByIdClientNotNull();
     }
 
 }

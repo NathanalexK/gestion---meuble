@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/bon-commande")
@@ -45,8 +46,12 @@ public class BonCommandeController {
     }
 
     @GetMapping("/generer")
-    public String genererBC(@RequestParam("id") Proformat proformat) {
+    public String genererBC(@RequestParam("id") Proformat proformat, @RequestParam("type")String type) {
         bonCommandeService.genererBonCommande(proformat);
+
+        if (Objects.equals(type, "client"))
+            return new Redirection("/proformat/detailsClient?id=" + proformat.getId()).getUrl();
+
         return new Redirection("/proformat/details?id=" + proformat.getId()).getUrl();
     }
 
@@ -54,7 +59,15 @@ public class BonCommandeController {
     public ModelAndView showList() throws NoUserLoggedException, NoExerciceFoundException {
         Layout layout = layoutService.getLayout("bon-commande/list");
         ModelAndView mav = layout.getModelAndView();
-        mav.addObject("bcs", bonCommandeService.findAll());
+        mav.addObject("bcs", bonCommandeService.findAllFournisseur());
+        return mav;
+    }
+
+    @GetMapping("/listClient")
+    public ModelAndView showListClient() throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout("bon-commande/listClient");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("bcs", bonCommandeService.findAllClient());
         return mav;
     }
 
@@ -68,10 +81,14 @@ public class BonCommandeController {
 
     @GetMapping("/details")
     public ModelAndView showDetails(
-        @RequestParam("id") BonCommande bc
+            @RequestParam("id") BonCommande bc, @RequestParam("type" ) String type
     ) throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = null;
+        if (type.equals("client"))
+            layout = layoutService.getLayout("bon-commande/detailsClient");
+        else
+            layout = layoutService.getLayout("bon-commande/details");
 
-        Layout layout = layoutService.getLayout("bon-commande/details");
         ModelAndView mav = layout.getModelAndView();
         mav.addObject("bc", bc);
         mav.addObject("bcf", bc.getFilles());

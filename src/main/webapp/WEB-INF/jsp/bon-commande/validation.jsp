@@ -30,7 +30,7 @@
                 <tr>
                     <td>BC000<%=bc.getId()%></td>
                     <td>PF000<%=bc.getIdProformat().getId()%></td>
-                    <td>FRN000<%=bc.getIdFournisseur().getId()%> - <%=bc.getIdFournisseur().getNom()%></td>
+<%--                    <td>FRN000<%=bc.getIdFournisseur().getId()%> - <%=bc.getIdFournisseur().getNom()%></td>--%>
                     <td>
                         <a href="/bon-commande/details?id=<%=bc.getId()%>">
                             <button class="btn btn-primary">Voir Details</button>

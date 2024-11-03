@@ -104,7 +104,9 @@ public class BonCommandeService {
 
         bc.setEtat(0);
         bc.setDateCommande(null);
+
         bc.setIdFournisseur(proformat.getIdFournisseur());
+        bc.setIdClient(proformat.getIdClient());
         bc.setIdProformat(proformat);
         bc = bonCommandeRepository.save(bc);
 
@@ -142,6 +144,14 @@ public class BonCommandeService {
 
     public List<BonCommande> findAll() {
         return bonCommandeRepository.findAll();
+    }
+
+    public List<BonCommande> findAllFournisseur() {
+        return bonCommandeRepository.findByIdFournisseurNotNull();
+    }
+
+    public List<BonCommande> findAllClient() {
+        return bonCommandeRepository.findByIdClientNotNull();
     }
 }
 
