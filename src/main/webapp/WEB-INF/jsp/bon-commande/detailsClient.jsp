@@ -86,7 +86,7 @@
 <div class="card">
     <input type="hidden" name="proformat" value="<%=bc.getId()%>">
     <h5 class="card-header">
-        <strong>Details du Bon de Commande: </strong> BC000<%=bc.getId()%> du <%=bc.getDateCommande()%> <br>
+        <strong>Details du Bon de Commande: </strong> BC000<%=bc.getId()%> du <%=bc.getDateLivraison()%> <br>
         <strong>Client acheteur: </strong> CLI000<%=bc.getIdClient().getId()%> - <%=bc.getIdClient().getNom()%> <br>
         <strong>Etat: <%=bc.getEtatHtml()%>
         </strong>
@@ -106,16 +106,18 @@
             <%
                 for (BonCommandeFille bcf : bcfs) {
             %>
-            <tr>
-                <td>BCF000<%=bcf.getId()%>
-                <td>PRD000<%=bcf.getIdMarchandise().getId()%> - <%=bcf.getIdMarchandise().getLibelle()%>
-                </td>
-                <td class="text-right"><%=String.format("%.2f", bcf.getPrix())%>
-                </td>
-                <td><%=bcf.getQuantite()%> <%=bcf.getIdMarchandise().getUniteOeuvre().getNom()%>
-                </td>
-
-            </tr>
+            <form action="">
+                <tr>
+                    <td>BCF000<%=bcf.getId()%>
+                    <td>PRD000<%=bcf.getIdMarchandise().getId()%> - <%=bcf.getIdMarchandise().getLibelle()%>
+                    </td>
+                        <td class="text-right"><%=String.format("%.2f", bcf.getPrix())%>
+                    </td>
+                    <td>
+                        <%= bcf.getQuantite() %>
+                    </td>
+                </tr>
+            </form>
             <%
                 }
             %>

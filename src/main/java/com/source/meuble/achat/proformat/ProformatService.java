@@ -47,6 +47,28 @@ public class ProformatService {
         return proformat;
     }
 
+    @Transactional
+    public Proformat ajouterQtiteProformat(Proformat proformat, ProformatFille[] proformatFilles, Double[] quantites)
+            throws Exception {
+        if(proformatFilles.length == 0) {
+            throw new Exception("Le nombre de PF doit etre superieur a 0");
+        }
+
+        if(proformatFilles.length != quantites.length) {
+            throw new Exception("Nombre de PF doit etre egal au nombre de Liste des Prix: " + proformatFilles.length + " =/= " + quantites.length);
+        }
+
+        List<ProformatFille> pfs = new ArrayList<>();
+        for(int i = 0; i < proformatFilles.length; i++) {
+            proformatFilles[i].setQte(quantites[i]);
+        }
+
+        proformatFilleRepository.saveAll(pfs);
+        proformat.setEtat(1);
+        proformatRepository.save(proformat);
+        return proformat;
+    }
+
     public Map<Produit, Double> getPrixMarchandise(Proformat proformat) {
         Map<Produit, Double> map = new HashMap<>();
         proformat.getFilles().forEach((fille) -> {

@@ -14,7 +14,7 @@
     List<ProformatFille> pfs = ((List<ProformatFille>) request.getAttribute("pfs"));
 %>
 
-<form action="/proformat/ajouter-prix" method="POST">
+<form action="/proformat/completer" method="POST">
     <div class="card">
         <input type="hidden" name="proformat" value="<%=proformat.getId()%>">
         <h5 class="card-header">
@@ -40,7 +40,8 @@
                 <tr>
                     <td>PFF000<%=pf.getId()%>
                     <td>PRD000<%=pf.getId()%> - <%=pf.getIdMarchandise().getLibelle()%></td>
-                    <td><%=pf.getQte()%> <%=pf.getIdMarchandise().getUniteOeuvre().getNom()%>
+                    <td>
+                        <input type="number" class="form-control" name="qte[]" value=<%=pf.getQte()%> > <%=pf.getIdMarchandise().getUniteOeuvre().getNom()%>
                     </td>
                     <td>
                         <input type="hidden" name="pf[]" value="<%=pf.getId()%>">

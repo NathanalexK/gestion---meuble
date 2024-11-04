@@ -116,7 +116,7 @@ public class SidebarMock {
                                             .addSubmenu(
                                                     new Menu("Validation")
                                                             .withIcon("bx bx-task")
-                                                            .withLien("/bon-commande/validation")
+                                                            .withLien("/bon-commande/validationClient")
                                                             .withRoles(UserRole.DIRECTION, UserRole.DEPT_FINANCE))
                                             .addSubmenu(
                                                     new Menu("Liste")
