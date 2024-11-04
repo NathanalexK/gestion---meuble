@@ -33,7 +33,7 @@
                     <td class="bold">BR000<%=br.getId()%></td>
                     <td>BC000<%=br.getIdBc().getId()%></td>
                     <td><%=br.getDateReception()%></td>
-                    <td><%=br.getEtat()%></td>
+                    <td><%=br.getEtatHtml()%></td>
                     <td>
                         <a href="/bon-reception/details?id=<%=br.getId()%>">
                             <button class="btn btn-primary">Voir Details</button>

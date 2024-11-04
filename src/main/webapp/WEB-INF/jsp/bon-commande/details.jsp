@@ -24,7 +24,7 @@
     const questions = [];
 
     <%
-        if(u.hasRole(UserRole.DEPT_FINANCE) && bc.getEtat() == 0) {
+    if(u.hasRole(UserRole.DEPT_FINANCE) && bc.getEtat() == 0) {
     %>
         questions.push("Est-ce que les fonds disponibles sont assez pour l’achat?");
         questions.push("Est-ce qu’il y a le budget pour l’achat?");
@@ -33,9 +33,9 @@
     %>
 
     <%
-        if(u.hasRole(UserRole.DIRECTION) && bc.getEtat() == 1) {
+    if(u.hasRole(UserRole.DIRECTION) && bc.getEtat() == 1) {
     %>
-        questions.push("Vous valider cette commande?");
+        questions.push("Validation interne effectué?");
     <%
         }
     %>
@@ -45,13 +45,14 @@
     ];
 
     const brQuestion = [
-        "Voulez-vous generer un bon de reception?"
+        "Est-ce que les biens livrés correspondent au bon de commande?",
+        "Est-ce que les biens livrés sont en bon état?"
     ]
 
 </script>
 
 <%
-    if(u.getRole() == UserRole.DIRECTION && bc.isValide()) {
+    if (u.getRole() == UserRole.DIRECTION && bc.isValide()) {
 %>
 <form action="/bon-commande/commander" method="post" id="commandeForm">
     <div class="flex">
@@ -84,8 +85,22 @@
 %>
 
 <%
-    if(bc.getEtat() == 3) {
+    if (bc.getEtat() == 2 && !u.hasRole(UserRole.DIRECTION)) {
 %>
+    <div class="d-flex justify-content-center">
+        <div class="alert alert-warning">
+            La direction est responsable du commande des biens
+        </div>
+    </div>
+
+<%
+    }
+%>
+
+<%
+    if (bc.getEtat() == 3 && u.hasRole(UserRole.DEPT_LOGISTIQUE)) {
+%>
+
 <form action="/bon-reception/generer" method="post" id="brForm">
     <div class="flex">
         <div class="d-flex justify-content-center">
@@ -99,11 +114,11 @@
                     <input type="hidden" name="type" value="fournisseur">
                     <div class="mb-3">
                         <label class="form-label" for="i3">Date Reception: </label>
-                        <input type="date" id="i3" class="form-control" name="dateReception" value="<%=bc.getDateLivraison()%>">
+                        <input type="date" id="i3" class="form-control" name="dateReception" value="<%=bc.getDateLivraison()%>" max="<%=LocalDate.now()%>">
                     </div>
 
 
-                    <button type="button" class="btn btn-primary" onclick="showAlertBeforeSubmit(event, 'brForm', brQuestion)">Generer Bon de Reception</button>
+                    <button type="button" class="btn btn-primary" onclick="showAlertBeforeSubmit(event, 'brForm', brQuestion)">Recevoir</button>
                 </div>
             </div>
         </div>
@@ -112,8 +127,16 @@
 
 <%
     }
+    if (bc.getEtat() == 3 && !u.hasRole(UserRole.DEPT_LOGISTIQUE)) {
 %>
-
+<div class="d-flex justify-content-center">
+    <div class="alert alert-warning">
+        Le departement Logistique est responsable de la Reception
+    </div>
+</div>
+<%
+    }
+%>
 
 <div class="card">
     <input type="hidden" name="proformat" value="<%=bc.getId()%>">
@@ -155,11 +178,11 @@
         </table>
 
         <%
-            if((u.hasRole(UserRole.DEPT_FINANCE) && bc.getEtat() == 0) || (u.hasRole(UserRole.DIRECTION) && bc.getEtat() == 1)) {
+            if ((u.hasRole(UserRole.DEPT_FINANCE) && bc.getEtat() == 0) || (u.hasRole(UserRole.DIRECTION) && bc.getEtat() == 1)) {
         %>
         <div class="d-flex justify-content-center m-2">
             <a href="/bon-commande/valider?id=<%=bc.getId()%>" onclick="showAlert(event, this, questions)">
-                <button class="btn btn-warning" >Valider</button>
+                <button class="btn btn-warning">Valider</button>
             </a>
         </div>
         <%

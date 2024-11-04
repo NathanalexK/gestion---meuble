@@ -74,7 +74,7 @@
                     %>
 
                     <%
-                        if(facture.getEtat() == 1 && u.hasRole(UserRole.DIRECTION)) {
+                        if(facture.getEtat() == 1 && u.hasRole(UserRole.DEPT_LOGISTIQUE)) {
                     %>
                     <form action="/mouvement-stock/generer-stock" method="post">
                         <input type="hidden" name="idFacture" value="<%=facture.getId()%>">

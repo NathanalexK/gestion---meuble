@@ -13,6 +13,7 @@ public interface BonCommandeFilleRepository extends JpaRepository<BonCommandeFil
     @Query("select b from BonCommandeFille b where b.idBc.id=:idBonCommande")
     List<BonCommandeFille> findFilleBonCommande(@Param("idBonCommande") Integer id);
 
+
     List<BonCommandeFille> findByIdBc(BonCommande idBc);
 
     List<BonCommandeFille> findByIdBc_Id(Integer id);

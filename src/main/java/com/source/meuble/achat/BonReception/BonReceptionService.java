@@ -7,6 +7,7 @@ import com.source.meuble.achat.bonCommande.BonCommandeRepository;
 import com.source.meuble.achat.bonCommande.BonCommandeService;
 import com.source.meuble.achat.bonCommande.bonCommandeFille.BonCommandeFille;
 import com.source.meuble.achat.bonCommande.bonCommandeFille.BonCommandeFilleRepository;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.stock.mouvementStock.MouvementStockService;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
@@ -25,18 +26,18 @@ public class BonReceptionService {
     private final BonCommandeService bonCommandeService;
     private final BonReceptionFilleRepository bonReceptionFilleRepository;
 
-    private final MouvementStockService mouvementStockService;
     private final BonCommandeRepository bonCommandeRepository;
+    private final MouvementStockService mouvementStockService;
 
     @Autowired
     public BonReceptionService(BonReceptionRepository bonReceptionRepository, BonCommandeService bonCommandeService,
-                               BonReceptionFilleRepository bonReceptionFilleRepository, MouvementStockService mouvementStockService,
-                               BonCommandeRepository bonCommandeRepository) {
+                               BonReceptionFilleRepository bonReceptionFilleRepository,
+                               BonCommandeRepository bonCommandeRepository, MouvementStockService mouvementStockService) {
         this.bonReceptionRepository = bonReceptionRepository;
         this.bonCommandeService = bonCommandeService;
         this.bonReceptionFilleRepository = bonReceptionFilleRepository;
-        this.mouvementStockService = mouvementStockService;
         this.bonCommandeRepository = bonCommandeRepository;
+        this.mouvementStockService = mouvementStockService;
     }
 
     public List<BonReception> findAll() {
@@ -90,12 +91,29 @@ public class BonReceptionService {
             brfs.add(brf);
         }
 
-        bonReceptionFilleRepository.saveAll(brfs);
+        brfs = bonReceptionFilleRepository.saveAll(brfs);
 
         bc.setEtat(4);
         bonCommandeRepository.save(bc);
+        br.setFille(brfs);
+//        bc.setFilles(bcfs);
+
 
         return br;
+    }
+
+    @Transactional
+    public void genererBRAvecStock(BonCommande bc, LocalDate dateReception) throws Exception {
+        if(bc.getEtat() < 3) {
+            throw Alert.warning("Bon de commande doit etre valider avant d'effectuer cette action");
+        }
+
+        if(bc.getEtat() == 4) {
+            throw Alert.warning("Bon de Reception déjà reçu");
+        }
+
+        BonReception br = genererBR(bc, dateReception);
+        mouvementStockService.genererMvtStockAvecEtatFromBR(br);
     }
 
     public BonReception genererBr(BonCommande bonCommande, LocalDate daty){

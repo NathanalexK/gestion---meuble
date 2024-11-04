@@ -18,6 +18,7 @@ import com.source.meuble.stock.produitMarchandise.ProduitMarchandiseService;
 import com.source.meuble.util.AlertType;
 import com.source.meuble.util.Layout;
 import com.source.meuble.util.Redirection;
+import com.source.meuble.utilisateur.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -70,6 +71,7 @@ public class MouvementStockController {
         RedirectAttributes atts
     ) throws Exception {
         authService.requireUser();
+        authService.allowRoles(UserRole.DEPT_LOGISTIQUE);
         try {
             mouvementStockService.genererMvtStockAvecEtatFromFacture(facture);
             atts.addFlashAttribute("swal", Alert.success("Stock Generé avec succès pour la facture: FC000" + facture.getId()));

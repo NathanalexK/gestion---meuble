@@ -102,9 +102,13 @@ public class EtatStockService {
                 lastStock = new EtatStock();
                 lastStock.setMarchandise(mvt.getMarchandise());
                 lastStock.setQte(0.00);
+                lastStock.setPrixUnitaire(0.00);
             }
 
+            double prix = ((lastStock.getPrixUnitaire().doubleValue() * lastStock.getQte()) + (mvt.getQte() * mvt.getPrixUnitaire().doubleValue())) / (lastStock.getQte() + mvt.getQte());
+
             EtatStock newStock = new EtatStock();
+
 
             double qte = 0.00;
             if(mvt.getTypeMvt() == TypeMvt.ENTREE) {
@@ -117,9 +121,11 @@ public class EtatStockService {
             newStock.setMarchandise(lastStock.getMarchandise());
             newStock.setQte(lastStock.getQte() + qte);
             newStock.setDateEnregistrement(mvt.getDateEnregistrement());
-            newStock.setPrixUnitaire(mvt.getPrixUnitaire().doubleValue());
+
+            newStock.setPrixUnitaire(prix);
 
             etatStocks.add(etatStockRepository.save(newStock));
+            System.out.println("NS" + newStock.getMarchandise() + ": " + newStock.getQte() + "\n");
         }
 
         return etatStocks;

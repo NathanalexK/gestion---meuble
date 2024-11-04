@@ -39,6 +39,7 @@ public class UtilisateurController {
         Redirection redirection = new Redirection(attributes);
         try {
             Utilisateur utilisateur = utilisateurService.login(username, password);
+            System.out.println(utilisateur);
             httpSession.setAttribute("u", utilisateur);
             redirection.setUrl("/exercice");
 
@@ -46,7 +47,7 @@ public class UtilisateurController {
             final String ERROR = "Identifiant ou mot de passe incorrect";
             System.err.println(ERROR + ": %s / %s".formatted(username, password));
             redirection.addAttribute("msg", ERROR);
-            redirection.setUrl("/");
+            redirection.setUrl("/?msg="+ERROR);
         }
         return redirection.getUrl();
     }
