@@ -44,25 +44,25 @@ public class BonLivraisonController {
 
     @GetMapping("/list")
     public ModelAndView showList() throws NoUserLoggedException, NoExerciceFoundException {
-        Layout layout = layoutService.getLayout("bon-reception/list");
+        Layout layout = layoutService.getLayout("bon-livraison/list");
         ModelAndView mav = layout.getModelAndView();
-        mav.addObject("brs", bonLivraisonService.findAll());
+        mav.addObject("bls", bonLivraisonService.findAll());
         return mav;
     }
 
     @GetMapping("/details")
     public ModelAndView showDetails(
-        @RequestParam("id") BonLivraison br
+        @RequestParam("id") BonLivraison bl
     ) throws NoUserLoggedException, NoExerciceFoundException {
-        Layout layout = layoutService.getLayout("bon-reception/details");
+        Layout layout = layoutService.getLayout("bon-livraison/details");
         ModelAndView mav = layout.getModelAndView();
-        mav.addObject("br", br);
-        mav.addObject("brf", br.getFille());
+        mav.addObject("bl", bl);
+        mav.addObject("blf", bl.getFille());
         return mav;
     }
 
     @PostMapping("/generer")
-    public String genererBR(
+    public String genererBL(
         @RequestParam("idBc")BonCommande bc,
         @RequestParam("dateReception") LocalDate dateReception
     ) throws NoUserLoggedException {

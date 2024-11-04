@@ -141,9 +141,9 @@ public class SidebarMock {
                                 )
                         )
                         .addSubmenu(
-                            new Menu("Bon de Reception")
+                            new Menu("Bon de Livraison")
                                 .withIcon("bx bx-receipt")
-                                .withLien("/bon-reception/list")
+                                .withLien("/bon-livraison/list")
                                 .withRoles()
                         )
                         .addSubmenu(
