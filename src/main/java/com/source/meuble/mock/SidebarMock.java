@@ -154,8 +154,20 @@ public class SidebarMock {
                     .addSubmenu(
                             new Menu("Bon de Livraison")
                                     .withIcon("bx bx-receipt")
-                                    .withLien("/bon-livraison/list")
+                                    .withLien("")
                                     .withRoles()
+                                    .addSubmenu(
+                                            new Menu("Validation")
+                                                    .withIcon("bx bx-task")
+                                                    .withLien("/bon-livraison/validation")
+                                                    .withRoles(UserRole.DEPT_LOGISTIQUE)
+                                    )
+                                    .addSubmenu(
+                                            new Menu("List")
+                                                    .withIcon("bx bx-task")
+                                                    .withLien("/bon-livraison/list")
+                                                    .withRoles()
+                                    )
                     )
             );
 }

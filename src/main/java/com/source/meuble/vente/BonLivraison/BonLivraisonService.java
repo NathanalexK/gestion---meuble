@@ -6,7 +6,9 @@ import com.source.meuble.achat.bonCommande.BonCommande;
 import com.source.meuble.achat.bonCommande.BonCommandeRepository;
 import com.source.meuble.achat.bonCommande.BonCommandeService;
 import com.source.meuble.achat.bonCommande.bonCommandeFille.BonCommandeFille;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.stock.mouvementStock.MouvementStockService;
+import com.source.meuble.utilisateur.Utilisateur;
 import com.source.meuble.vente.BonLivraison.BonLivraisonFille.BonLivraisonFille;
 import com.source.meuble.vente.BonLivraison.BonLivraisonFille.BonLivraisonFilleRepository;
 import jakarta.transaction.Transactional;
@@ -120,6 +122,21 @@ public class BonLivraisonService {
     public List<BonLivraisonFille> findFilleByIdMere(Integer idBr) {
 
         return bonLivraisonFilleRepository.findByIdBl_Id(idBr);
+    }
+
+    @Transactional
+    public BonLivraison validerBonLivraison(BonLivraison bl) throws Alert {
+        if(bl.getEtat() < 2) {
+            bl.setEtat(bl.getEtat() + 1);
+            bonLivraisonRepository.save(bl);
+        } else {
+            throw new Alert("Bon de Commande déjà validée");
+        }
+        return bl;
+    }
+
+    public List<BonLivraison> getAllBcByUtilisateur(Utilisateur u) {
+        return bonLivraisonRepository.findAllByRole(u.getRole().name());
     }
 
 }
