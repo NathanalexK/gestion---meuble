@@ -130,5 +130,37 @@ public class SidebarMock {
                             .addSubmenu(
                                     new Menu("Facture Achat")
                                             .withIcon("bx bx-file-blank")
-                                            .withLien("/facture/list")));
+                                            .withLien("/facture/list")
+                            )
+
+                    .addSubmenu(
+                        new Menu("Bon de Reception")
+                            .withIcon("bx bx-receipt")
+                            .withLien("/bon-reception/list")
+                            .withRoles()
+                    )
+                    .addSubmenu(
+                        new Menu("Facture Achat")
+                            .withIcon("bx bx-file-blank")
+                            .withLien("/facture/list")
+                    )
+                    .addSubmenu(
+                            new Menu("Bon de Livraison")
+                                    .withIcon("bx bx-receipt")
+                                    .withLien("")
+                                    .withRoles()
+                                    .addSubmenu(
+                                            new Menu("Validation")
+                                                    .withIcon("bx bx-task")
+                                                    .withLien("/bon-livraison/validation")
+                                                    .withRoles(UserRole.DEPT_LOGISTIQUE)
+                                    )
+                                    .addSubmenu(
+                                            new Menu("List")
+                                                    .withIcon("bx bx-task")
+                                                    .withLien("/bon-livraison/list")
+                                                    .withRoles()
+                                    )
+                    )
+            );
 }
