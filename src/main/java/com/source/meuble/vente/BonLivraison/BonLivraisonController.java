@@ -89,6 +89,8 @@ public class BonLivraisonController {
         Utilisateur u = authService.requireUser();
         if(bonCommande.getEtat() == 0) {
             authService.allowRoles(UserRole.DEPT_LOGISTIQUE);
+        }else if(bonCommande.getEtat() == 1) {
+            authService.allowRoles(UserRole.DIRECTION);
         }
         bonLivraisonService.validerBonLivraison(bonCommande);
         atts.addFlashAttribute("swal", new Alert(AlertType.SUCCESS, "Succès", "Bon de Commande: BC000" + bonCommande.getId() + " a été bien validé par: " + u.getRole().name()));
