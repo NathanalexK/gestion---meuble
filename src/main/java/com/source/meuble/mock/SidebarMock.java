@@ -122,27 +122,12 @@ public class SidebarMock {
                                                     new Menu("Liste")
                                                             .withLien("/bon-commande/listClient")
                                                             .withIcon("bx bx-list-ol")))
-                            .addSubmenu(
-                                    new Menu("Bon de Livraison")
-                                            .withIcon("bx bx-receipt")
-                                            .withLien("/bon-livraison/list")
-                                            .withRoles())
-                            .addSubmenu(
-                                    new Menu("Facture Achat")
-                                            .withIcon("bx bx-file-blank")
-                                            .withLien("/facture/list")
-                            )
 
                     .addSubmenu(
                         new Menu("Bon de Reception")
                             .withIcon("bx bx-receipt")
                             .withLien("/bon-reception/list")
                             .withRoles()
-                    )
-                    .addSubmenu(
-                        new Menu("Facture Achat")
-                            .withIcon("bx bx-file-blank")
-                            .withLien("/facture/list")
                     )
                     .addSubmenu(
                             new Menu("Bon de Livraison")
@@ -153,13 +138,12 @@ public class SidebarMock {
                                             new Menu("Validation")
                                                     .withIcon("bx bx-task")
                                                     .withLien("/bon-livraison/validation")
-                                                    .withRoles(UserRole.DEPT_LOGISTIQUE)
+                                                    .withRoles(UserRole.DIRECTION,UserRole.DEPT_LOGISTIQUE)
                                     )
                                     .addSubmenu(
                                             new Menu("List")
                                                     .withIcon("bx bx-task")
                                                     .withLien("/bon-livraison/list")
-                                                    .withRoles()
                                     )
                     )
             );
