@@ -151,5 +151,11 @@ public class SidebarMock {
                             .withIcon("bx bx-file-blank")
                             .withLien("/facture/list")
                     )
+                    .addSubmenu(
+                            new Menu("Bon de Livraison")
+                                    .withIcon("bx bx-receipt")
+                                    .withLien("/bon-livraison/list")
+                                    .withRoles()
+                    )
             );
 }

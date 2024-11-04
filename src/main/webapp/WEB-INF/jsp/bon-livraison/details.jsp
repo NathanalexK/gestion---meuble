@@ -19,17 +19,17 @@
     <div class="d-flex justify-content-center">
         <div class="card mb-4 w-50">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Details Bon de Reception</h5>
+                <h5 class="mb-0">Details Bon de Livraison</h5>
                 <%--                <small class="text-muted float-end">Demandeur: <%=u.getRole().name()%></small>--%>
             </div>
             <div class="card-body">
                 <table class="table table-borderless">
                     <tr>
                         <td class="bold">Numero:</td>
-                        <td>BR000<%=bl.getId()%></td>
+                        <td>BL000<%=bl.getId()%></td>
                     </tr>
                     <tr>
-                        <td class="bold">Date Reception:</td>
+                        <td class="bold">Date Livraison:</td>
                         <td><%=bl.getDateLivraison()%></td>
                     </tr>
                     <tr>
@@ -84,7 +84,7 @@
                 for (BonLivraisonFille blf : blfs) {
             %>
             <tr>
-                <td>BRF000<%=blf.getId()%>
+                <td>BLF000<%=blf.getId()%>
                 <td>PRD000<%=blf.getIdProduit().getId()%> - <%=blf.getIdProduit().getLibelle()%>
                 </td>
                 <td class="text-right"><%=String.format("%.2f", blf.getPrix())%>
