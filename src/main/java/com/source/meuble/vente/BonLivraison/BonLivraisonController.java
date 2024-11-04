@@ -62,7 +62,7 @@ public class BonLivraisonController {
     }
 
     @PostMapping("/generer")
-    public String genererBR(
+    public String genererBL(
         @RequestParam("idBc")BonCommande bc,
         @RequestParam("dateReception") LocalDate dateReception
     ) throws NoUserLoggedException {

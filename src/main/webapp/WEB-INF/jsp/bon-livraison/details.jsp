@@ -12,7 +12,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     BonLivraison bl = ((BonLivraison) request.getAttribute("bl"));
-    List<BonLivraisonFille> blfs = ((List< BonLivraisonFille>) request.getAttribute("blf"));
+    List<BonLivraisonFille> blfs = ((List<BonLivraisonFille>) request.getAttribute("blf"));
 %>
 
 <div class="flex">
@@ -38,7 +38,7 @@
                     </tr>
                     <tr>
                         <td class="bold">Fournisseur:</td>
-                        <td> FRN000<%=bl.getIdBc().getIdFournisseur().getId()%> - <%=bl.getIdBc().getIdFournisseur().getNom()%></td>
+                        <td> FRN000<%=bl.getIdBc().getIdClient().getId()%> - <%=bl.getIdBc().getIdClient().getNom()%></td>
                     </tr>
 
                     <tr>
