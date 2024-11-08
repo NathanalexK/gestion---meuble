@@ -317,7 +317,7 @@ public class HomeController {
 //        ModelAndView modelAndView = showTable();
 //        modelAndView.addObject("hasSortie", true);
 //        modelAndView.addObject("cout", cout);
-//        modelAndView.addObject("seuil", seuil);
+//        modelAndView.addObject("seuil", seuil);l
 //
 //        return modelAndView;
 //
