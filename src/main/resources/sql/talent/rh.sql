@@ -95,10 +95,12 @@ CREATE TABLE contrat_employe(
     FOREIGN KEY(id_type) REFERENCES type_contrat(id_type)
 );
 
-CREATE TABLE Asso_17(
+CREATE TABLE besoin_cv(
     id_besoin_recrutement INTEGER,
     id_cv INTEGER,
     PRIMARY KEY(id_besoin_recrutement, id_cv),
     FOREIGN KEY(id_besoin_recrutement) REFERENCES besoin_recrutement(id_besoin_recrutement),
     FOREIGN KEY(id_cv) REFERENCES cv(id_cv)
 );
+
+INSERT INTO utilisateur VALUES (default, 'rh', '1234', 6);
