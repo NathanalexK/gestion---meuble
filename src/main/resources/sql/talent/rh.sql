@@ -37,11 +37,12 @@ CREATE TABLE personnel(
     telephone VARCHAR(13) ,
     date_embauche DATE,
     salaire NUMERIC(15,2)  ,
-    id_departement INTEGER,
+    id_role INTEGER,
     poste VARCHAR(50) ,
     id_cv INTEGER NOT NULL,
     PRIMARY KEY(id_personnel),
     UNIQUE(id_cv),
+    FOREIGN KEY (id_role) REFERENCES role(id),
     FOREIGN KEY(id_cv) REFERENCES cv(id_cv)
 );
 
@@ -74,12 +75,13 @@ CREATE TABLE entretien(
 
 CREATE TABLE besoin_recrutement(
     id_besoin_recrutement SERIAL,
-    id_departement INTEGER NOT NULL,
+    id_role INTEGER NOT NULL,
     date_demande DATE NOT NULL,
     annees_experience INTEGER,
     id_diplome INTEGER NOT NULL,
     PRIMARY KEY(id_besoin_recrutement),
-    FOREIGN KEY(id_diplome) REFERENCES diplome(id_diplome)
+    FOREIGN KEY(id_diplome) REFERENCES diplome(id_diplome),
+    FOREIGN KEY(id_role) REFERENCES role(id)
 );
 
 CREATE TABLE contrat_employe(
