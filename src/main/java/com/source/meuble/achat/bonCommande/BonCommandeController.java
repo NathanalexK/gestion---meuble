@@ -128,6 +128,23 @@ public class BonCommandeController {
         return new Redirection("/bon-commande/details?id="+bc.getId() + "&type=fournisseur").getUrl();
     }
 
+    @PostMapping("/livrer")
+    public String livrer(
+        @RequestParam("idBc") BonCommande bc,
+        @RequestParam("dateCom") LocalDate dateCom,
+        @RequestParam("dateLivr") LocalDate dateLivr,
+        RedirectAttributes atts
+    ) throws Alert {
+        try {
+            bonCommandeService.livrer(bc, dateCom, dateLivr);
+        } catch (Exception e) {
+            throw Alert.warning(e.getMessage());
+        }
+        return new Redirection("/bon-commande/details?idBc="+bc.getId()+"&type=client").getUrl();
+        // TO DO: Faire la fonction livrer
+//        return null;
+    }
+
 
     @PostMapping("/transferer")
     public String transferer(

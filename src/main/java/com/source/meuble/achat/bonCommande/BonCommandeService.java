@@ -7,6 +7,8 @@ import com.source.meuble.achat.proformat.Proformat;
 import com.source.meuble.achat.proformat.ProformatRepository;
 import com.source.meuble.achat.proformat.proformatFille.ProformatFille;
 import com.source.meuble.exception.Alert;
+import com.source.meuble.stock.mouvementStock.MouvementStock;
+import com.source.meuble.stock.mouvementStock.MouvementStockService;
 import com.source.meuble.utilisateur.Utilisateur;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -19,12 +21,14 @@ public class BonCommandeService {
     private final BonCommandeRepository bonCommandeRepository;
     private final BonCommandeFilleRepository bonCommandeFilleRepository;
     private final ProformatRepository proformatRepository;
+    private final MouvementStockService mouvementStockService;
 
     public BonCommandeService(BonCommandeRepository bonCommandeRepository, BonCommandeFilleRepository bonCommandeFilleRepository,
-                              ProformatRepository proformatRepository) {
+                              ProformatRepository proformatRepository, MouvementStockService mouvementStockService) {
         this.bonCommandeRepository = bonCommandeRepository;
         this.bonCommandeFilleRepository = bonCommandeFilleRepository;
         this.proformatRepository = proformatRepository;
+        this.mouvementStockService = mouvementStockService;
     }
 
     public Optional<BonCommande> findById(Integer id) {
@@ -154,6 +158,15 @@ public class BonCommandeService {
 
     public List<BonCommande> findAllClient() {
         return bonCommandeRepository.findByIdClientNotNull();
+    }
+
+    @Transactional
+    public void livrer(BonCommande bc, LocalDate dateCom, LocalDate dateLivr) throws Exception {
+        bc.setDateCommande(dateCom);
+        bc.setDateLivraison(dateLivr);
+        bc.setEtat(3);
+        bc = bonCommandeRepository.save(bc);
+        mouvementStockService.genererMvtStockAvecEtatFromBCVente(bc);
     }
 }
 

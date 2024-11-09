@@ -8,6 +8,9 @@ import com.source.meuble.achat.BonReception.BonReceptionService;
 import com.source.meuble.achat.Facture.Facture;
 import com.source.meuble.achat.Facture.FactureFille.FactureFille;
 import com.source.meuble.achat.Facture.FactureRepository;
+import com.source.meuble.achat.bonCommande.BonCommande;
+import com.source.meuble.achat.bonCommande.BonCommandeRepository;
+import com.source.meuble.achat.bonCommande.bonCommandeFille.BonCommandeFille;
 import com.source.meuble.analytique.produit.Produit;
 import com.source.meuble.analytique.produit.ProduitService;
 import com.source.meuble.exception.Alert;
@@ -29,14 +32,16 @@ public class MouvementStockService {
    private final ProduitService marchandiseService;
     private final FactureRepository factureRepository;
     private final BonReceptionRepository bonReceptionRepository;
+    private final BonCommandeRepository bonCommandeRepository;
 
     public MouvementStockService(MouvementStockRepository mouvementStockRepository, EtatStockService etatStockService, ProduitService marchandiseService,
-                                 FactureRepository factureRepository, BonReceptionRepository bonReceptionRepository) {
+                                 FactureRepository factureRepository, BonReceptionRepository bonReceptionRepository, BonCommandeRepository bonCommandeRepository) {
         this.mouvementStockRepository = mouvementStockRepository;
         this.etatStockService = etatStockService;
         this.marchandiseService = marchandiseService;
         this.factureRepository = factureRepository;
         this.bonReceptionRepository = bonReceptionRepository;
+        this.bonCommandeRepository = bonCommandeRepository;
     }
 
     public MouvementStock saveMouvementStock(MouvementStock mouvementStock){
@@ -198,6 +203,27 @@ public class MouvementStockService {
     }
 
     @Transactional
+    public List<MouvementStock> genererMvtStockFromBCVente(BonCommande bc) throws Exception {
+        List<BonCommandeFille> filles = bc.getFilles();
+        List<MouvementStock> mvts = new ArrayList<>();
+
+        for(BonCommandeFille fille: filles) {
+            MouvementStock mvt = new MouvementStock();
+            mvt.setMarchandise(fille.getIdMarchandise());
+            mvt.setQte(fille.getQuantite().doubleValue());
+            mvt.setTypeMvt(TypeMvt.SORTIE);
+            mvt.setPrixUnitaire(fille.getPrix().doubleValue());
+            mvt.setDateEnregistrement(bc.getDateLivraison());
+            mvts.add(mvt);
+        }
+        mvts = mouvementStockRepository.saveAll(mvts);
+        bc.setEtat(4);
+        bonCommandeRepository.save(bc);
+        return mvts;
+    }
+
+
+    @Transactional
     public void genererMvtStockAvecEtatFromFacture(Facture facture) throws Exception {
         List<MouvementStock> mvts = genererMvtStockFromFacture(facture);
         etatStockService.genererEtatStockFromMvtStock(mvts);
@@ -208,4 +234,14 @@ public class MouvementStockService {
         List<MouvementStock> mvts = genererMvtStockFromBR(br);
         etatStockService.genererEtatStockFromMvtStock(mvts);
     }
+
+    @Transactional
+    public void genererMvtStockAvecEtatFromBCVente(BonCommande bc) throws Exception {
+        List<MouvementStock> mvts = genererMvtStockFromBCVente(bc);
+        etatStockService.genererEtatStockFromMvtStock(mvts);
+    }
+
+
+
+
 }
