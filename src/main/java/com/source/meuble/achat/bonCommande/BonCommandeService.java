@@ -47,6 +47,10 @@ public class BonCommandeService {
         return bonCommandeRepository.findAllByRole(u.getRole().name());
     }
 
+    public List<BonCommande> getAllBcByUtilisateurClient(Utilisateur u) {
+        return bonCommandeRepository.findAllByRoleClient(u.getRole().name());
+    }
+
 
     @Transactional
     public BonCommande commander(LocalDate dateComm, LocalDate dateLivr, List<BonCommandeFille> bcFilles)

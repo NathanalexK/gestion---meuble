@@ -4,6 +4,7 @@ import com.source.meuble.achat.BonReception.BonReceptionFille.BonReceptionFille;
 import com.source.meuble.achat.bonCommande.BonCommande;
 import com.source.meuble.pieces.Etat;
 import com.source.meuble.pieces.EtatCPL;
+import com.source.meuble.vente.BonLivraison.BonLivraisonFille.BonLivraisonFille;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,19 +15,19 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "bon_reception")
+@Table(name = "bon_livraison")
 public class BonLivraison extends Etat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_br", nullable = false)
+    @Column(name = "id_bl", nullable = false)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_bc")
     private BonCommande idBc;
 
-    @Column(name = "date_reception")
-    private LocalDate dateReception;
+    @Column(name = "date_livraison")
+    private LocalDate dateLivraison;
 
     @Column(name = "etat")
     private Integer etat;
@@ -36,8 +37,8 @@ public class BonLivraison extends Etat {
         return null;
     }
 
-    @OneToMany(mappedBy = "idBr", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    public List<BonReceptionFille> fille;
+    @OneToMany(mappedBy = "idBl", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    public List<BonLivraisonFille> fille;
 
 //    @Override
 //    public List<Object> getFille() {

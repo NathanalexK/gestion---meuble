@@ -10,15 +10,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "bon_reception_fille")
+@Table(name = "bon_livraison_fille")
 public class BonLivraisonFille {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_br_fille", nullable = false)
+    @Column(name = "id_bl_fille", nullable = false)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_br")
+    @JoinColumn(name = "id_bl")
     private BonLivraison idBl;
 
     @Column(name = "quantite")

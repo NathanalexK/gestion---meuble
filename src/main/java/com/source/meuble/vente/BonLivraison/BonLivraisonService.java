@@ -6,7 +6,9 @@ import com.source.meuble.achat.bonCommande.BonCommande;
 import com.source.meuble.achat.bonCommande.BonCommandeRepository;
 import com.source.meuble.achat.bonCommande.BonCommandeService;
 import com.source.meuble.achat.bonCommande.bonCommandeFille.BonCommandeFille;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.stock.mouvementStock.MouvementStockService;
+import com.source.meuble.utilisateur.Utilisateur;
 import com.source.meuble.vente.BonLivraison.BonLivraisonFille.BonLivraisonFille;
 import com.source.meuble.vente.BonLivraison.BonLivraisonFille.BonLivraisonFilleRepository;
 import jakarta.transaction.Transactional;
@@ -60,7 +62,7 @@ public class BonLivraisonService {
         Optional<BonCommande> optionalBonCommande=bonCommandeService.findById(idBc);
         if (optionalBonCommande.isPresent()) {
             BonCommande bon = optionalBonCommande.get();
-            BonLivraison br=this.genererBr(bon,daty);
+            BonLivraison br=this.genererBl(bon,daty);
             List<BonCommandeFille> bcFilles= bonCommandeService.findFilleByIdMere(bon.getId());
             this.genereBonLivraisonFille(bcFilles,br);
 //            mouvementStockService.achatWithMouvementEtat2(br);
@@ -74,7 +76,7 @@ public class BonLivraisonService {
         if(dateReception == null) dateReception = LocalDate.now();
 
         BonLivraison bl = new BonLivraison();
-        bl.setDateReception(dateReception);
+        bl.setDateLivraison(dateReception);
         bl.setEtat(0);
         bl.setIdBc(bc);
         bl = bonLivraisonRepository.save(bl);
@@ -99,10 +101,10 @@ public class BonLivraisonService {
         return bl;
     }
 
-    public BonLivraison genererBr(BonCommande bonCommande, LocalDate daty){
+    public BonLivraison genererBl(BonCommande bonCommande, LocalDate daty){
         BonLivraison br=new BonLivraison();
         br.setIdBc(bonCommande);
-        br.setDateReception(daty);
+        br.setDateLivraison(daty);
         return bonLivraisonRepository.save(br);
     }
 
@@ -120,6 +122,21 @@ public class BonLivraisonService {
     public List<BonLivraisonFille> findFilleByIdMere(Integer idBr) {
 
         return bonLivraisonFilleRepository.findByIdBl_Id(idBr);
+    }
+
+    @Transactional
+    public BonLivraison validerBonLivraison(BonLivraison bl) throws Alert {
+        if(bl.getEtat() < 2) {
+            bl.setEtat(bl.getEtat() + 1);
+            bonLivraisonRepository.save(bl);
+        } else {
+            throw new Alert("Bon de Commande déjà validée");
+        }
+        return bl;
+    }
+
+    public List<BonLivraison> getAllBcByUtilisateur(Utilisateur u) {
+        return bonLivraisonRepository.findAllByRole(u.getRole().name());
     }
 
 }

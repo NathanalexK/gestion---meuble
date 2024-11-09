@@ -84,6 +84,14 @@ public class BonCommandeController {
         return mav;
     }
 
+    @GetMapping("/validationClient")
+    public ModelAndView showListValidationClient(Model model) throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout(model, "bon-commande/validationClient");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("bcs", bonCommandeService.getAllBcByUtilisateurClient(layout.getUtilisateur()));
+        return mav;
+    }
+
     @GetMapping("/details")
     public ModelAndView showDetails(
             @RequestParam("id") BonCommande bc, @RequestParam("type" ) String type

@@ -166,7 +166,27 @@ public class ProformatController {
         RedirectAttributes atts
     ) throws Exception {
         proformatService.ajouterPrixProformat(proformat, pfs.toArray(new ProformatFille[0]), prixList.toArray(new Double[0]));
+
         atts.addFlashAttribute("swal", Alert.success("Prix bien ajouté pour le proformat: PF000" + proformat.getId()));
+        if (proformat.getIdClient() == null) {
+            return new Redirection("/proformat/details?id=" + proformat.getId()).getUrl();
+        }
+
+        return new Redirection("/proformat/detailsClient?id="+proformat.getId()).getUrl();
+    }
+
+    @PostMapping("/completer")
+    public String ajouterPrixQtiteProformat(
+            @RequestParam("proformat") Proformat proformat,
+            @RequestParam("pf[]") List<ProformatFille> pfs,
+            @RequestParam("prix[]") List<Double> prixList,
+            @RequestParam("qte[]") List<Double> qteList,
+            RedirectAttributes atts
+    ) throws Exception {
+        proformatService.ajouterPrixProformat(proformat, pfs.toArray(new ProformatFille[0]), prixList.toArray(new Double[0]));
+        proformatService.ajouterQtiteProformat(proformat, pfs.toArray(new ProformatFille[0]), qteList.toArray(new Double[0]));
+
+        atts.addFlashAttribute("swal", Alert.success("Prix et quantite bien ajouté pour le proformat: PF000" + proformat.getId()));
         if (proformat.getIdClient() == null) {
             return new Redirection("/proformat/details?id=" + proformat.getId()).getUrl();
         }
