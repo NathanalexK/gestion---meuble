@@ -103,4 +103,4 @@ CREATE TABLE besoin_cv(
     FOREIGN KEY(id_cv) REFERENCES cv(id_cv)
 );
 
-INSERT INTO utilisateur VALUES (default, 'rh', '1234', 6);
+INSERT INTO utilisateur VALUES (default, 'recruteur', '1234', 6);

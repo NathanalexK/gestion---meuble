@@ -3,6 +3,7 @@ package com.source.meuble.mock;
 import com.source.meuble.utilisateur.UserRole;
 import com.source.meuble.webComponent.Menu;
 import com.source.meuble.webComponent.Sidebar;
+import org.apache.catalina.User;
 
 public class SidebarMock {
     public static final Sidebar DEFAULT_SIDEBAR = new Sidebar("bx bx-chair", "Mr Meuble") // logo + nom du projet
@@ -12,13 +13,13 @@ public class SidebarMock {
                     new Menu("Besoins")
                             .withIcon("bx bx-briefcase-alt") // icon du menu: a voir sur: boxicons.com -> clique sur
                                                              // icon -> font -> copier la class
-                            .withRoles()
+                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                             .addSubmenu(
                                     new Menu("Demande de besoin") // Besoin (menu) -> Demande de Besoin (sous-menu du
                                                                   // menu besoin)
                                             .withIcon("bx bx-mail-send")
                                             .withLien("/besoin/form")
-                                            .withRoles())
+                                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION))
                             .addSubmenu(
                                     new Menu("Validation Besoin") // Besoin -> Validation Besoin
                                             .withIcon("bx bx-task")
@@ -35,12 +36,12 @@ public class SidebarMock {
                     new Menu("Achat")
                             .withIcon("bx bx-cart-alt")
                             .withLien("/test/layout")
-                            .withRoles()
+                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                             .addSubmenu(
                                     new Menu("Proformat")
                                             .withIcon("bx bx-receipt")
                                             .withLien("")
-                                            .withRoles()
+                                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                                             .addSubmenu(
                                                     new Menu("Demande Proformat")
                                                             .withIcon("bx bx-plus")
@@ -53,7 +54,7 @@ public class SidebarMock {
                                     new Menu("Bon de Commande")
                                             .withIcon("bx bx-receipt")
                                             .withLien("")
-                                            .withRoles()
+                                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                                             .addSubmenu(
                                                     new Menu("Validation")
                                                             .withIcon("bx bx-task")
@@ -67,7 +68,7 @@ public class SidebarMock {
                                     new Menu("Bon de Reception")
                                             .withIcon("bx bx-receipt")
                                             .withLien("/bon-reception/list")
-                                            .withRoles())
+                                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION))
                             .addSubmenu(
                                     new Menu("Facture Achat")
                                             .withIcon("bx bx-file-blank")
@@ -75,6 +76,7 @@ public class SidebarMock {
             .addMenu(
                     new Menu("Stock")
                             .withIcon("bx bx-cube")
+                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                             .addSubmenu(
                                     new Menu("Mouvement de Stock")
                                             .withIcon("bx bx-transfer")
@@ -86,6 +88,7 @@ public class SidebarMock {
             .addMenu(
                     new Menu("Produits")
                             .withIcon("bx bx-box")
+                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                             .addSubmenu(
                                     new Menu("Saisie Produit"))
                             .addSubmenu(
@@ -95,11 +98,12 @@ public class SidebarMock {
             .addMenu(
                     new Menu("Ventes")
                             .withIcon("bx bx-box")
+                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                             .addSubmenu(
                                     new Menu("Proformat")
                                             .withIcon("bx bx-receipt")
                                             .withLien("")
-                                            .withRoles()
+                                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                                             .addSubmenu(
                                                     new Menu("Inserer dem. Proformat")
                                                             .withIcon("bx bx-plus")
@@ -112,7 +116,7 @@ public class SidebarMock {
                                     new Menu("Bon de Commande")
                                             .withIcon("bx bx-receipt")
                                             .withLien("")
-                                            .withRoles()
+                                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                                             .addSubmenu(
                                                     new Menu("Validation")
                                                             .withIcon("bx bx-task")
@@ -127,13 +131,13 @@ public class SidebarMock {
                         new Menu("Bon de Reception")
                             .withIcon("bx bx-receipt")
                             .withLien("/bon-reception/list")
-                            .withRoles()
+                            .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                     )
                     .addSubmenu(
                             new Menu("Bon de Livraison")
                                     .withIcon("bx bx-receipt")
                                     .withLien("")
-                                    .withRoles()
+                                    .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
                                     .addSubmenu(
                                             new Menu("Validation")
                                                     .withIcon("bx bx-task")
@@ -146,5 +150,47 @@ public class SidebarMock {
                                                     .withLien("/bon-livraison/list")
                                     )
                     )
+            )
+            .addMenu(
+                    new Menu("Personnel")
+                            .withIcon("")
+                            .withLien("")
+                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+
+            )
+            .addMenu(
+                    new Menu("Recrutement")
+                            .withIcon("bx bxs-user-plus")
+                            .withLien("/recrutement/add")
+                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+
+            )
+            .addMenu(
+                    new Menu("Annonce")
+                            .withIcon("")
+                            .withLien("")
+                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+
+            )
+            .addMenu(
+                    new Menu("CV")
+                            .withIcon("")
+                            .withLien("")
+                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+
+            )
+            .addMenu(
+                    new Menu("Appel à l'action")
+                            .withIcon("")
+                            .withLien("")
+                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+                            .addSubmenu(
+                                    new Menu("Test")
+                                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+                            )
+                            .addSubmenu(
+                                    new Menu("Entretien")
+                                            .withRoles(UserRole.DIRECTION, UserRole.RH)
+                            )
             );
 }

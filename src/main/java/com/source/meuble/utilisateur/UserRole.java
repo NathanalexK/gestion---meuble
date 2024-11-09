@@ -5,5 +5,7 @@ public enum UserRole {
     DEPT_ACHAT,
     DEPT_FINANCE,
     DEPT_VENTE,
-    DEPT_LOGISTIQUE
+    DEPT_LOGISTIQUE,
+    PRODUCTION,
+    RH
 }
