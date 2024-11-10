@@ -174,9 +174,9 @@ public class SidebarMock {
 
             )
             .addMenu(
-                    new Menu("Annonce")
+                    new Menu("Offre d'emploi")
                             .withIcon("")
-                            .withLien("")
+                            .withLien("/offre-emploi/list")
                             .withRoles(UserRole.DIRECTION, UserRole.RH)
 
             )

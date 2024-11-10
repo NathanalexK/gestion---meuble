@@ -3,7 +3,7 @@ package com.source.meuble.talent.offreEmploi;
 import com.source.meuble.auth.LayoutService;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
-import com.source.meuble.talent.besoin.Besoin;
+import com.source.meuble.talent.recrutement.Recrutement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

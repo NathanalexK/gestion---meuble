@@ -1,6 +1,6 @@
 package com.source.meuble.talent.offreEmploi;
 
-import com.source.meuble.talent.besoin.Besoin;
+import com.source.meuble.talent.recrutement.Recrutement;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +26,6 @@ public class OffreEmploi {
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_besoin_recrutement", nullable = false)
-    private Besoin idBesoinRecrutement;
+    private Recrutement idBesoinRecrutement;
 
 }
