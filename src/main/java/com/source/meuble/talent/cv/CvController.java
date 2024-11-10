@@ -1,6 +1,7 @@
 package com.source.meuble.talent.cv;
 
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.talent.diplome.DiplomeRepository;
@@ -10,6 +11,8 @@ import com.source.meuble.util.Redirection;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/cv")
@@ -60,11 +63,16 @@ public class CvController {
     @GetMapping("/list/{idOffre}")
     public ModelAndView list(
             @PathVariable int idOffre
-    ) throws NoUserLoggedException, NoExerciceFoundException {
+    ) throws NoUserLoggedException, NoExerciceFoundException, Alert {
         ModelAndView mv = layoutService.getLayout("talent/cv/list").getModelAndView();
         OffreEmploi of = offreEmploiRepository.findById(idOffre).orElse(null);
+        List<Cv> cvs = cvRepository.findByIdOffreEmploi(of);
+
+        if (cvs.isEmpty())
+            throw new Alert("Il n'y a aucun cv pour cet offre");
+
         mv.addObject("offreEmploi", of);
-        mv.addObject("cvs", cvRepository.findByIdOffreEmploi(of));
+        mv.addObject("cvs", cvs);
         return mv;
     }
 
