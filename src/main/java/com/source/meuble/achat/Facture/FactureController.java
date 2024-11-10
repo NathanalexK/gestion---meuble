@@ -92,14 +92,16 @@ public class FactureController {
 //        return modelAndView;
 //    }
 //HERE
-//    @PostMapping("/generer")
-//    public String genererFactureAvecStock(
-//        @RequestParam("idBr") BonReception br
-//    ) throws Exception {
-//        authService.requireUser();
-//        factureService.genererFactureAvecStock(br);
-//        return new Redirection("/bon-reception/details?id="+br.getId()).getUrl();
-//    }
+    @PostMapping("/generer")
+    public String genererFactureAvecStock(
+        @RequestParam("idBr") BonReception br,
+        RedirectAttributes atts
+    ) throws Exception {
+        authService.requireUser();
+        factureService.genererFactureFromBR(br);
+        atts.addFlashAttribute("swal", Alert.success("Facture généré avec succès"));
+        return new Redirection("/bon-reception/details?id="+br.getId()).getUrl();
+    }
 
 //    @PostMapping("/generer-facture")
 //    public String genererFactureAvecStock2(

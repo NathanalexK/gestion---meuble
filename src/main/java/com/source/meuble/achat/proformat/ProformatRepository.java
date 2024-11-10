@@ -13,4 +13,7 @@ public interface ProformatRepository extends JpaRepository<Proformat, Integer> {
 
     @Query("select p from Proformat p where p.idFournisseur is not null and p.idClient is null")
     List<Proformat> findByIdFournisseurNotNullAndIdClientNull();
+
+    @Query("select p from Proformat p order by p.id desc ")
+    List<Proformat> findAll();
 }

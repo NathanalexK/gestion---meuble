@@ -53,4 +53,5 @@ public class AuthService {
         }
         throw new UnallowedRoleException();
     }
+
 }

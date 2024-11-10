@@ -14,7 +14,10 @@ public interface BesoinRepository extends JpaRepository<Besoin,Integer> {
     @Query("select b from Besoin b where b.etat = ?1")
     Besoin findByEtat(Integer etat);
 
-    @Query("select b from Besoin b where b.etat = ?1")
+    @Query("select b from Besoin b order by b.id desc")
+    List<Besoin> findAll();
+
+    @Query("select b from Besoin b where b.etat = ?1 order by b.id desc")
     List<Besoin> findAllByEtat(Integer etat);
 
     @Query("select b from Besoin b where (:role = 'DIRECTION' and b.etat = 1) or (:role = 'DEPT_ACHAT' and b.etat = 0)")

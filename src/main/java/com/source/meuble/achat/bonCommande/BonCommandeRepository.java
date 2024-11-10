@@ -20,4 +20,7 @@ public interface BonCommandeRepository extends JpaRepository<BonCommande, Intege
 
     @Query("select b from BonCommande b where b.idFournisseur is not null")
     List<BonCommande> findByIdFournisseurNotNull();
+
+    @Query("select bc from BonCommande bc order by bc.id desc")
+    List<BonCommande> findAll();
 }

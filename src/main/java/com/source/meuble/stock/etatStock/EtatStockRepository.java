@@ -20,6 +20,6 @@ public interface EtatStockRepository extends JpaRepository<EtatStock, Integer>{
             "(SELECT MAX(e2.id) FROM EtatStock e2 GROUP BY e2.marchandise)")
     List<EtatStock> resteEnStock();
 
-    @Query("select e from EtatStock e where e.marchandise = :produit order by e.dateEnregistrement desc limit 1")
+    @Query("select e from EtatStock e where e.marchandise = :produit order by e.id desc limit 1")
     EtatStock findLastEtatStockProduit(Produit produit);
 }

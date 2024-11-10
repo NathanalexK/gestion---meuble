@@ -97,6 +97,8 @@ insert into type_mvt values (1, 'SORTIE');
 
 alter table facture add column etat integer default 0;
 
+select * from etat_stock where id_produit = 1 order by id_etat_stock desc whe;
+
 
 
 
