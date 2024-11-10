@@ -8,6 +8,7 @@
 --%>
 <script src="../../../../assets/js/html2pdf.bundle.min.js"></script>
 
+<div class="d-flex justify-content-center">
 <div class="container" id="pdfContent">
   <div class="header">
     <p class="title">CONTRAT A DUREE INDETERMINEE</p>
@@ -35,6 +36,7 @@
     <p class="indent">Le Salarié qui accepte cet engagement, déclare être délié de tout engagement de non-concurrence à l'égard de son ou ses employeurs précédents lui interdisant de travailler pour la Société ou avec l'un quelconque des clients de la Société.</p>
     <p class="indent">Le Contrat et ses avenants sont régis par les dispositions de la Convention Collective Nationale SYNTEC, du 01/08/1988 numéro 1486.</p>
   </div>
+</div>
 </div>
 
 <button class="export-btn" onclick="exportCDItoPDF()">Exporter en PDF</button>
