@@ -15,6 +15,7 @@ import com.source.meuble.auth.LayoutService;
 import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
+import com.source.meuble.talent.recrutement.RecrutementRepository;
 import com.source.meuble.util.Layout;
 import com.source.meuble.util.Redirection;
 import org.springframework.stereotype.Controller;
@@ -39,14 +40,17 @@ public class ProformatController {
     private final FournisseurService fournisseurService;
     private final ProduitService produitService;
     private final ClientService clientService;
+    private final RecrutementRepository recrutementRepository;
 
-    public ProformatController(ProformatService proformatService, LayoutService layoutService, BesoinService besoinService, FournisseurService fournisseurService, ProduitService produitService, ClientService clientService) {
+    public ProformatController(ProformatService proformatService, LayoutService layoutService, BesoinService besoinService, FournisseurService fournisseurService, ProduitService produitService, ClientService clientService,
+                               RecrutementRepository recrutementRepository) {
         this.proformatService = proformatService;
         this.layoutService = layoutService;
         this.besoinService = besoinService;
         this.fournisseurService = fournisseurService;
         this.produitService = produitService;
         this.clientService = clientService;
+        this.recrutementRepository = recrutementRepository;
     }
 
 //    @GetMapping("/liste")
@@ -105,6 +109,18 @@ public class ProformatController {
         Layout layout = layoutService.getLayout("proformat/details");
         ModelAndView mav = layout.getModelAndView();
         mav.addObject("proformat", proformat);
+        mav.addObject("pfs", proformat.getFilles());
+        return mav;
+    }
+
+    @GetMapping("/details-recru")
+    public ModelAndView showDetailsRecru(
+            @RequestParam("id") Proformat proformat
+    ) throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout("proformat/details-recru");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("proformat", proformat);
+        mav.addObject("recrutements", recrutementRepository.findAll());
         mav.addObject("pfs", proformat.getFilles());
         return mav;
     }

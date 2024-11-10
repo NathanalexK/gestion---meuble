@@ -34,7 +34,7 @@
                     <strong>OF000<%=of.getId()%></strong>
                 </td>
                 <td>
-                    FRP000<%=of.getIdFournisseurPub().getId()%> - <%=of.getIdFournisseurPub().getNom()%>
+                    FRP000<%=of.getIdBc().getIdFournisseur().getId()%> - <%=of.getIdBc().getIdFournisseur().getNom()%>
                 </td>
                 <td>
                     <%=of.getIdBesoinRecrutement().getIdRole()%> - <%= of.getIdBesoinRecrutement().getDiplome().getLibelle() %>

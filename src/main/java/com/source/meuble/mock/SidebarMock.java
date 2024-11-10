@@ -172,12 +172,20 @@ public class SidebarMock {
                         .withLien("/recrutement/list")
                 )
 
-        )
-        .addMenu(
-            new Menu("Offre d'emploi")
-                .withIcon("")
-                .withLien("/offre-emploi/list")
-                .withRoles(UserRole.DIRECTION, UserRole.RH)
+            )
+            .addMenu(
+                    new Menu("Offre d'emploi")
+                            .withIcon("")
+                            .addSubmenu(
+                                    new Menu("Effectuer annonce")
+                                            .withLien("/offre-emploi/form")
+
+                            )
+                            .addSubmenu(
+                                    new Menu("Liste")
+                                            .withLien("/offre-emploi/list")
+                            )
+                            .withRoles(UserRole.DIRECTION, UserRole.RH)
 
         )
         .addMenu(

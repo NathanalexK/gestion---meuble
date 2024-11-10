@@ -1,4 +1,4 @@
-package com.source.meuble.talent.offreEmploi;
+package com.source.meuble.talent.Publicite;
 
 import jakarta.persistence.*;
 import lombok.Getter;

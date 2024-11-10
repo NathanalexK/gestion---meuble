@@ -5,13 +5,6 @@ CREATE TABLE diplome(
                         PRIMARY KEY(id_diplome)
 );
 
-CREATE TABLE moyen_pub(
-                          id_moyen_pub SERIAL,
-                          libelle VARCHAR(50)  NOT NULL,
-                          prix NUMERIC(18,2)   NOT NULL,
-                          PRIMARY KEY(id_moyen_pub)
-);
-
 CREATE TABLE type_contrat(
                              id_type SERIAL,
                              nom SERIAL,
@@ -19,17 +12,9 @@ CREATE TABLE type_contrat(
                              PRIMARY KEY(id_type)
 );
 
-CREATE TABLE fournisseur_pub(
-                                id_fournisseur_pub SERIAL,
-                                nom varchar(50),
-                                contact VARCHAR(50) ,
-                                prix NUMERIC(15,2)  ,
-                                PRIMARY KEY(id_fournisseur_pub)
-);
-
 CREATE TABLE besoin_recrutement(
                                    id_besoin_recrutement SERIAL,
-                                   id_role INTEGER NOT NULL,
+                                   id_departement INTEGER NOT NULL,
                                    date_demande DATE NOT NULL,
                                    annees_experience INTEGER,
                                    id_diplome INTEGER NOT NULL,
@@ -40,12 +25,12 @@ CREATE TABLE besoin_recrutement(
 CREATE TABLE offre_emploi(
                              id_offre_emploi SERIAL,
                              date_publication DATE NOT NULL,
-                             id_fournisseur_pub INTEGER,
+                             id_bc VARCHAR(50) ,
                              id_besoin_recrutement INTEGER NOT NULL,
                              PRIMARY KEY(id_offre_emploi),
                              UNIQUE(id_besoin_recrutement),
-                             FOREIGN KEY(id_fournisseur_pub) REFERENCES fournisseur_pub(id_fournisseur_pub),
                              FOREIGN KEY(id_besoin_recrutement) REFERENCES besoin_recrutement(id_besoin_recrutement)
+                             FOREIGN KEY(id_bc) REFERENCES bon_commande(id_bc)
 );
 
 CREATE TABLE cv(
@@ -115,12 +100,4 @@ CREATE TABLE contrat_employe(
                                 PRIMARY KEY(id_contrat_employe),
                                 FOREIGN KEY(id_personnel) REFERENCES personnel(id_personnel),
                                 FOREIGN KEY(id_type) REFERENCES type_contrat(id_type)
-);
-
-CREATE TABLE fournisseur_moyen(
-                                  id_moyen_pub INTEGER,
-                                  id_fournisseur_pub INTEGER,
-                                  PRIMARY KEY(id_moyen_pub, id_fournisseur_pub),
-                                  FOREIGN KEY(id_moyen_pub) REFERENCES moyen_pub(id_moyen_pub),
-                                  FOREIGN KEY(id_fournisseur_pub) REFERENCES fournisseur_pub(id_fournisseur_pub)
 );

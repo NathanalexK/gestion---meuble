@@ -1,5 +1,7 @@
 package com.source.meuble.talent.offreEmploi;
 
+import com.source.meuble.achat.bonCommande.BonCommande;
+import com.source.meuble.talent.Publicite.FournisseurPub;
 import com.source.meuble.talent.recrutement.Recrutement;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,12 +22,12 @@ public class OffreEmploi {
     @Column(name = "date_publication", nullable = false)
     private LocalDate datePublication;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_fournisseur_pub")
-    private FournisseurPub idFournisseurPub;
-
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_besoin_recrutement", nullable = false)
     private Recrutement idBesoinRecrutement;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_bc")
+    private BonCommande idBc;
 
 }

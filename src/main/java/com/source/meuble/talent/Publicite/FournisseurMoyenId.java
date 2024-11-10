@@ -1,4 +1,4 @@
-package com.source.meuble.talent.offreEmploi;
+package com.source.meuble.talent.Publicite;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
