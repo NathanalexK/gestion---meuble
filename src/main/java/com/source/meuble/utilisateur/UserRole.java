@@ -7,5 +7,6 @@ public enum UserRole {
     DEPT_VENTE,
     DEPT_LOGISTIQUE,
     PRODUCTION,
-    RH
+    RH,
+    DEV
 }

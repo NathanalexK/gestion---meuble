@@ -161,8 +161,16 @@ public class SidebarMock {
             .addMenu(
                     new Menu("Recrutement")
                             .withIcon("bx bxs-user-plus")
-                            .withLien("/recrutement/add")
                             .withRoles(UserRole.DIRECTION, UserRole.RH)
+                            .addSubmenu(
+                                    new Menu("Inserer")
+                                            .withLien("/recrutement/add")
+
+                            )
+                            .addSubmenu(
+                                    new Menu("Liste")
+                                            .withLien("/recrutement/list")
+                            )
 
             )
             .addMenu(

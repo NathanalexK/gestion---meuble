@@ -1,9 +1,9 @@
 package com.source.meuble.talent.diplome;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DiplomeService {
@@ -14,8 +14,9 @@ public class DiplomeService {
         this.diplomeRepository = diplomeRepository;
     }
 
-    List<Diplome> findAll(){
+    public List<Diplome> findAll(){
         return diplomeRepository.findAll();
     }
 
+    public Optional<Diplome> findById(Integer id){ return diplomeRepository.findById(id); }
 }

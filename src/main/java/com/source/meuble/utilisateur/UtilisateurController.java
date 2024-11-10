@@ -40,8 +40,7 @@ public class UtilisateurController {
         try {
             Utilisateur utilisateur = utilisateurService.login(username, password);
             httpSession.setAttribute("u", utilisateur);
-            if(utilisateur.getRole() == UserRole.RH) redirection.setUrl("/home");
-            else redirection.setUrl("/exercice");
+            redirection.setUrl("/exercice");
 
         } catch (Exception e) {
             final String ERROR = "Identifiant ou mot de passe incorrect";
