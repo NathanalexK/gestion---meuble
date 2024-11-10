@@ -27,6 +27,9 @@ public class Produit {
     @JoinColumn(name = "id_unite_oeuvre")
     private UniteOeuvre uniteOeuvre;
 
+    @Column(name = "type")
+    private Integer type;
+
 //    @Column(name = "quantite", precision = 11, scale = 2)
 //    private BigDecimal quantite;
 //
