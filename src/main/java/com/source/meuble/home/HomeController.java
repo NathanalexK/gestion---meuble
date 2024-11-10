@@ -53,6 +53,8 @@ public class HomeController {
         return layoutService.getPage("home/welcome");
     }
 
+//    @GetMapping("/s")
+
 //    private final UniteOeuvreService uniteOeuvreService;
 //    private final CentreService centreService;
 //    private final TypeRubriqueService typeRubriqueService;

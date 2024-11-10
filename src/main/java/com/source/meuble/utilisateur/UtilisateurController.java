@@ -1,6 +1,8 @@
 package com.source.meuble.utilisateur;
 
+import com.source.meuble.mail.MailService;
 import com.source.meuble.util.Redirection;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,15 +13,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.UnsupportedEncodingException;
+
 @Controller
 @RequestMapping("/")
 public class UtilisateurController {
     private final HttpSession httpSession;
     private final UtilisateurService utilisateurService;
+    private final MailService mailService;
 
-    public UtilisateurController(HttpSession httpSession, UtilisateurService utilisateurService) {
+    public UtilisateurController(HttpSession httpSession, UtilisateurService utilisateurService, MailService mailService) {
         this.httpSession = httpSession;
         this.utilisateurService = utilisateurService;
+        this.mailService = mailService;
     }
 
 
@@ -57,5 +63,16 @@ public class UtilisateurController {
         httpSession.removeAttribute("exo");
         httpSession.removeAttribute("u");
         return new Redirection("/").getUrl();
+    }
+
+    @GetMapping("/send-mail")
+    public void sendMail() throws MessagingException, UnsupportedEncodingException {
+        mailService.sendEntrepriseMail("nathanalekskevin@gmail.com", "Recrutement", "Vous etes recruté");
+//        SimpleMailMessage mail = new SimpleMailMessage();
+//        mail.setFrom("From");
+//        mail.setTo("nathanalekskevin@gmail.com");
+//        mail.setSubject("Subject");
+//        mail.setText("text");
+//        mailService.sendEmail(mail);
     }
 }
