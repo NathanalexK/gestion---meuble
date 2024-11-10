@@ -63,26 +63,26 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Mr Meuble</title>
-    <link rel="stylesheet" href="../assets/vendor/fonts/boxicons.css"/>
+    <link rel="stylesheet" href="/assets/vendor/fonts/boxicons.css"/>
 
     <!-- Core CSS -->
-    <link rel="stylesheet" href="../assets/vendor/css/core.css" class="template-customizer-core-css"/>
-    <link rel="stylesheet" href="../assets/vendor/css/theme-default.css" class="template-customizer-theme-css"/>
-    <link rel="stylesheet" href="../assets/css/demo.css"/>
+    <link rel="stylesheet" href="/assets/vendor/css/core.css" class="template-customizer-core-css"/>
+    <link rel="stylesheet" href="/assets/vendor/css/theme-default.css" class="template-customizer-theme-css"/>
+    <link rel="stylesheet" href="/assets/css/demo.css"/>
 
     <!-- Vendors CSS -->
-    <link rel="stylesheet" href="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
 
-    <link rel="stylesheet" href="../assets/vendor/libs/apex-charts/apex-charts.css"/>
+    <link rel="stylesheet" href="/assets/vendor/libs/apex-charts/apex-charts.css"/>
 
     <!-- Page CSS -->
 
     <!-- Helpers -->
-    <script src="../assets/vendor/js/helpers.js"></script>
+    <script src="/assets/vendor/js/helpers.js"></script>
 
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-    <script src="../assets/js/config.js"></script>
+    <script src="/assets/js/config.js"></script>
 
 </head>
 <body>
@@ -103,7 +103,7 @@
 <%--                    <div class="navbar-nav align-items-center">--%>
 <%--                        <div class="nav-item d-flex align-items-center">--%>
 <%--                            <i class="bx bx-search fs-4 lh-0"></i>--%>
-<%--                            <input type="text" class="form-control border-0 shadow-none" placeholder="Search..." aria-label="Search...">--%>
+<%--                            <input type="text" class="form-control border-0 shadow-none" placeholder="Search." aria-label="Search.">--%>
 <%--                        </div>--%>
 <%--                    </div>--%>
                     <!-- /Search -->
@@ -118,7 +118,7 @@
                         <li class="nav-item navbar-dropdown dropdown-user dropdown">
                             <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                                 <div class="avatar avatar-online">
-                                    <img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
+                                    <img src="/assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
                                 </div>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
@@ -127,7 +127,7 @@
                                         <div class="d-flex">
                                             <div class="flex-shrink-0 me-3">
                                                 <div class="avatar avatar-online">
-                                                    <img src="../assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
+                                                    <img src="/assets/img/avatars/1.png" alt="" class="w-px-40 h-auto rounded-circle">
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1">
@@ -176,8 +176,8 @@
             <%--                <input--%>
             <%--                        type="text"--%>
             <%--                        class="form-control border-0 shadow-none"--%>
-            <%--                        placeholder="Search..."--%>
-            <%--                        aria-label="Search..."--%>
+            <%--                        placeholder="Search."--%>
+            <%--                        aria-label="Search."--%>
             <%--                />--%>
             <%--              </div>--%>
             <%--            </div>--%>
@@ -201,7 +201,7 @@
             <%--              <li class="nav-item navbar-dropdown dropdown-user dropdown">--%>
             <%--                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">--%>
             <%--                  <div class="avatar avatar-online">--%>
-            <%--                    <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />--%>
+            <%--                    <img src="/assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />--%>
             <%--                  </div>--%>
             <%--                </a>--%>
             <%--                <ul class="dropdown-menu dropdown-menu-end">--%>
@@ -210,7 +210,7 @@
             <%--                      <div class="d-flex">--%>
             <%--                        <div class="flex-shrink-0 me-3">--%>
             <%--                          <div class="avatar avatar-online">--%>
-            <%--                            <img src="../assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />--%>
+            <%--                            <img src="/assets/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />--%>
             <%--                          </div>--%>
             <%--                        </div>--%>
             <%--                        <div class="flex-grow-1">--%>
@@ -264,22 +264,22 @@
     </div>
 </div>
 
-<script src="../assets/vendor/libs/jquery/jquery.js"></script>
-<script src="../assets/vendor/libs/popper/popper.js"></script>
-<script src="../assets/vendor/js/bootstrap.js"></script>
-<script src="../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<script src="/assets/vendor/libs/jquery/jquery.js"></script>
+<script src="/assets/vendor/libs/popper/popper.js"></script>
+<script src="/assets/vendor/js/bootstrap.js"></script>
+<script src="/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
 
-<script src="../assets/vendor/js/menu.js"></script>
+<script src="/assets/vendor/js/menu.js"></script>
 <!-- endbuild -->
 
 <!-- Vendors JS -->
-<script src="../assets/vendor/libs/apex-charts/apexcharts.js"></script>
+<script src="/assets/vendor/libs/apex-charts/apexcharts.js"></script>
 
 <!-- Main JS -->
-<script src="../assets/js/main.js"></script>
+<script src="/assets/js/main.js"></script>
 
 <!-- Page JS -->
-<script src="../assets/js/dashboards-analytics.js"></script>
+<script src="/assets/js/dashboards-analytics.js"></script>
 </body>
 </html>
 
@@ -290,10 +290,10 @@
 <%--  <meta name="viewport" content="width=device-width, initial-scale=1.0">--%>
 <%--  <title>E-Bossy</title>--%>
 <%--  <link rel="icon" href="/assets/icon/logo.png">--%>
-<%--  <link rel="stylesheet" href="../assets/css/bootstrap.css">--%>
-<%--  <link rel="stylesheet" href="../assets/css/bootstrap-reboot.css">--%>
-<%--  <link rel="stylesheet" href="../assets/css/bootstrap-grid.css">--%>
-<%--  <link rel="stylesheet" href="../assets/css/style.css">--%>
+<%--  <link rel="stylesheet" href="/assets/css/bootstrap.css">--%>
+<%--  <link rel="stylesheet" href="/assets/css/bootstrap-reboot.css">--%>
+<%--  <link rel="stylesheet" href="/assets/css/bootstrap-grid.css">--%>
+<%--  <link rel="stylesheet" href="/assets/css/style.css">--%>
 <%--&lt;%&ndash;  <script src="/assets/js/angular.min.js"></script>&ndash;%&gt;--%>
 <%--&lt;%&ndash;  <script>&ndash;%&gt;--%>
 <%--&lt;%&ndash;    const app = angular.module("app", [])&ndash;%&gt;--%>
@@ -307,7 +307,7 @@
 <%--        <b class="">Departement Achat</b>--%>
 <%--      </div>--%>
 <%--      <div class="">--%>
-<%--        <!--                        <img src="../assets/icon/logo.png" alt="" width="34px" class="mx-2">-->--%>
+<%--        <!--                        <img src="/assets/icon/logo.png" alt="" width="34px" class="mx-2">-->--%>
 <%--        <b class="_blue" style="font-size: 24px">Mr Meuble</b>--%>
 <%--      </div>--%>
 <%--      <div class="text-right align-content-center">--%>
@@ -446,9 +446,9 @@
 
 <%--</body>--%>
 <%--<script src="/assets/js/jquery-3.7.1.min.js"></script>--%>
-<%--<script src="../assets/js/bootstrap.js"></script>--%>
+<%--<script src="/assets/js/bootstrap.js"></script>--%>
 
-<%--<script src="../assets/js/bootstrap.bundle.js"></script>--%>
+<%--<script src="/assets/js/bootstrap.bundle.js"></script>--%>
 
 <%--<script>--%>
 <%--  function confirmSubmission(event, nom) {--%>
