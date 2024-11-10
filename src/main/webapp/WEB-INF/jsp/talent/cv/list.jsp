@@ -1,6 +1,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.source.meuble.achat.proformat.Proformat" %>
-<%@ page import="com.source.meuble.talent.offreEmploi.OffreEmploi" %><%--
+<%@ page import="com.source.meuble.talent.offreEmploi.OffreEmploi" %>
+<%@ page import="com.source.meuble.talent.cv.Cv" %><%--
   Created by IntelliJ IDEA.
   User: Nathanalex
   Date: 01/11/2024
@@ -9,45 +10,45 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-    List<OffreEmploi> offreEmplois = ((List<OffreEmploi>) request.getAttribute("offreEmplois"));
+    List<Cv> cvs = (List<Cv>) request.getAttribute("cvs");
 %>
 
 <div class="card">
-    <h5 class="card-header">Liste des offres d"emplois</h5>
+    <h5 class="card-header">Liste des Cv: Offre d'emploi N°: <%=cvs.get(0).getIdOffreEmploi().getId()%></h5>
     <div class="table-responsive text-nowrap">
         <table class="table">
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Fournisseur publicateur</th>
+                <th>Nom - prenom</th>
                 <th>Poste à rechercher</th>
-                <th>Date</th>
+                <th>Date postulation</th>
                 <th>Actions</th>
             </tr>
             </thead>
             <tbody class="table-border-bottom-0">
             <%
-                for (OffreEmploi of : offreEmplois) {
+                for (Cv cv : cvs) {
             %>
             <tr>
                 <td>
-                    <strong>OF000<%=of.getId()%></strong>
+                    <strong>OF000<%=cv.getId()%></strong>
                 </td>
                 <td>
-                    FRP000<%=of.getIdFournisseurPub().getId()%> - <%=of.getIdFournisseurPub().getNom()%>
+                    <%=cv.getNom()%> <%=cv.getPrenom()%>
                 </td>
                 <td>
-                    <%=of.getIdBesoinRecrutement().getIdRole()%> - <%= of.getIdBesoinRecrutement().getDiplome().getLibelle() %>
+                    Unknow information --to-complete
                 </td>
                 <td>
-                    <%=of.getDatePublication()%>
+                    <%=cv.getDatePostulation()%>
                 </td>
                 <td>
-                    <a href="/cv/form/<%=of.getId()%>">
-                        <button class="btn btn-primary">Ajouter cv</button>
+                    <a href="/cv/form/<%=cv.getId()%>">
+                        <button class="btn btn-primary">Embaucher</button>
                     </a>
-                    <a href="/cv/list/<%=of.getId()%>">
-                        <button class="btn btn-primary">Voir cv ajouté</button>
+                    <a href="/cv/form/<%=cv.getId()%>">
+                        <button class="btn btn-dark">Details</button>
                     </a>
                 </td>
             </tr>
