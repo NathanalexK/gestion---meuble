@@ -44,7 +44,7 @@
                     <span><h4>Experiences: </h4></span><span><%=cv.getAnneesExperience()%> ans</span>
                 </div>
                 <div class="py-3 d-flex justify-content-between align-content-center">
-                    <span><h4>A postulé le: </h4></span><span><%=cv.getDatePostulation()%> ans</span>
+                    <span><h4>A postulé le: </h4></span><span><%=cv.getDatePostulation()%></span>
                 </div>
             </div>
         </div>
