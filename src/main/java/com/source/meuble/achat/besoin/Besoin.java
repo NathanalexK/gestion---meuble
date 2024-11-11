@@ -32,6 +32,7 @@ public class Besoin extends Etat {
 //    private Centre idDemandeur;
 
     @Column(name = "etat")
+//    @Transient
     private Integer etat;
 
     @Column(name = "daty")
@@ -43,6 +44,8 @@ public class Besoin extends Etat {
 
     @Column(name = "id_departement")
     private UserRole role;
+
+
 
 
     @Override
