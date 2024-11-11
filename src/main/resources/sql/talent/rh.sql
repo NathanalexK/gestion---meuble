@@ -20,6 +20,11 @@ CREATE TABLE cv(
     FOREIGN KEY(id_diplome) REFERENCES diplome(id_diplome)
 );
 
+
+
+alter table cv add column email varchar(255);
+alter table telephone
+
 CREATE TABLE type_contrat(
     id_type SERIAL,
     nom VARCHAR(50) ,
