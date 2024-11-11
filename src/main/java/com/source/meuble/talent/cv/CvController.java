@@ -79,9 +79,9 @@ public class CvController {
     }
 
     @GetMapping("/details/{id}")
-    public ModelAndView details(@PathVariable int idCv) throws NoUserLoggedException, NoExerciceFoundException {
+    public ModelAndView details(@PathVariable int id) throws NoUserLoggedException, NoExerciceFoundException {
         ModelAndView mav = layoutService.getLayout("talent/cv/details").getModelAndView();
-        Optional<Cv> cv = cvRepository.findById(idCv);
+        Optional<Cv> cv = cvRepository.findById(id);
 
         mav.addObject("cv", cv.get());
         return mav;
