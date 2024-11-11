@@ -44,8 +44,8 @@
                     <%=cv.getDatePostulation()%>
                 </td>
                 <td>
-                    <a href="/cv/form/<%=cv.getId()%>">
-                        <button class="btn btn-primary">Embaucher</button>
+                    <a href="/test/form?id=<%=cv.getId()%>">
+                        <button class="btn btn-primary">Tester</button>
                     </a>
                     <a href="/cv/form/<%=cv.getId()%>">
                         <button class="btn btn-dark">Details</button>
