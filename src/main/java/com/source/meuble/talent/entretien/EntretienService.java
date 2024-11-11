@@ -12,4 +12,7 @@ public class EntretienService {
         this.entretienRepository = entretienRepository;
     }
 
+    public Entretien save(Entretien entretien)throws  Exception{
+        return entretienRepository.save(entretien);
+    }
 }

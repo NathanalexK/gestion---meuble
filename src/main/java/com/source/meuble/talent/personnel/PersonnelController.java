@@ -4,6 +4,8 @@ import com.source.meuble.auth.LayoutService;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.talent.cv.Cv;
+import com.source.meuble.talent.entretien.Entretien;
+import com.source.meuble.talent.entretien.EntretienService;
 import com.source.meuble.util.Redirection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,10 +23,17 @@ public class PersonnelController {
     @Autowired
     LayoutService layoutService;
 
+    @Autowired
+    EntretienService entretienService;
+
     @GetMapping("/insert-personnel")
     public ModelAndView embaucher(
-            @RequestParam("id") Cv cv
-    ) throws NoUserLoggedException, NoExerciceFoundException {
+            @RequestParam("id") Cv cv,
+            @RequestParam("entretien")Entretien entretien
+            ) throws NoUserLoggedException, NoExerciceFoundException, Exception {
+        entretien.setEtat(1);
+        entretienService.save(entretien);
+
         ModelAndView mav = layoutService.getLayout("talent/personnel/form").getModelAndView();
         mav.addObject("cv", cv);
         return mav;
