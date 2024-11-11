@@ -16,6 +16,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,8 +50,8 @@ public class OffreEmploiController {
     }
 
     @GetMapping("/list")
-    public ModelAndView liste() throws NoUserLoggedException, NoExerciceFoundException {
-        ModelAndView mv = layoutService.getLayout("talent/offreEmploi/list").getModelAndView();
+    public ModelAndView liste(Model model) throws NoUserLoggedException, NoExerciceFoundException {
+        ModelAndView mv = layoutService.getLayout(model,"talent/offreEmploi/list").getModelAndView();
         mv.addObject("offreEmplois", offreEmploiRepository.findAll());
         return mv;
     }

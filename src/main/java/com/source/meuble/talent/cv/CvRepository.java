@@ -1,6 +1,5 @@
 package com.source.meuble.talent.cv;
 
-import com.source.meuble.talent.diplome.Diplome;
 import com.source.meuble.talent.offreEmploi.OffreEmploi;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

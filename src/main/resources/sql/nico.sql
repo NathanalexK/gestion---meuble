@@ -25,11 +25,11 @@ CREATE TABLE besoin_recrutement(
 CREATE TABLE offre_emploi(
                              id_offre_emploi SERIAL,
                              date_publication DATE NOT NULL,
-                             id_bc VARCHAR(50) ,
+                             id_bc INTEGER ,
                              id_besoin_recrutement INTEGER NOT NULL,
                              PRIMARY KEY(id_offre_emploi),
                              UNIQUE(id_besoin_recrutement),
-                             FOREIGN KEY(id_besoin_recrutement) REFERENCES besoin_recrutement(id_besoin_recrutement)
+                             FOREIGN KEY(id_besoin_recrutement) REFERENCES besoin_recrutement(id_besoin_recrutement),
                              FOREIGN KEY(id_bc) REFERENCES bon_commande(id_bc)
 );
 

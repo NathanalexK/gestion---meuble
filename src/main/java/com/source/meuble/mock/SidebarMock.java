@@ -203,10 +203,12 @@ public class SidebarMock {
                 .withRoles(UserRole.DIRECTION, UserRole.RH)
                 .addSubmenu(
                     new Menu("Test")
+                        .withLien("/test/list")
                         .withRoles(UserRole.DIRECTION, UserRole.RH)
                 )
                 .addSubmenu(
                     new Menu("Entretien")
+                        .withLien("/entretien/list")
                         .withRoles(UserRole.DIRECTION, UserRole.RH)
                 )
         );

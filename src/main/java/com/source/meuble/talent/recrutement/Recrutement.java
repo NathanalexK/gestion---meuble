@@ -34,6 +34,5 @@ public class Recrutement {
     @Column(name = "annees_experience")
     private int anneesExperience;
 
-
-//    private int etat;
+    private int etat;
 }
