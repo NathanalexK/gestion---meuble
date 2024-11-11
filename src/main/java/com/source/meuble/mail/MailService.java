@@ -2,6 +2,7 @@ package com.source.meuble.mail;
 
 import com.source.meuble.exception.Alert;
 import com.source.meuble.talent.cv.Cv;
+import com.source.meuble.talent.personnel.Personnel;
 import com.source.meuble.util.AlertType;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -71,5 +72,24 @@ public class MailService {
                 .replace(":prenom", cv.getPrenom())
                 ;
         sendEntrepriseMail(cv.getEmail(), "Reponse candidature", content);
+    }
+
+    public void accepterEssai(Personnel cv) throws Alert, MessagingException, UnsupportedEncodingException {
+        if(cv.getEmail() == null) {
+            Alert alert = new Alert(AlertType.WARNING, "Erreur", "L'email est de l'employé est requis");
+            throw alert;
+        }
+
+        String content = """
+                Madame/Monsieur :nom :prenom,
+                                
+                Nous avons le plaisir de vous informer que suite à notre entretien, nous avons été convaincus par votre profil et votre expérience. C’est avec enthousiasme que nous vous proposons de rejoindre notre équipe en tant que :poste :detail au sein de Mr Meuble.
+                """
+                .replace(":nom", cv.getNom())
+                .replace(":prenom", cv.getPrenom())
+                .replace(":poste", cv.getIdRole().toString())
+                .replace(":detail", cv.getPoste())
+                ;
+        sendEntrepriseMail(cv.getEmail(), "Reponse entretien", content);
     }
 }
