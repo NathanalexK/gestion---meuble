@@ -33,6 +33,8 @@ public class ContratController {
 
     @Autowired
     private ContratService contratService;
+    @Autowired
+    private TypeContratService typeContratService;
 
     @GetMapping("/showCdi")
     public ModelAndView showCdi(Personnel nouveau, ContratEmploye nouveauContrat) throws NoUserLoggedException, NoExerciceFoundException {
@@ -63,13 +65,12 @@ public class ContratController {
     @GetMapping("/embaucher")
     @Transactional
     public ModelAndView embaucher(
-            @ModelAttribute("pers") Personnel personnel
+            Model model
     ) throws Exception{
+        Personnel personnel = (Personnel) model.getAttribute("pers");
         ModelAndView mav = null;
 
-        Personnel nouveau = personnelService.insertPersonnel(personnel);
-
-        ContratEmploye contratEmploye = contratService.genererContrat(nouveau, 1);
+        ContratEmploye contratEmploye = contratService.genererContrat(personnel, 1);
 
         ContratEmploye nouveauContrat = contratService.insertContrat(contratEmploye);
 
@@ -78,7 +79,7 @@ public class ContratController {
         } else if (type == 3) {
             mav = this.showCdd(nouveau, nouveauContrat);
         }*/
-        mav = this.showCe(nouveau, nouveauContrat);
+        mav = this.showCe(personnel, nouveauContrat);
         return mav;
     }
 
@@ -88,11 +89,15 @@ public class ContratController {
             @RequestParam("contrat") ContratEmploye contrat,
             @RequestParam("date")LocalDate date
             ) throws Exception{
+        contrat.setDateFin(null);
+        contratService.insertContrat(contrat);
         ContratEmploye nouveau = new ContratEmploye();
         nouveau.setPersonnel(personnel);
         nouveau.setDateDebut(date);
-        nouveau.setDateFin(contrat.getDateDebut().plusMonths(6));
-        nouveau.setTypeContrat(contrat.getTypeContrat());
+        nouveau.setDateFin(null);
+
+        Optional<TypeContrat> c = typeContratService.getById(2);
+        nouveau.setTypeContrat(c.get());
 
         contratService.insertContrat(nouveau);
 

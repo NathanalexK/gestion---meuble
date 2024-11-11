@@ -7,10 +7,8 @@ import com.source.meuble.talent.cv.Cv;
 import com.source.meuble.util.Redirection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -32,8 +30,10 @@ public class PersonnelController {
         return mav;
     }
 
-    @GetMapping("generer-contrat")
-    public ModelAndView genererContrat(@ModelAttribute Personnel pers) {
-
+    @PostMapping("generer-contrat")
+    public String genererContrat(@ModelAttribute Personnel pers, RedirectAttributes attr) throws Exception {
+        Personnel p = personnelService.insertPersonnel(pers);
+        attr.addFlashAttribute("pers", p);
+        return "redirect:/contrat/embaucher";
     }
 }

@@ -11,4 +11,5 @@ public class PersonnelService {
     public Personnel insertPersonnel(Personnel personnel)throws Exception{
         return personnelRepository.save(personnel);
     }
+
 }
