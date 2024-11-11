@@ -1,4 +1,4 @@
-package com.source.meuble.contrat;
+package com.source.meuble.talent.contrat.ContratEmploye;
 
 import com.source.meuble.auth.LayoutService;
 import com.source.meuble.exception.NoExerciceFoundException;
