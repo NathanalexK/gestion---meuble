@@ -69,7 +69,7 @@ public class CvController {
         List<Cv> cvs = cvRepository.findByIdOffreEmploi(of);
 
         if (cvs.isEmpty())
-            throw new Alert("Il n'y a aucun cv pour cet offre");
+            throw new Alert("Il n y a aucun cv pour cet offre");
 
         mv.addObject("offreEmploi", of);
         mv.addObject("cvs", cvs);
