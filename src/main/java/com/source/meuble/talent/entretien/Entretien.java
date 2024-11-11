@@ -20,6 +20,9 @@ public class Entretien {
     @Column(name = "date_entretien")
     private LocalDate dateEntretien;
 
+    @Column(name = "etat")
+    private Integer etat;
+
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_cv", nullable = false)
     private Cv idCv;

@@ -41,7 +41,7 @@ public class EntretienController {
     public ModelAndView list() throws NoUserLoggedException, NoExerciceFoundException {
         Layout layout = layoutService.getLayout("talent/entretien/list");
         ModelAndView mav = layout.getModelAndView();
-        mav.addObject("etr", entretienRepository.findAll());
+        mav.addObject("etr", entretienRepository.findByEtat(0));
         return mav;
     }
 
@@ -63,6 +63,22 @@ public class EntretienController {
                 throw new RuntimeException(e);
             }
         }).start();
+        return new Redirection("/entretien/list").getUrl();
+    }
+
+    @PostMapping("/refuser")
+    public String refuser(@RequestParam("id")Entretien entretien){
+        new Thread(() -> {
+            try {
+                System.out.println("Mail begin");
+                mailService.refuserCV(entretien.getIdCv());
+                System.out.println("Mail finished");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+        }).start();
+        entretien.setEtat(-1);
         return new Redirection("/entretien/list").getUrl();
     }
 }

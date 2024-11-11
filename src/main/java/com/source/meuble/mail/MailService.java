@@ -55,4 +55,21 @@ public class MailService {
         sendEntrepriseMail(cv.getEmail(), "Reponse candidature", content);
     }
 
+    public void refuserCV(Cv cv) throws Alert, MessagingException, UnsupportedEncodingException {
+        if(cv.getEmail() == null) {
+            Alert alert = new Alert(AlertType.WARNING, "Erreur", "L'email est du postuleur est requis");
+            throw alert;
+        }
+        String content = """
+            Madame/Monsieur :prenom,
+                    
+                    Nous tenons à vous remercier pour l’intérêt que vous avez porté à notre entreprise et pour le temps consacré à votre candidature au sein de Mr Meuble.
+                    
+                    Après une étude attentive de votre profil, nous avons le regret de vous informer que nous ne pouvons donner une suite favorable à votre candidature. 
+                    Cette décision n'enlève rien à la qualité de votre parcours ni à vos compétences,qui sont tout à fait appréciables. Cependant, nous avons privilégié un candidat dont le profil correspond plus étroitement à nos besoins actuels.
+        """
+                .replace(":prenom", cv.getPrenom())
+                ;
+        sendEntrepriseMail(cv.getEmail(), "Reponse candidature", content);
+    }
 }
