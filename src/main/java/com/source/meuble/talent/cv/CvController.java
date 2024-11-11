@@ -1,6 +1,7 @@
 package com.source.meuble.talent.cv;
 
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.exception.Alert;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.talent.diplome.DiplomeRepository;
@@ -10,6 +11,7 @@ import com.source.meuble.util.Redirection;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/cv")
@@ -52,8 +54,10 @@ public class CvController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Cv cv) {
+    public String save(@ModelAttribute Cv cv, RedirectAttributes redirectAttributes) {
         cvRepository.save(cv);
+
+        redirectAttributes.addFlashAttribute("swal", Alert.success("Le CV a bien été ajouté à l'offre d emploi"));
         return new Redirection("/cv/list/" + cv.getIdOffreEmploi().getId()).getUrl();
     }
 
