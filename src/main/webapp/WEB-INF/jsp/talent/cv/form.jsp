@@ -51,6 +51,14 @@
                         <label class="form-label" for="date-input">Date de naissance: </label>
                         <input type="date" class="form-control" id="date-input" value="<%=LocalDate.now()%>" name="datePostulation">
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="mail-input">Adresse e-mail: </label>
+                        <input type="text" class="form-control" id="mail-input" value="" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="telephone-input">Telephone: </label>
+                        <input type="text" class="form-control" id="telephone-input" value="+261" name="telephone">
+                    </div>
 
                     <div class="mb-3">
                         <label class="form-label" for="date-input">Date postulation: </label>

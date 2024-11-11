@@ -12,7 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/cv")
@@ -74,6 +76,15 @@ public class CvController {
         mv.addObject("offreEmploi", of);
         mv.addObject("cvs", cvs);
         return mv;
+    }
+
+    @GetMapping("/form/{id}")
+    public ModelAndView details(@PathVariable int idCv) throws NoUserLoggedException, NoExerciceFoundException {
+        ModelAndView mav = layoutService.getLayout("talent/cv/details").getModelAndView();
+        Optional<Cv> cv = cvRepository.findById(idCv);
+
+        mav.addObject("cv", cv.get());
+        return mav;
     }
 
 }
