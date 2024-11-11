@@ -36,10 +36,10 @@
         <div class="content">
             <p>Il a été convenu ce qui suit:</p>
             <p class="section-title">Article 1 – Engagement</p>
-            <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat de travail à durée déterminée en qualité de Technicien à compter du <%= personnel.getDateEmbauche()%>, pour une durée de deux ans.</p>
+            <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat de travail à durée déterminée en qualité de <%= personnel.getIdRole()%> à compter du <%= personnel.getDateEmbauche()%>, pour une durée de deux ans.</p>
 
             <p class="section-title">Article 2 – Raison du CDD</p>
-            <p class="indent">Ce contrat est conclu pour faire face à un accroissement temporaire d'activité.</p>
+            <p class="indent">Ce contrat est conclu pour faire face à un accroissement d'activité.</p>
 
             <p class="section-title">Article 3 – Période d'Essai</p>
             <p class="indent">Le présent contrat est assorti d'une période d'essai de six mois.</p>
