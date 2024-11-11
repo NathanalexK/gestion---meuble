@@ -42,7 +42,6 @@
                         <input type="hidden" name="test" value="<%=t.getId()%>">
                         <input type="submit" class="btn btn-primary">
                     </td>
-\
                 </form>
             </tr>
             <%

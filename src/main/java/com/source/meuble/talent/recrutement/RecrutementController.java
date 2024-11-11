@@ -51,6 +51,7 @@ public class RecrutementController {
         return new Redirection("/recrutement/list").getUrl();
     }
 
+
     @GetMapping("/list")
     public ModelAndView goToRecrutementList() throws NoUserLoggedException, NoExerciceFoundException {
         Layout layout = layoutService.getLayout("talent/recrutement/list");

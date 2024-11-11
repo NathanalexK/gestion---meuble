@@ -35,7 +35,7 @@
                 <td><%=e.getDateEntretien()%></td>
                 <td><a href=""><%=e.getIdCv().getId()%></a></td>
                 <td>
-                    <a href=""><button class="btn btn-primary">Valider</button></a>
+                    <a href="/personnel/insert-personnel?id=<%=e.getIdCv().getId()%>"><button class="btn btn-primary">Valider</button></a>
                     <a href=""><button class="btn btn-primary">refuser</button></a>
                 </td>
             </tr>

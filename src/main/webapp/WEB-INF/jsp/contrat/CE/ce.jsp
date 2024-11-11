@@ -17,7 +17,7 @@
 <div class="d-flex justify-content-center">
     <div class="container" id="pdfContent">
         <div class="header">
-            <p class="title">CONTRAT A DUREE DETERMINEE</p>
+            <p class="title">CONTRAT D'ESSAIS</p>
             <p>Entre les soussignés:</p>
             <p>Entre les soussignés:</p>
             <p><strong>Directeur</strong><br>
@@ -36,13 +36,10 @@
         <div class="content">
             <p>Il a été convenu ce qui suit:</p>
             <p class="section-title">Article 1 – Engagement</p>
-            <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat de travail à durée déterminée en qualité de Technicien à compter du <%= personnel.getDateEmbauche()%>, pour une durée de deux ans.</p>
+            <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat d'essais en qualité de Technicien à compter du <%= personnel.getDateEmbauche()%>, pour une durée de six mois.</p>
 
             <p class="section-title">Article 2 – Raison du CDD</p>
             <p class="indent">Ce contrat est conclu pour faire face à un accroissement temporaire d'activité.</p>
-
-            <p class="section-title">Article 3 – Période d'Essai</p>
-            <p class="indent">Le présent contrat est assorti d'une période d'essai de six mois.</p>
 
             <p class="section-title">Article 4 – Rémunération</p>
             <p class="indent">Le Salarié percevra une rémunération mensuelle brute de <%= personnel.getSalaire()%> Ar.</p>
@@ -53,7 +50,15 @@
     </div>
 </div>
 
-<button class="export-btn" onclick="exportCDDtoPDF()">Exporter en PDF</button>
+<button class="export-btn" onclick="exportCEtoPDF()">Exporter en PDF</button>
+
+<p><h1>Promotion</h1></p>
+<form action="/contrat/promotion" >
+    <input type="hidden" name="personnel" value="<%= personnel.getId()%>">
+    <input type="hidden" name="contrat" value="<%= contratEmploye.getId()%>">
+    <input type="date" name="date" class="form-control">
+    <button class="export-btn" type="submit">Promotion CDI</button>
+</form>
 
 <style>
     .container {
@@ -105,4 +110,3 @@
 </style>
 
 <script src="../../../../assets/js/contratToPdf.js"></script>
-

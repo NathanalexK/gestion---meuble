@@ -16,7 +16,7 @@ public class TypeContrat {
     private Integer id;
 
     @Column(name = "nom")
-    private Integer nom;
+    private String nom;
 
     @Column(name = "abreviation")
     private  String abr;

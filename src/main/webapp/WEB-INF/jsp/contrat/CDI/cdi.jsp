@@ -25,7 +25,7 @@
       Ci-après dénommée par commodité «La Société»</p>
     <p>Et,</p>
     <p><strong><%= personnel.getNom()+" "+personnel.getPrenom()%></strong><br>
-      Date et lieu de naissance: <%= personnel.getDateNaissance()%>, <%= personnel.getLieuNaissance()%><br>
+      Date et lieu de naissance: <%= personnel.getDateNaissance()%>, Madagascar<br>
       Adresse: <%= personnel.getAdresse()%><br>
       Ci-après dénommé par commodité «Le Salarié»</p>
   </div>

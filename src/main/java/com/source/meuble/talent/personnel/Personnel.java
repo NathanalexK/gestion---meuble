@@ -1,5 +1,7 @@
 package com.source.meuble.talent.personnel;
 
+import com.source.meuble.talent.cv.Cv;
+import com.source.meuble.utilisateur.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,11 +28,10 @@ public class Personnel {
     @Column(name = "date_naissance")
     private LocalDate dateNaissance;
 
-    @Column(name = "lieu_naissance")
-    private String lieuNaissance;
-
     @Column(name = "adresse")
     private String adresse;
+    private String email;
+    private String telephone;
 
     @Column(name = "date_embauche")
     private LocalDate dateEmbauche;
@@ -38,9 +39,13 @@ public class Personnel {
     @Column(name = "salaire")
     private BigDecimal salaire;
 
-    @Column(name = "id_departement")
-    private int id_epartement;
+    @Column(name = "id_role")
+    private UserRole idRole;
 
     @Column(name = "poste")
     private String poste;
+
+    @ManyToOne
+    @JoinColumn(name = "id_cv")
+    private Cv idCv;
 }
