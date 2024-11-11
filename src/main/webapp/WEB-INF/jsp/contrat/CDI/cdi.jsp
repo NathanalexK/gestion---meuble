@@ -33,7 +33,7 @@
   <div class="content">
     <p>Il a été convenu ce qui suit:</p>
     <p class="section-title">Article 1 – Engagement</p>
-    <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat de travail à durée indéterminée en qualité de Commercial à compter du <%= personnel.getDateEmbauche()%>.</p>
+    <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat de travail à durée indéterminée en <%= personnel.getIdRole()%> à compter du <%= personnel.getDateEmbauche()%>.</p>
     <p class="indent">Le Salarié qui accepte cet engagement, déclare être délié de tout engagement de non-concurrence à l'égard de son ou ses employeurs précédents lui interdisant de travailler pour la Société ou avec l'un quelconque des clients de la Société.</p>
     <p class="indent">Le Contrat et ses avenants sont régis par les dispositions de la Convention Collective Nationale SYNTEC, du 01/08/1988 numéro 1486.</p>
   </div>
