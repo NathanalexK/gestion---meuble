@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Controller
@@ -48,6 +49,15 @@ public class ContratController {
         return mav;
     }
 
+    @GetMapping("/showCe")
+    public ModelAndView showCe(Personnel nouveau, ContratEmploye nouveauContrat) throws NoUserLoggedException, NoExerciceFoundException{
+        Layout layout = layoutService.getLayout("contrat/CE/ce");
+        ModelAndView mav = layout.getModelAndView();
+        mav.addObject("personnel", nouveau);
+        mav.addObject("contrat", nouveauContrat);
+        return mav;
+    }
+
     @GetMapping("/embaucher")
     @Transactional
     public ModelAndView embaucher(
@@ -62,11 +72,30 @@ public class ContratController {
 
         ContratEmploye nouveauContrat = contratService.insertContrat(contratEmploye);
 
-        if(type == 2){
+        /*if(type == 2){
             mav = this.showCdi(nouveau, nouveauContrat);
         } else if (type == 3) {
             mav = this.showCdd(nouveau, nouveauContrat);
-        }
+        }*/
+        mav = this.showCe(nouveau, nouveauContrat);
         return mav;
+    }
+
+    @GetMapping("/promotion")
+    public ModelAndView promotion(
+            @RequestParam("personnel") Personnel personnel,
+            @RequestParam("contrat") ContratEmploye contrat,
+            @RequestParam("date")LocalDate date
+            ) throws Exception{
+        ContratEmploye nouveau = new ContratEmploye();
+        nouveau.setPersonnel(personnel);
+        nouveau.setDateDebut(date);
+        nouveau.setDateFin(contrat.getDateDebut().plusMonths(6));
+        nouveau.setTypeContrat(contrat.getTypeContrat());
+
+        contratService.insertContrat(nouveau);
+
+        ModelAndView mav = this.showCdi(personnel, nouveau);
+        return  mav;
     }
 }

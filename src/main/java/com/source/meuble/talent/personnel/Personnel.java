@@ -26,9 +26,6 @@ public class Personnel {
     @Column(name = "date_naissance")
     private LocalDate dateNaissance;
 
-    @Column(name = "lieu_naissance")
-    private String lieuNaissance;
-
     @Column(name = "adresse")
     private String adresse;
 
