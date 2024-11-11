@@ -35,7 +35,9 @@ public class Cv {
 
     @Column(name = "annees_experience")
     private Integer anneesExperience;
+
     private String email;
+
     private String telephone;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
