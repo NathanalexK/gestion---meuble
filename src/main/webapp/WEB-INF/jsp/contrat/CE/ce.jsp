@@ -36,16 +36,16 @@
         <div class="content">
             <p>Il a été convenu ce qui suit:</p>
             <p class="section-title">Article 1 – Engagement</p>
-            <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat d'essais en qualité de Technicien à compter du <%= personnel.getDateEmbauche()%>, pour une durée de six mois.</p>
+            <p class="indent"><%= personnel.getNom()+" "+personnel.getPrenom()%> est engagé(e) sous Contrat d'essais en <%= personnel.getIdRole()%> à compter du <%= personnel.getDateEmbauche()%>, pour une durée de six mois.</p>
 
-            <p class="section-title">Article 2 – Raison du CDD</p>
-            <p class="indent">Ce contrat est conclu pour faire face à un accroissement temporaire d'activité.</p>
+            <p class="section-title">Article 2 – Raison du CE</p>
+            <p class="indent">Ce contrat est conclu pour faire face à un accroissement d'activité.</p>
 
             <p class="section-title">Article 4 – Rémunération</p>
             <p class="indent">Le Salarié percevra une rémunération mensuelle brute de <%= personnel.getSalaire()%> Ar.</p>
 
             <p class="section-title">Article 5 – Fin du Contrat</p>
-            <p class="indent">Le présent contrat prendra fin de plein droit le <%= contratEmploye.getDateFin()%>, sans qu'il soit nécessaire de donner un préavis.</p>
+            <p class="indent">Le présent contrat prendra fin de plein droit le <%= contratEmploye.getDateFin()%>.</p>
         </div>
     </div>
 </div>
