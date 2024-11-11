@@ -102,3 +102,5 @@ select * from etat_stock where id_produit = 1 order by id_etat_stock desc whe;
 
 
 
+
+

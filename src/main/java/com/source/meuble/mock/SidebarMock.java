@@ -13,13 +13,14 @@ public class SidebarMock {
             new Menu("Besoins")
                 .withIcon("bx bx-briefcase-alt") // icon du menu: a voir sur: boxicons.com -> clique sur
                 // icon -> font -> copier la class
-                .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
+                .withRoles()
                 .addSubmenu(
                     new Menu("Demande de besoin") // Besoin (menu) -> Demande de Besoin (sous-menu du
                         // menu besoin)
                         .withIcon("bx bx-mail-send")
                         .withLien("/besoin/form")
-                        .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION))
+                        .withRoles(UserRole.DIRECTION, UserRole.DEPT_ACHAT, UserRole.DEPT_VENTE, UserRole.DEPT_FINANCE, UserRole.DEPT_LOGISTIQUE, UserRole.PRODUCTION)
+                )
                 .addSubmenu(
                     new Menu("Validation Besoin") // Besoin -> Validation Besoin
                         .withIcon("bx bx-task")
