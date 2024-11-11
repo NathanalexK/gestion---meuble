@@ -5,12 +5,14 @@ import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.talent.contrat.typeContrat.TypeContrat;
 import com.source.meuble.talent.contrat.typeContrat.TypeContratService;
+import com.source.meuble.talent.cv.Cv;
 import com.source.meuble.talent.personnel.Personnel;
 import com.source.meuble.talent.personnel.PersonnelService;
 import com.source.meuble.util.Layout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,14 +63,13 @@ public class ContratController {
     @GetMapping("/embaucher")
     @Transactional
     public ModelAndView embaucher(
-            @ModelAttribute Personnel personnel,
-            @RequestParam("type_contrat") int type
+            @ModelAttribute("pers") Personnel personnel
     ) throws Exception{
         ModelAndView mav = null;
 
         Personnel nouveau = personnelService.insertPersonnel(personnel);
 
-        ContratEmploye contratEmploye = contratService.genererContrat(nouveau, type);
+        ContratEmploye contratEmploye = contratService.genererContrat(nouveau, 1);
 
         ContratEmploye nouveauContrat = contratService.insertContrat(contratEmploye);
 

@@ -28,6 +28,8 @@ public class ContratService {
         LocalDate dateFin = null;
         if(type == 3){
             dateFin = nouveau.getDateEmbauche().plusYears(2);
+        } else if(type == 1) {
+            dateFin = nouveau.getDateEmbauche().plusMonths(6);
         }
 
         contratEmploye.setDateFin(dateFin);

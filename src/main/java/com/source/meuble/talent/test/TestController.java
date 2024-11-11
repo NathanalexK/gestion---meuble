@@ -8,6 +8,7 @@ import com.source.meuble.talent.test.resultatTest.ResultatTest;
 import com.source.meuble.talent.test.resultatTest.ResultatTestRepository;
 import com.source.meuble.util.Layout;
 import com.source.meuble.util.Redirection;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +40,7 @@ public class TestController {
     }
 
     @PostMapping("/save")
+    @Transactional
     public String save(@RequestParam("id") Cv cv, @RequestParam("note")Double note, @RequestParam("daty")LocalDate date){
         Test test= new Test();
         test.setDateTest(date);
