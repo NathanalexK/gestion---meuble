@@ -22,7 +22,7 @@ public class Recrutement {
     @Column(name = "id_role")
     private UserRole idRole;
 
-//    private String details;
+    private String details;
 
     @ManyToOne
     @JoinColumn(name = "id_diplome", nullable = false)
@@ -34,5 +34,5 @@ public class Recrutement {
     @Column(name = "annees_experience")
     private int anneesExperience;
 
-//    private int etat;
+    private int etat;
 }
