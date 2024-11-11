@@ -11,6 +11,7 @@ import com.source.meuble.util.Redirection;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.swing.text.html.Option;
 import java.util.List;
@@ -57,8 +58,10 @@ public class CvController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Cv cv) {
+    public String save(@ModelAttribute Cv cv, RedirectAttributes redirectAttributes) {
         cvRepository.save(cv);
+
+        redirectAttributes.addFlashAttribute("swal", Alert.success("Le CV a bien été ajouté à l'offre d emploi"));
         return new Redirection("/cv/list/" + cv.getIdOffreEmploi().getId()).getUrl();
     }
 

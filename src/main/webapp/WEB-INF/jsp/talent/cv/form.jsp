@@ -19,7 +19,9 @@
 
 <script>
     const questions = [
-        'Est-ce que les besoins ne sont pas disponibles en stock?'
+        'Tous les informations sont-ils correcte?',
+        'Le CV correspond-il aux critères de l’offre ?',
+        'Vérification de la qualité du CV'
     ];
 </script>
 

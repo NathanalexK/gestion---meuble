@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -67,7 +68,8 @@ public class OffreEmploiController {
     @PostMapping("/annoncer")
     public String annoncer(
             @RequestParam("recru[]") List<Recrutement> recrutements,
-            @RequestParam("proformat")Proformat proformat
+            @RequestParam("proformat")Proformat proformat,
+            RedirectAttributes redirectAttributes
             ) throws Alert {
         if (recrutements.size() > 1)
             throw new Alert("Nombre de poste a publier superieur à 1");
@@ -80,6 +82,7 @@ public class OffreEmploiController {
         of.setIdBc(bc);
         offreEmploiRepository.save(of);
 
+        redirectAttributes.addFlashAttribute("swal", Alert.success("Le commande de publication a bien été éffectué."));
         return new Redirection("/offre-emploi/list").getUrl();
     }
 }
