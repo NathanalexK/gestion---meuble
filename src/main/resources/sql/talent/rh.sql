@@ -32,6 +32,7 @@ CREATE TABLE personnel(
     nom VARCHAR(255) ,
     prenom VARCHAR(255) ,
     date_naissance DATE,
+    lieu_naissance varchar(255),
     adresse VARCHAR(255) ,
     email VARCHAR(255) ,
     telephone VARCHAR(13) ,

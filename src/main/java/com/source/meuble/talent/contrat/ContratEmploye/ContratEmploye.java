@@ -1,6 +1,7 @@
 package com.source.meuble.talent.contrat.ContratEmploye;
 
 import com.source.meuble.talent.contrat.typeContrat.TypeContrat;
+import com.source.meuble.talent.personnel.Personnel;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,9 @@ public class ContratEmploye {
     @Column(name = "date_fin")
     private LocalDate dateFin;
 
-//    IdPersonnel
+    @ManyToOne
+    @JoinColumn(name = "id_personnel")
+    private Personnel personnel;
 
     @ManyToOne
     @JoinColumn(name = "id_type", nullable = false)
