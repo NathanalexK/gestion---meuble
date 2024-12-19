@@ -211,5 +211,21 @@ public class SidebarMock {
                         .withLien("/entretien/list")
                         .withRoles(UserRole.DIRECTION, UserRole.RH)
                 )
+        )
+        .addMenu(
+                new Menu("Etat financier")
+                        .withIcon("")
+                        .withLien("")
+                        .withRoles(UserRole.DIRECTION)
+                        .addSubmenu(
+                                new Menu("Ajouter poste")
+                                        .withLien("/test/list")
+                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
+                        )
+                        .addSubmenu(
+                                new Menu("Entretien")
+                                        .withLien("/entretien/list")
+                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
+                        )
         );
 }
