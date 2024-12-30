@@ -216,16 +216,16 @@ public class SidebarMock {
                 new Menu("Etat financier")
                         .withIcon("")
                         .withLien("")
-                        .withRoles(UserRole.DIRECTION)
+//                        .withRoles(UserRole.DIRECTION)
                         .addSubmenu(
                                 new Menu("Ajouter poste")
-                                        .withLien("/test/list")
-                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
+                                        .withLien("/poste-fille/form")
+//                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
                         )
                         .addSubmenu(
-                                new Menu("Entretien")
-                                        .withLien("/entretien/list")
-                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
+                                new Menu("Analyse")
+                                        .withLien("/etat-financier")
+//                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
                         )
         );
 }
