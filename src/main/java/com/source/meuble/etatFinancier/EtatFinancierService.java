@@ -4,9 +4,12 @@ import com.source.meuble.etatFinancier.Poste.PosteCpl;
 import com.source.meuble.etatFinancier.Poste.PosteCplRepository;
 import com.source.meuble.etatFinancier.Poste.PosteRepository;
 import com.source.meuble.etatFinancier.Poste.Poste;
+import com.source.meuble.etatFinancier.bilan.BilanEtatFinancierImpl;
 import com.source.meuble.etatFinancier.posteFille.PosteFilleRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,13 +18,15 @@ public class EtatFinancierService {
     private final PosteRepository posteRepository;
     private final PosteFilleRepository posteFilleRepository;
     private final PosteCplRepository posteCplRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     public EtatFinancierService(PosteRepository posteRepository,
                                 PosteFilleRepository posteFilleRepository,
-                                PosteCplRepository posteCplRepository) {
+                                PosteCplRepository posteCplRepository, JdbcTemplate jdbcTemplate) {
         this.posteRepository = posteRepository;
         this.posteFilleRepository = posteFilleRepository;
         this.posteCplRepository = posteCplRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public EtatFinancierDTO build() {
@@ -32,6 +37,9 @@ public class EtatFinancierService {
         ef.setResultatNet(resultat.get(0).getTotal() - resultat.get(1).getTotal());
         ef.setBilan(bilan);
         ef.setResultat(resultat);
+
+        ef.setBef(new BilanEtatFinancierImpl(jdbcTemplate, 1, new ArrayList<>()));
+
         return ef;
     }
 }
