@@ -13,6 +13,11 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import com.source.meuble.etatFinancier.bilan.BilanEtatFinancierImpl;
+import com.source.meuble.etatFinancier.posteFille.PosteFilleRepository;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,8 +31,8 @@ public class EtatFinancierService {
     private final JdbcTemplate jdbcTemplate;
 
     public EtatFinancierService(PosteRepository posteRepository,
-                                PosteFilleRepository posteFilleRepository,
-                                PosteCplRepository posteCplRepository, JdbcTemplate jdbcTemplate) {
+            PosteFilleRepository posteFilleRepository,
+            PosteCplRepository posteCplRepository, JdbcTemplate jdbcTemplate) {
         this.posteRepository = posteRepository;
         this.posteFilleRepository = posteFilleRepository;
         this.posteCplRepository = posteCplRepository;
@@ -45,6 +50,8 @@ public class EtatFinancierService {
 
         ef.setTotaux(getActif());
         checkValidite(ef);
+        ef.setBef(new BilanEtatFinancierImpl(jdbcTemplate, 1, new ArrayList<>()));
+
         return ef;
     }
 
@@ -59,7 +66,7 @@ public class EtatFinancierService {
         jdbcTemplate.query(sql, new RowCallbackHandler() {
             @Override
             public void processRow(ResultSet rs) throws SQLException {
-                result.add( ((BigDecimal) rs.getObject(2)).doubleValue());
+                result.add(((BigDecimal) rs.getObject(2)).doubleValue());
             }
         });
 
@@ -72,10 +79,10 @@ public class EtatFinancierService {
         if (!Objects.equals(actif, passif)) {
             etatFinancier.setValidite(false);
 
-            if ( actif > passif)
-                etatFinancier.setMessageValidite("Actif " + actif + " > passif " + passif );
+            if (actif > passif)
+                etatFinancier.setMessageValidite("Actif " + actif + " > passif " + passif);
             else
-                etatFinancier.setMessageValidite("Actif " + actif + " < passif " + passif );
+                etatFinancier.setMessageValidite("Actif " + actif + " < passif " + passif);
         }
     }
 

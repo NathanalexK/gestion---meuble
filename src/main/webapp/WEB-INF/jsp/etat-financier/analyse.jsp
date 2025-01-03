@@ -11,7 +11,7 @@
 <style>
     body {
         font-family: Arial, sans-serif;
-        margin: 20px;
+        /*margin: 20px;*/
         line-height: 1.5;
     }
     table {
@@ -39,7 +39,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h1>États Financiers : exercice <%=exercice.getAnnee()%></h1>
+        <h1>États Financiers : exercice <%=exercice.getAnnee()%> <%=etatFinancier.getBef().getRevenu()%></h1>
 
         <h2>Bilan</h2>
         <% if (!etatFinancier.isValidite()) { %>
