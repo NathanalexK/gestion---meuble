@@ -42,6 +42,12 @@
         <h1>États Financiers : exercice <%=exercice.getAnnee()%></h1>
 
         <h2>Bilan</h2>
+        <% if (!etatFinancier.isValidite()) { %>
+            <div class="alert alert-danger">
+                Votre bilan n'est pas balancé :
+                <%=etatFinancier.getMessageValidite()%>
+            </div>
+        <% } %>
         <table>
             <caption>Actifs et Passifs</caption>
             <thead>

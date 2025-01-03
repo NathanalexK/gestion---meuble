@@ -15,4 +15,8 @@ public class EtatFinancierDTO {
     List<PosteCpl> bilan;
     List<PosteCpl> resultat;
     Double resultatNet;
+
+    List<Double> totaux;
+    boolean validite = true;
+    String messageValidite;
 }
