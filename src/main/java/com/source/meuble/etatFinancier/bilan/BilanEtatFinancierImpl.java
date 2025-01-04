@@ -7,8 +7,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
 @Setter
-public class BilanEtatFinancierImpl extends BilanEtatFinancier{
-//    private List<PosteFille> posteFilles;
+public class BilanEtatFinancierImpl extends BilanEtatFinancier {
+    // private List<PosteFille> posteFilles;
     private JdbcTemplate jdbcTemplate;
     private int idExercice;
 
@@ -26,7 +26,7 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier{
     Double valeurStock;
 
     public BilanEtatFinancierImpl(JdbcTemplate jdbcTemplate, int idExercice) {
-//        this.setPosteFilles(posteFilles);
+        // this.setPosteFilles(posteFilles);
         this.jdbcTemplate = jdbcTemplate;
         this.idExercice = idExercice;
 
@@ -60,20 +60,24 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier{
     }
 
     Double initResultatNet() {
-        String sql = "select (select sum(montant) as montant from poste_fille where id_mere = 5 and id_exercice =" + idExercice +")" +
-                " - (select sum(montant) as montant from poste_fille where id_mere = 6 and id_exercice =" + idExercice + ") as montant";
+        String sql = "select (select sum(montant) as montant from poste_fille where id_mere = 5 and id_exercice ="
+                + idExercice + ")" +
+                " - (select sum(montant) as montant from poste_fille where id_mere = 6 and id_exercice =" + idExercice
+                + ") as montant";
         setResultatNet(fetchMontant(sql));
         return resultatNet;
     }
 
     Double initTotalActifs() {
-        String sql = "select sum(montant) as montant from poste_fille where id_mere in (select id_poste from poste where categorie = 0) and id_exercice = " + idExercice;
+        String sql = "select sum(montant) as montant from poste_fille where id_mere in (select id_poste from poste where categorie = 0) and id_exercice = "
+                + idExercice;
         setTotalActifs(fetchMontant(sql));
         return totalActifs;
     }
 
     Double initTotalPassifs() {
-        String sql = "select sum(montant) as montant from poste_fille where id_mere in (select id_poste from poste where categorie = 1) and id_exercice = " + idExercice;
+        String sql = "select sum(montant) as montant from poste_fille where id_mere in (select id_poste from poste where categorie = 1) and id_exercice = "
+                + idExercice;
         setTotalPassifs(fetchMontant(sql));
         return totalPassifs;
     }
@@ -94,24 +98,25 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier{
         String sql = """
                 SELECT sum(montant) as montant
                 FROM poste_fille
-                WHERE LOWER(libelle) LIKE '%dette%'
+                WHERE (LOWER(libelle) LIKE '%dette%'
                    OR LOWER(libelle) LIKE '%emprunt%'
-                   OR LOWER(libelle) LIKE '%fournisseurs%'
-                AND id_exercice=
-                """ + idExercice;
+                   OR LOWER(libelle) LIKE '%fournisseurs%')
+                AND id_exercice=""" + idExercice;
         setTotalDettes(fetchMontant(sql));
         return totalDettes;
     }
 
     Double initChargeFinanciere() {
-        String sql = "select montant from poste_fille where libelle='Charges financières' and id_exercice=" + idExercice;
+        String sql = "select montant from poste_fille where libelle='Charges financières' and id_exercice="
+                + idExercice;
         setChargesFinanciere(fetchMontant(sql));
         return chargesFinanciere;
     }
 
     Double initResultatExploitation() {
         String sql = "select (select montant from poste_fille where id_mere=5 and id_exercice=" + idExercice + ")" +
-                "- (select montant from poste_fille where libelle='Charges d’exploitation' and id_exercice=" + idExercice + ") as montant;";
+                "- (select montant from poste_fille where libelle='Charges d’exploitation' and id_exercice="
+                + idExercice + ") as montant;";
         setResultatExploitation(fetchMontant(sql));
         return resultatExploitation;
     }
@@ -126,9 +131,8 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier{
         String sql = """
                 SELECT sum(montant) as montant
                 FROM poste_fille
-                WHERE LOWER(libelle) LIKE '%stock%'
-                AND id_exercice=
-                """ + idExercice;
+                WHERE (LOWER(libelle) LIKE '%stock%')
+                AND id_exercice=""" + idExercice;
         setValeurStock(fetchMontant(sql));
         return valeurStock;
     }

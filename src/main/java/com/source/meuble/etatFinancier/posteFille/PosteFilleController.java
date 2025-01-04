@@ -4,8 +4,8 @@ import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.auth.LayoutService;
 import com.source.meuble.etatFinancier.Poste.Poste;
 import com.source.meuble.etatFinancier.Poste.PosteService;
-import com.source.meuble.etatFinancier.models.NomPoste;
-import com.source.meuble.etatFinancier.models.NomPosteRepository;
+import com.source.meuble.etatFinancier.nomPoste.NomPoste;
+import com.source.meuble.etatFinancier.nomPoste.NomPosteRepository;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
@@ -14,8 +14,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/poste-fille")

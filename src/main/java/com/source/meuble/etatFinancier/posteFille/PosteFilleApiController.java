@@ -1,8 +1,7 @@
 package com.source.meuble.etatFinancier.posteFille;
 
-import com.source.meuble.etatFinancier.models.NomPoste;
-import com.source.meuble.etatFinancier.models.NomPosteRepository;
-import com.source.meuble.etatFinancier.models.NomPosteService;
+import com.source.meuble.etatFinancier.nomPoste.NomPoste;
+import com.source.meuble.etatFinancier.nomPoste.NomPosteService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
