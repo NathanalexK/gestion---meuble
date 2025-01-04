@@ -114,7 +114,7 @@
             <tr>
                 <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
                 <th><%=poste.getTotal()%></th>
-            </tr>
+            </tr>c
                 <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
                 <tr>
                     <td class="sub-item"><%=pf.getLibelle()%></td>
@@ -132,6 +132,12 @@
         </table>
 
 
+    </div>
+
+    <div class="card-footer">
+        <div class="d-flex justify-content-center">
+            <a href="etat-financier/interpretation"><button class="btn btn-primary">Interpreter</button></a>
+        </div>
     </div>
 
 </div>

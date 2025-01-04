@@ -50,7 +50,7 @@ public class EtatFinancierService {
 
         ef.setTotaux(getActif());
         checkValidite(ef);
-        ef.setBef(new BilanEtatFinancierImpl(jdbcTemplate, 1, new ArrayList<>()));
+        ef.setBef(new BilanEtatFinancierImpl(jdbcTemplate, 1));
 
         return ef;
     }

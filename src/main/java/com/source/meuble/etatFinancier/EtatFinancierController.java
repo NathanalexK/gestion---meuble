@@ -1,6 +1,8 @@
 package com.source.meuble.etatFinancier;
 
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.etatFinancier.bilan.BilanEtatFinancier;
+import com.source.meuble.etatFinancier.bilan.BilanEtatFinancierService;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
@@ -17,10 +19,12 @@ public class EtatFinancierController {
 
     private final LayoutService layoutService;
     private final EtatFinancierService etatFinancierService;
+    private final BilanEtatFinancierService bilanEtatFinancierService;
 
-    public EtatFinancierController(LayoutService layoutService, EtatFinancierService etatFinancierService) {
+    public EtatFinancierController(LayoutService layoutService, EtatFinancierService etatFinancierService, BilanEtatFinancierService bilanEtatFinancierService) {
         this.layoutService = layoutService;
         this.etatFinancierService = etatFinancierService;
+        this.bilanEtatFinancierService = bilanEtatFinancierService;
     }
 
     @GetMapping
@@ -30,6 +34,15 @@ public class EtatFinancierController {
 
         mv.addObject("exercice", httpSession.getAttribute("exo"));
         mv.addObject("etatFinancier", etatFinancierService.build());
+        return mv;
+    }
+
+    @GetMapping("/interpretation")
+    public ModelAndView showInterpretation() throws NoUserLoggedException, NoExerciceFoundException {
+        Layout layout = layoutService.getLayout("etat-financier/interpretation");
+        ModelAndView mv = layout.getModelAndView();
+        BilanEtatFinancier bilan = bilanEtatFinancierService.getBilanEtatFinancier(layout.getExercice());
+        mv.addObject("bilan", bilan);
         return mv;
     }
 
