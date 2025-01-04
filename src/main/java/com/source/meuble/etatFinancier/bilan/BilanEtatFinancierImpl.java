@@ -90,13 +90,12 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier{
 
     Double initTotalDettes() {
         String sql = """
-                SELECT sum(montant)
+                SELECT sum(montant) as montant
                 FROM poste_fille
-                WHERE LOWER(libelle) LIKE '%dette%'
+                WHERE (LOWER(libelle) LIKE '%dette%'
                    OR LOWER(libelle) LIKE '%emprunt%'
-                   OR LOWER(libelle) LIKE '%fournisseurs%';
-                AND id_exercice=
-                """ + idExercice;
+                   OR LOWER(libelle) LIKE '%fournisseurs%')
+                AND id_exercice=""" + idExercice;
         setTotalDettes(fetchMontant(sql));
         return totalDettes;
     }
@@ -122,72 +121,71 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier{
 
     Double initValeurStock() {
         String sql = """
-                SELECT sum(montant)
+                SELECT sum(montant) as montant
                 FROM poste_fille
-                WHERE LOWER(libelle) LIKE '%stock%'
-                AND id_exercice=
-                """ + idExercice;
+                WHERE (LOWER(libelle) LIKE '%stock%')
+                AND id_exercice=""" + idExercice;
         setValeurStock(fetchMontant(sql));
         return valeurStock;
     }
 
     @Override
-    Double getRevenu() {
+    public Double getRevenu() {
         return revenu;
     }
 
     @Override
-    Double getBenefice() {
+    public Double getBenefice() {
         return benefice;
     }
 
     @Override
-    Double getResultatNet() {
+    public Double getResultatNet() {
         return resultatNet;
     }
 
     @Override
-    Double getTotalActifs() {
+    public Double getTotalActifs() {
         return totalActifs;
     }
 
     @Override
-    Double getTotalPassifs() {
+    public Double getTotalPassifs() {
         return totalPassifs;
     }
 
     @Override
-    Double getPassifCourrant() {
+    public Double getPassifCourrant() {
         return passifCourant;
     }
 
     @Override
-    Double getActifCourant() {
+    public Double getActifCourant() {
         return actifCourant;
     }
 
     @Override
-    Double getTotalDettes() {
+    public Double getTotalDettes() {
         return totalDettes;
     }
 
     @Override
-    Double getChargeFinanciere() {
+    public Double getChargeFinanciere() {
         return chargesFinanciere;
     }
 
     @Override
-    Double getResultatExploitation() {
+    public Double getResultatExploitation() {
         return resultatExploitation;
     }
 
     @Override
-    Double getCapitauxPropres() {
+    public Double getCapitauxPropres() {
         return capitauxPropres;
     }
 
     @Override
-    Double getValeurStock() {
+    public Double getValeurStock() {
         return valeurStock;
     }
 }

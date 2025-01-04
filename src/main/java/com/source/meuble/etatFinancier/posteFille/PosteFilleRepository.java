@@ -1,5 +1,6 @@
 package com.source.meuble.etatFinancier.posteFille;
 
+import com.source.meuble.analytique.centre.Centre;
 import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.etatFinancier.Poste.Poste;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,7 @@ public interface PosteFilleRepository extends JpaRepository<PosteFille, Integer>
     @Query("SELECT pf FROM PosteFille pf WHERE pf.idExercice = ?1 ")
     List<PosteFille> findAllByExercice(Exercice e);
 
+    @Query(value = "select nom_poste.libelle,poste_fille.id_poste_fille, nom_poste.id_poste_mere as id_mere, poste_fille.id_exercice,coalesce(poste_fille.montant, 0) as montant from nom_poste left join poste_fille" +
+            "on nom_poste.libelle = poste_fille.libelle;", nativeQuery = true)
+    List<Centre> findAllFor(int categ);
 }

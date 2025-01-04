@@ -1,5 +1,6 @@
 package com.source.meuble.etatFinancier.Poste;
 
+import com.source.meuble.analytique.exercice.Exercice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,4 +13,14 @@ public interface PosteCplRepository extends JpaRepository<PosteCpl, Integer> {
 
     @Query("select p from PosteCpl p where p.idMere.categorie = ?1")
     List<PosteCpl> findByIdMere_Categorie(Integer categorie);
+
+    @Query("""
+            select p from PosteCpl p inner join p.idMere.posteFilles posteFilles
+            where p.idMere.categorie <= ?1 and posteFilles.idExercice = ?2""")
+    List<PosteCpl> findByIdMere_CategorieLessThanEqualAndIdMere_PosteFilles_IdExercice(Integer categorie, Exercice idExercice);
+
+    @Query("""
+            select p from PosteCpl p inner join p.idMere.posteFilles posteFilles
+            where p.idMere.categorie = ?1 and posteFilles.idExercice = ?2""")
+    List<PosteCpl> findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(Integer categorie, Exercice idExercice);
 }

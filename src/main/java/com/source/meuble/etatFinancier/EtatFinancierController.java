@@ -1,6 +1,8 @@
 package com.source.meuble.etatFinancier;
 
+import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.auth.LayoutService;
+import com.source.meuble.etatFinancier.posteFille.PosteFilleViewRepository;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
@@ -18,7 +20,8 @@ public class EtatFinancierController {
     private final LayoutService layoutService;
     private final EtatFinancierService etatFinancierService;
 
-    public EtatFinancierController(LayoutService layoutService, EtatFinancierService etatFinancierService) {
+    public EtatFinancierController(LayoutService layoutService, EtatFinancierService etatFinancierService,
+                                   PosteFilleViewRepository posteFilleViewRepository) {
         this.layoutService = layoutService;
         this.etatFinancierService = etatFinancierService;
     }
@@ -28,8 +31,9 @@ public class EtatFinancierController {
         Layout layout = layoutService.getLayout("etat-financier/analyse");
         ModelAndView mv = layout.getModelAndView();
 
-        mv.addObject("exercice", httpSession.getAttribute("exo"));
-        mv.addObject("etatFinancier", etatFinancierService.build());
+        Exercice exercice = (Exercice) httpSession.getAttribute("exo");
+        mv.addObject("exercice", exercice);
+        mv.addObject("etatFinancier", etatFinancierService.build(exercice));
         return mv;
     }
 

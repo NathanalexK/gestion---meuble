@@ -1,5 +1,6 @@
 package com.source.meuble.etatFinancier.Poste;
 
+import com.source.meuble.etatFinancier.nomPoste.NomPoste;
 import com.source.meuble.etatFinancier.posteFille.PosteFille;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,6 +30,9 @@ public class Poste {
     @OneToMany(mappedBy = "idMere")
     private List<PosteFille> posteFilles = new ArrayList<>();
 
-//    public Double totalMontant;
+    @Transient
+    private List<NomPoste> vides;
+
+
 
 }

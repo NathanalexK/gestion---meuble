@@ -1,6 +1,5 @@
-package com.source.meuble.etatFinancier.models;
+package com.source.meuble.etatFinancier.nomPoste;
 
-import com.source.meuble.etatFinancier.Poste.Poste;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

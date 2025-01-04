@@ -3,6 +3,7 @@
 <%@ page import="com.source.meuble.etatFinancier.posteFille.PosteFille" %>
 <%@ page import="com.source.meuble.analytique.exercice.Exercice" %>
 <%@ page import="com.source.meuble.etatFinancier.Poste.PosteCpl" %>
+<%@ page import="com.source.meuble.etatFinancier.nomPoste.NomPoste" %>
 <%
     Exercice exercice = (Exercice) request.getAttribute("exercice");
     EtatFinancierDTO etatFinancier = (EtatFinancierDTO) request.getAttribute("etatFinancier");
@@ -66,6 +67,12 @@
                     <tr>
                         <td class="sub-item"><%=pf.getLibelle()%></td>
                         <td><%=pf.getMontant()%></td>
+                    </tr>
+                <% } %>
+                <% for (NomPoste nom : poste.getIdMere().getVides()) { %>
+                    <tr>
+                        <td class="sub-item"><%=nom.getLibelle()%></td>
+                        <td>0</td>
                     </tr>
                 <% } %>
             <% } %>

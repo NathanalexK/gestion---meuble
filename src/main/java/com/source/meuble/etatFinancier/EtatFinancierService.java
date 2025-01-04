@@ -1,9 +1,11 @@
 package com.source.meuble.etatFinancier;
 
+import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.etatFinancier.Poste.PosteCpl;
 import com.source.meuble.etatFinancier.Poste.PosteCplRepository;
 import com.source.meuble.etatFinancier.Poste.PosteRepository;
 import com.source.meuble.etatFinancier.Poste.Poste;
+import com.source.meuble.etatFinancier.nomPoste.NomPosteRepository;
 import com.source.meuble.etatFinancier.posteFille.PosteFille;
 import com.source.meuble.etatFinancier.posteFille.PosteFilleRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,20 +31,28 @@ public class EtatFinancierService {
     private final PosteFilleRepository posteFilleRepository;
     private final PosteCplRepository posteCplRepository;
     private final JdbcTemplate jdbcTemplate;
+    private final NomPosteRepository nomPosteRepository;
 
     public EtatFinancierService(PosteRepository posteRepository,
             PosteFilleRepository posteFilleRepository,
-            PosteCplRepository posteCplRepository, JdbcTemplate jdbcTemplate) {
+            PosteCplRepository posteCplRepository, JdbcTemplate jdbcTemplate,
+                                NomPosteRepository nomPosteRepository) {
         this.posteRepository = posteRepository;
         this.posteFilleRepository = posteFilleRepository;
         this.posteCplRepository = posteCplRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.nomPosteRepository = nomPosteRepository;
     }
 
-    public EtatFinancierDTO build() {
+    public EtatFinancierDTO build(Exercice exercice) {
         EtatFinancierDTO ef = new EtatFinancierDTO();
-        List<PosteCpl> bilan = posteCplRepository.findByIdMere_CategorieLessThanEqual(1);
-        List<PosteCpl> resultat = posteCplRepository.findByIdMere_Categorie(2);
+
+        List<PosteCpl> bilan = posteCplRepository.findByIdMere_CategorieLessThanEqualAndIdMere_PosteFilles_IdExercice(1, exercice);
+        List<PosteCpl> resultat = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(2, exercice);
+
+        for (PosteCpl poste : bilan) {
+            poste.getIdMere().setVides(nomPosteRepository.findAllPerso(exercice.getId(), poste.getIdMere().getId()));
+        }
 
         ef.setResultatNet(resultat.get(0).getTotal() - resultat.get(1).getTotal());
         ef.setBilan(bilan);

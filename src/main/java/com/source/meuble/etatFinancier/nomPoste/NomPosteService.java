@@ -1,4 +1,4 @@
-package com.source.meuble.etatFinancier.models;
+package com.source.meuble.etatFinancier.nomPoste;
 
 import org.springframework.stereotype.Service;
 
