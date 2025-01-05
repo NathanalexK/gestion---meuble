@@ -68,6 +68,27 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/core.css" class="template-customizer-core-css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/css/theme-default.css" class="template-customizer-theme-css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/demo.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <style>
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+            clear: both;
+        }
+
+        .user-message {
+            background-color: #e0f2f7;
+            float: right;
+        }
+
+        .bot-message {
+            background-color: #f0f0f0;
+            float: left;
+        }
+    </style>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
 
@@ -156,6 +177,7 @@
 
 <!-- Vendors JS -->
 <script src="/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+<script src="/assets/vendor/libs/jquery/jquery.js"></script>
 
 <!-- Main JS -->
 <script src="/assets/js/main.js"></script>
@@ -225,6 +247,68 @@
             }
         });
     }
+</script>
+
+<%--suggestions --%>
+<script>
+    function formatResponseText(text) {
+        return marked.parse(text)
+    }
+
+    function displayMessage(text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+        messageDiv.innerHTML = '<span id="typed-text"></span>';
+        document.getElementById('rep-div').appendChild(messageDiv);
+        const typed = new Typed('#typed-text', {
+            strings: [text],
+            typeSpeed: 7,
+            showCursor: false,
+            onComplete: () => {
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        });
+
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+    $(document).ready(function() {
+        const $overlay = $('<div id="overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;"></div>'); // z-index inférieur au loader
+        $('body').append($overlay);
+        const $loader = $('<div id="loader" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; border: 16px solid #f3f3f3; border-top: 16px solid #3498db; border-radius: 50%; width: 120px; height: 120px; animation: spin 2s linear infinite;"></div>');
+        $('body').append($loader);
+        $(".fetch-suggestions").on("click", function() {
+            $("#rep-div").html("");
+            $("#overlay").show();
+            $("#loader").show();
+            var id = $(this).data("id");
+            var pourcentage = $(this).data("pourcentage");
+            $.ajax({
+                url: "http://localhost:8000/suggestions",
+                type: "GET",
+                data: {
+                    id: id,
+                    pourcentage: pourcentage
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                crossDomain: true,
+                success: function(response) {
+                    console.log("ty no valiny " + response.solution);
+                    const formatted = formatResponseText(response.solution);
+                    displayMessage(formatted);
+                },
+                error: function(xhr, status, error) {
+                    console.error("An error occurred: " + error);
+                },
+                complete: function() {
+                    $("#overlay").hide();
+                    $("#loader").hide();
+                }
+            });
+        });
+    });
 </script>
 
 <%

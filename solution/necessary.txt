@@ -1,0 +1,6 @@
+pip install fastapi
+pip install uvicorn
+pip install starlette
+pip install google-generativeai
+
+uvicorn main:app --reload

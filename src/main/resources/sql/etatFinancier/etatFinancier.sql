@@ -20,4 +20,4 @@ CREATE TABLE poste_fille(
     FOREIGN KEY (id_mere) REFERENCES poste(id_poste)
 );
 
-pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f C:\Users\nicol\Documents\0-ITU\S5\gestionEntreprise\gestion---meuble\src\main\resources\sql\030125.dmp mr_meuble
+pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f "C:\Users\Miarantsoa\ITU\S5\Gestion entreprise\gestion-talent\src\main\resources\sql\030125.dmp mr_meuble"

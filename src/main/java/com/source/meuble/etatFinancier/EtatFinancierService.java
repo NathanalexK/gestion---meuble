@@ -49,6 +49,7 @@ public class EtatFinancierService {
 
         List<PosteCpl> bilan = posteCplRepository.findByIdMere_CategorieLessThanEqualAndIdMere_PosteFilles_IdExercice(1, exercice);
         List<PosteCpl> resultat = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(2, exercice);
+        System.out.println(resultat.size());
 
         for (PosteCpl poste : bilan) {
             poste.getIdMere().setVides(nomPosteRepository.findAllPerso(exercice.getId(), poste.getIdMere().getId()));
