@@ -16,5 +16,4 @@ public interface NomPosteRepository extends JpaRepository<NomPoste, Integer> {
 
     @Query(value = "select * from nom_poste where libelle not in (select libelle from poste_fille where id_exercice=:idExercice) and id_poste_mere=:idPoste;", nativeQuery = true)
     List<NomPoste> findAllPerso(int idExercice, int idPoste);
-
 }

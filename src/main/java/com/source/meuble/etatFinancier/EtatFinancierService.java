@@ -47,8 +47,15 @@ public class EtatFinancierService {
     public EtatFinancierDTO build(Exercice exercice) {
         EtatFinancierDTO ef = new EtatFinancierDTO();
 
-        List<PosteCpl> bilan = posteCplRepository.findByIdMere_CategorieLessThanEqualAndIdMere_PosteFilles_IdExercice(1, exercice);
+        List<PosteCpl> bilan = new ArrayList<>();
+//        List<PosteCpl> actif = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(0, exercice);
+        List<PosteCpl> actif = posteCplRepository.findByIdMere_Categorie(exercice.getId(),0);
+//        List<PosteCpl> passif = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(1, exercice);
+        List<PosteCpl> passif = posteCplRepository.findByIdMere_Categorie(exercice.getId(),1);
         List<PosteCpl> resultat = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(2, exercice);
+
+        bilan.addAll(actif);
+        bilan.addAll(passif);
 
         for (PosteCpl poste : bilan) {
             poste.getIdMere().setVides(nomPosteRepository.findAllPerso(exercice.getId(), poste.getIdMere().getId()));

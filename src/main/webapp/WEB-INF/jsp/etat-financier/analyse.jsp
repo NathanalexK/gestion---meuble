@@ -65,7 +65,7 @@
                 </tr>
                 <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
                     <tr>
-                        <td class="sub-item"><%=pf.getLibelle()%></td>
+                        <td class="sub-item"><a class="btn" href="/poste-fille/delete/<%=pf.getId()%>"><i class="bx bx-x"></i></a> <%=pf.getLibelle()%></td>
                         <td><%=pf.getMontant()%></td>
                     </tr>
                 <% } %>
@@ -121,10 +121,10 @@
             <tr>
                 <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
                 <th><%=poste.getTotal()%></th>
-            </tr>c
+            </tr>
                 <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
                 <tr>
-                    <td class="sub-item"><%=pf.getLibelle()%></td>
+                    <td class="sub-item"><a class="btn" href=""><i class="bx bx-x"></i></a> <%=pf.getLibelle()%></td>
                     <td><%=pf.getMontant()%></td>
                 </tr>
                 <% } %>

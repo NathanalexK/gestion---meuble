@@ -16,7 +16,7 @@
 
 <script>
     const questions = [
-        'Est-ce que les besoins ne sont pas disponibles en stock?'
+        'Est-ce que entrer ces postes rends le bilan non-equitable?'
     ];
 </script>
 

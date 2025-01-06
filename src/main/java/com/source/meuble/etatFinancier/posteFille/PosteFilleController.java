@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/poste-fille")
 public class PosteFilleController {
@@ -58,6 +60,16 @@ public class PosteFilleController {
 
         posteFilleRepository.save(posteFille);
         return "redirect:/poste-fille/form";
+    }
+
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable int id) {
+        Optional<PosteFille> posteFille = posteFilleRepository.findById(id);
+        if (posteFille.isPresent()) {
+            posteFilleRepository.delete(posteFille.get());
+        }
+
+        return "redirect:/etat-financier";
     }
 
 }
