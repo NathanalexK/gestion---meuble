@@ -1,5 +1,6 @@
 package com.source.meuble.etatFinancier.nomPoste;
 
+import com.source.meuble.analytique.exercice.Exercice;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class NomPosteService {
         return nomPosteRepository.findAll();
     }
 
-    public List<NomPoste> findByPosteMere(int idPosteMere) {
-        return nomPosteRepository.findByIdPosteMere(idPosteMere);
+    public List<NomPoste> findByPosteMere(Exercice exercice, int idPosteMere) {
+        return nomPosteRepository.findAllPerso(exercice.getId(),idPosteMere);
     }
 }
