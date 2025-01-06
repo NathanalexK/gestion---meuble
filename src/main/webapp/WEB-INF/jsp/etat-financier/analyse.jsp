@@ -141,10 +141,16 @@
 
     </div>
 
+
+
     <div class="card-footer">
-        <div class="d-flex justify-content-center">
+        <% if(etatFinancier.isValidite()) { %>
+            <div class="d-flex justify-content-center">
             <a href="etat-financier/interpretation"><button class="btn btn-primary">Interpreter</button></a>
         </div>
+        <% } else { %>
+            <div class="alert alert-danger">La balance doit etre equilibre pour Interpreter</div>
+        <% } %>
     </div>
 
 </div>
