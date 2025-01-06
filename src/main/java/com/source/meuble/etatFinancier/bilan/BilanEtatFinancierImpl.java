@@ -144,7 +144,11 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier {
 
     @Override
     public Double getBenefice() {
-        return benefice;
+        Double resultatNet = this.getResultatNet();
+        if(resultatNet > 0) {
+            return resultatNet;
+        }
+        return 0.00;
     }
 
     @Override
