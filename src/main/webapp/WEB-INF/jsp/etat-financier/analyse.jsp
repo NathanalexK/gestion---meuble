@@ -4,9 +4,12 @@
 <%@ page import="com.source.meuble.analytique.exercice.Exercice" %>
 <%@ page import="com.source.meuble.etatFinancier.Poste.PosteCpl" %>
 <%@ page import="com.source.meuble.etatFinancier.nomPoste.NomPoste" %>
+<%@ page import="com.source.meuble.etatFinancier.bilan.BilanEtatFinancier" %>
+<%@ page import="com.source.meuble.etatFinancier.bilan.BilanEtatFinancierImpl" %>
 <%
     Exercice exercice = (Exercice) request.getAttribute("exercice");
     EtatFinancierDTO etatFinancier = (EtatFinancierDTO) request.getAttribute("etatFinancier");
+    BilanEtatFinancierImpl bilan = etatFinancier.getBef();
 %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <style>
@@ -136,6 +139,52 @@
                     <th>Resultat net</th>
                     <th><%=etatFinancier.getResultatNet()%></th>
                 </tr>
+            </tfoot>
+        </table>
+
+        <h2>Resultat Ordonnee</h2>
+
+        <table>
+<%--            <caption>Produits et Charges</caption>--%>
+            <thead>
+            <tr>
+                <th>Poste</th>
+                <th>Montant (Ar)</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <tr>
+                <td class="sub-item"> Revenu </td>
+                <td> <%=bilan.getRevenu()%>  </td>
+            </tr>
+
+            <tr>
+                <td class="sub-item"> Charge d'exploitation </td>
+                <td> <%=bilan.getChargeFinanciere()%> </td>
+            </tr>
+
+            <tr>
+                <td class="sub-item"> Resultat d'exploitation </td>
+                <td> <%=bilan.getResultatExploitation()%> </td>
+            </tr>
+
+            <tr>
+                <td class="sub-item"> Charge financiere  </td>
+                <td> <%=bilan.getChargeFinanciere()%> </td>
+            </tr>
+
+            <tr>
+                <td class="sub-item"> Impots  </td>
+                <td> <%=bilan.getImpots()%></td>
+            </tr>
+
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>Resultat net</th>
+                <th><%=bilan.getResultatNet()%></th>
+            </tr>
             </tfoot>
         </table>
 

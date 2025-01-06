@@ -200,4 +200,10 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier {
     public Double getValeurStock() {
         return valeurStock;
     }
+
+    public Double getImpots() {
+        String sql = "select montant from poste_fille where libelle='Impots' and id_exercice="
+            + idExercice;
+        return fetchMontant(sql);
+    }
 }
