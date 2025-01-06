@@ -52,16 +52,82 @@
                 <%=etatFinancier.getMessageValidite()%>
             </div>
         <% } %>
-        <table>
-            <caption>Actifs et Passifs</caption>
-            <thead>
-            <tr>
-                <th>Poste</th>
-                <th>Montant (Ar)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% for (PosteCpl poste : etatFinancier.getBilan()) { %>
+        <div style="display: flex">
+            <table class="col-6">
+                <caption>Actifs</caption>
+                <thead>
+                <tr>
+                    <th>Poste Actifs</th>
+                    <th>Montant (Ar)</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <% for (PosteCpl poste : etatFinancier.getActif()) { %>
+                    <tr>
+                        <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
+                        <th><%=poste.getTotal()%></th>
+                    </tr>
+                        <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
+                    <tr>
+                        <td class="sub-item"><a class="btn" href="/poste-fille/delete/<%=pf.getId()%>"><i class="bx bx-x"></i></a> <%=pf.getLibelle()%></td>
+                        <td><%=pf.getMontant()%></td>
+                    </tr>
+                        <% } %>
+                        <% for (NomPoste nom : poste.getIdMere().getVides()) { %>
+                    <tr>
+                        <td class="sub-item"><%=nom.getLibelle()%></td>
+                        <td>0</td>
+                    </tr>
+                        <% } %>
+                    <% } %>
+                    </tbody>
+
+                <%--            <tr>--%>
+                <%--                <td>Actifs (Total)</td>--%>
+                <%--                <td>100,000</td>--%>
+                <%--            </tr>--%>
+                <%--            <tr>--%>
+                <%--                <td class="sub-item">Immobilisations</td>--%>
+                <%--                <td>60,000</td>--%>
+                <%--            </tr>--%>
+                <%--            <tr>--%>
+                <%--                <td class="sub-item">Stocks</td>--%>
+                <%--                <td>20,000</td>--%>
+                <%--            </tr>--%>
+                <%--            <tr>--%>
+                <%--                <td class="sub-item">Créances clients</td>--%>
+                <%--                <td>15,000</td>--%>
+                <%--            </tr>--%>
+                <%--            <tr>--%>
+                <%--                <td class="sub-item">Trésorerie</td>--%>
+                <%--                <td>5,000</td>--%>
+                <%--            </tr>--%>
+                <%--            <tr>--%>
+                <%--                <td>Passifs (Total)</td>--%>
+                <%--                <td>70,000</td>--%>
+                <%--            </tr>--%>
+                <%--            <tr>--%>
+                <%--                <td>Capitaux propres</td>--%>
+                <%--                <td>30,000</td>--%>
+                <%--            </tr>--%>
+                <%--            </tbody>--%>
+                <tfoot>
+                    <tr>
+                        <th>somme</th>
+                        <th><%=etatFinancier.getTotaux().get(0)%></th>
+                    </tr>
+                </tfoot>
+            </table>
+            <table class="col-6">
+                <caption>Passifs</caption>
+                <thead>
+                <tr>
+                    <th>Poste passifs</th>
+                    <th>Montant (Ar)</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <% for (PosteCpl poste : etatFinancier.getPassif()) { %>
                 <tr>
                     <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
                     <th><%=poste.getTotal()%></th>
@@ -77,70 +143,18 @@
                     <td class="sub-item"><%=nom.getLibelle()%></td>
                     <td>0</td>
                 </tr>
-                <% } %>
-            <% } %>
+                    <% } %>
+                    <% } %>
 
-<%--            <tr>--%>
-<%--                <td>Actifs (Total)</td>--%>
-<%--                <td>100,000</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <td class="sub-item">Immobilisations</td>--%>
-<%--                <td>60,000</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <td class="sub-item">Stocks</td>--%>
-<%--                <td>20,000</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <td class="sub-item">Créances clients</td>--%>
-<%--                <td>15,000</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <td class="sub-item">Trésorerie</td>--%>
-<%--                <td>5,000</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <td>Passifs (Total)</td>--%>
-<%--                <td>70,000</td>--%>
-<%--            </tr>--%>
-<%--            <tr>--%>
-<%--                <td>Capitaux propres</td>--%>
-<%--                <td>30,000</td>--%>
-<%--            </tr>--%>
-<%--            </tbody>--%>
-        </table>
-
-        <h2>Compte de Résultat</h2>
-        <table>
-            <caption>Produits et Charges</caption>
-            <thead>
-            <tr>
-                <th>Poste</th>
-                <th>Montant (Ar)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% for (PosteCpl poste : etatFinancier.getResultat()) { %>
-            <tr>
-                <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
-                <th><%=poste.getTotal()%></th>
-            </tr>c
-                <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
+                </tbody>
+                <tfoot>
                 <tr>
-                    <td class="sub-item"><a class="btn" href=""><i class="bx bx-x"></i></a> <%=pf.getLibelle()%></td>
-                    <td><%=pf.getMontant()%></td>
+                    <th>somme</th>
+                    <th><%=etatFinancier.getTotaux().get(1)%></th>
                 </tr>
-                <% } %>
-            <% } %>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th>Resultat net</th>
-                    <th><%=etatFinancier.getResultatNet()%></th>
-                </tr>
-            </tfoot>
-        </table>
+                </tfoot>
+            </table>
+        </div>
 
         <h2>Resultat Ordonnee</h2>
 
@@ -188,6 +202,36 @@
             </tfoot>
         </table>
 
+        <h2>Compte de Résultat</h2>
+        <table>
+            <caption>Produits et Charges</caption>
+            <thead>
+            <tr>
+                <th>Poste</th>
+                <th>Montant (Ar)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for (PosteCpl poste : etatFinancier.getResultat()) { %>
+            <tr>
+                <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
+                <th><%=poste.getTotal()%></th>
+            </tr>c
+            <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
+            <tr>
+                <td class="sub-item"><a class="btn" href=""><i class="bx bx-x"></i></a> <%=pf.getLibelle()%></td>
+                <td><%=pf.getMontant()%></td>
+            </tr>
+            <% } %>
+            <% } %>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>Resultat net</th>
+                <th><%=etatFinancier.getResultatNet()%></th>
+            </tr>
+            </tfoot>
+        </table>
 
     </div>
 

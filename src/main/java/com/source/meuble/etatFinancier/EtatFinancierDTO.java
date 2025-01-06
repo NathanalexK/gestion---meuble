@@ -14,6 +14,8 @@ import java.util.Map;
 @Setter
 public class EtatFinancierDTO {
     List<PosteCpl> bilan;
+    List<PosteCpl> actif;
+    List<PosteCpl> passif;
     List<PosteCpl> resultat;
     Double resultatNet;
 
