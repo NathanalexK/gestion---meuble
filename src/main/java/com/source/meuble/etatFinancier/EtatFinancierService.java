@@ -1,6 +1,7 @@
 package com.source.meuble.etatFinancier;
 
 import com.source.meuble.analytique.exercice.Exercice;
+import com.source.meuble.analytique.exercice.ExerciceRepository;
 import com.source.meuble.etatFinancier.Poste.PosteCpl;
 import com.source.meuble.etatFinancier.Poste.PosteCplRepository;
 import com.source.meuble.etatFinancier.Poste.PosteRepository;
@@ -32,26 +33,48 @@ public class EtatFinancierService {
     private final PosteCplRepository posteCplRepository;
     private final JdbcTemplate jdbcTemplate;
     private final NomPosteRepository nomPosteRepository;
+    private final ExerciceRepository exerciceRepository;
 
     public EtatFinancierService(PosteRepository posteRepository,
             PosteFilleRepository posteFilleRepository,
             PosteCplRepository posteCplRepository, JdbcTemplate jdbcTemplate,
-                                NomPosteRepository nomPosteRepository) {
+                                NomPosteRepository nomPosteRepository,
+                                ExerciceRepository exerciceRepository) {
         this.posteRepository = posteRepository;
         this.posteFilleRepository = posteFilleRepository;
         this.posteCplRepository = posteCplRepository;
         this.jdbcTemplate = jdbcTemplate;
         this.nomPosteRepository = nomPosteRepository;
+        this.exerciceRepository = exerciceRepository;
     }
 
     public EtatFinancierDTO build(Exercice exercice) {
         EtatFinancierDTO ef = new EtatFinancierDTO();
+
+        ef.setTotaux(getActif());
+        checkValidite(ef);
+        ef.setBef(new BilanEtatFinancierImpl(jdbcTemplate, 1));
+
+        if (!posteFilleRepository.findByLibelle("Resultat de l'exercice").isEmpty()) {
+            PosteFille pf = posteFilleRepository.findByLibelle("Resultat de l'exercice").get(0);
+            pf.setMontant(ef.getBef().getResultatNet());
+            posteFilleRepository.save(pf);
+        } else {
+            PosteFille pf = new PosteFille();
+            pf.setIdMere(posteRepository.findById(7).get());
+            pf.setIdExercice(exercice);
+            pf.setLibelle("Resultat de l'exercice");
+            pf.setMontant(ef.getBef().getResultatNet());
+            posteFilleRepository.save(pf);
+        }
 
         List<PosteCpl> bilan = new ArrayList<>();
         List<PosteCpl> actif = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(0, exercice);
         List<PosteCpl> passif = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(1, exercice);
         List<PosteCpl> resultat = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(2, exercice);
         System.out.println(resultat.size());
+
+
 
         bilan.addAll(actif);
         bilan.addAll(passif);
@@ -65,10 +88,6 @@ public class EtatFinancierService {
         ef.setResultat(resultat);
         ef.setActif(actif);
         ef.setPassif(passif);
-
-        ef.setTotaux(getActif());
-        checkValidite(ef);
-        ef.setBef(new BilanEtatFinancierImpl(jdbcTemplate, 1));
 
         return ef;
     }
