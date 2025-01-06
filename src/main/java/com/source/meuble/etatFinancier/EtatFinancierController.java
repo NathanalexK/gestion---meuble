@@ -24,7 +24,7 @@ public class EtatFinancierController {
     private final BilanEtatFinancierService bilanEtatFinancierService;
 
     public EtatFinancierController(LayoutService layoutService, EtatFinancierService etatFinancierService,
-            BilanEtatFinancierService bilanEtatFinancierService) {
+            PosteFilleViewRepository posteFilleViewRepository, BilanEtatFinancierService bilanEtatFinancierService) {
         this.layoutService = layoutService;
         this.etatFinancierService = etatFinancierService;
         this.bilanEtatFinancierService = bilanEtatFinancierService;
