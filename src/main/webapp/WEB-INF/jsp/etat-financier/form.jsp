@@ -140,7 +140,7 @@
                 })
                 .then(data => {
                     secondSelect.innerHTML = '<option disabled selected >Veuillez choisir une poste secondaire</option>';
-
+                    console.log("data"+data.toString());
                     // Ajouter les nouvelles options
                     data.forEach(item => {
                         const option = document.createElement('option');

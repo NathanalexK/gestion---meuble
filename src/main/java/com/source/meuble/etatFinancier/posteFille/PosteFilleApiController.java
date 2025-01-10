@@ -23,6 +23,7 @@ public class PosteFilleApiController {
     @GetMapping("/nomposte-corres")
     public List<NomPoste> listeNom(@RequestParam("idPosteMere") int idPosteMere) {
         Exercice exercice = (Exercice) httpSession.getAttribute("exo");
+
         return nomPosteService.findByPosteMere(exercice ,idPosteMere);
     }
 }

@@ -14,10 +14,13 @@ CREATE TABLE nom_poste(
 CREATE TABLE poste_fille(
     id_poste_fille serial primary key ,
     id_mere integer,
-    libelle varchar(50),
+    id_compte_mere integer,
+    compte integer unique ,
+    libelle varchar(255),
     montant DECIMAL(15,2),
     id_exercice integer,
-    FOREIGN KEY (id_mere) REFERENCES poste(id_poste)
+    FOREIGN KEY (id_mere) REFERENCES poste(id_poste),
+    FOREIGN KEY (id_compte_mere) REFERENCES poste_fille(compte)
 );
 
 pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f "C:\Users\Miarantsoa\ITU\S5\Gestion entreprise\gestion-talent\src\main\resources\sql\030125.dmp mr_meuble"

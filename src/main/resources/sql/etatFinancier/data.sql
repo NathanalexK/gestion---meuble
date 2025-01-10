@@ -31,20 +31,14 @@ INSERT INTO nom_poste (id_poste_mere, libelle) VALUES
 
 
 INSERT INTO poste_fille (id_mere, libelle, montant, id_exercice) VALUES
--- Actifs non courants
 (1, 'Immobilisations corporelles', 500000.00, 1),
 (1, 'Immobilisations incorporelles', 100000.00, 1),
--- Actifs courants
 (2, 'Stocks', 80000.00, 1),
 (2, 'Créances clients', 120000.00, 1),
 (2, 'Trésorerie', 50000.00, 1),
--- Passifs non courants
 (3, 'Emprunts bancaires', 100000.00, 1),
--- Passifs courants
 (4, 'Fournisseurs', 30000.00, 1),
 (4, 'Dettes fiscales et sociales', 20000.00, 1),
--- Revenus
-(5, 'Chiffre d’affaires', 1000000.00, 1),
--- Charges
-(6, 'Charges d’exploitation', 700000.00, 1),
+(5, 'Chiffre d''affaires', 1000000.00, 1),
+(6, 'Charges d''exploitation', 700000.00, 1),
 (6, 'Charges financières', 20000.00, 1);
