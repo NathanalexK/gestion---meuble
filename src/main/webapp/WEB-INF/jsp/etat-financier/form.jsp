@@ -20,7 +20,7 @@
     ];
 </script>
 
-<form action="/poste-fille/save" method="post" id="proformatForm">
+<form action="/poste-fille/traitement" method="post" id="proformatForm">
     <div class="flex">
         <div class="d-flex justify-content-center">
             <div class="card mb-4 w-50">
@@ -47,21 +47,13 @@
 
 
 
-                    <div class="mb-3">
-                        <label class="form-label" for="nomPoste">Nom poste : </label>
-                        <select name="nomPoste" id="nomPoste" class="form-select">
+                    <div class="mb-3" id="posteFilleDiv">
+                        <label class="form-label" for="posteFille">Poste filles : </label>
+                        <select name="posteFille" id="posteFille" class="form-select">
                             <option disabled selected>Veuillez choisir une poste secondaire</option>
-<%--                            <%--%>
-<%--                                for (Fournisseur frn : frns) {--%>
-<%--                            %>--%>
-<%--                            <option value="<%=frn.getId()%>">FRN000<%=frn.getId()%> - <%=frn.getNom()%> [<%=frn.getCompte()%>]</option>--%>
-<%--                            <%--%>
-<%--                                }--%>
-<%--                            %>--%>
-                            <option id="addProduit" value="$">+ Ajouter un nouveau poste</option>
                         </select>
                     </div>
-
+                    <di class="mb-3" id="libelle"></di>
                     <div class="mb-3">
                         <label class="form-label" for="qte-input">Montant (AR) :</label>
                         <input type="number" step="0.01" id="qte-input" class="form-control" name="montant">
@@ -72,64 +64,23 @@
             </div>
         </div>
     </div>
-
-
-<%--    <div class="card">--%>
-<%--        <h5 class="card-header">Inclure les besoins dans le Proformat</h5>--%>
-<%--        <div class="table-responsive text-nowrap">--%>
-<%--            <table class="table">--%>
-<%--                <thead>--%>
-<%--                <tr>--%>
-<%--                    <th></th>--%>
-<%--                    <th>ID</th>--%>
-<%--                    <th>Nom du Produit</th>--%>
-<%--                    <th>Quantite</th>--%>
-<%--                    <th>Departement</th>--%>
-<%--                    <th>Date</th>--%>
-<%--                </tr>--%>
-<%--                </thead>--%>
-<%--                <tbody class="table-border-bottom-0">--%>
-<%--                <%--%>
-<%--                    for (Besoin besoin : besoins) {--%>
-<%--                %>--%>
-<%--                <tr>--%>
-<%--                    <td><input class="form-check-input" type="checkbox" name="besoin[]" value="<%=besoin.getId()%>"/></td>--%>
-<%--                    <td><strong>BES000<%=besoin.getId()%>--%>
-<%--                    </strong></td>--%>
-<%--                    <td><%=besoin.getIdMarchandise().getLibelle()%>--%>
-<%--                    </td>--%>
-<%--                    <td><%=String.format("%.2f", besoin.getQuantite())%>--%>
-<%--                    </td>--%>
-<%--                    <td><%=besoin.getRole().name()%>--%>
-<%--                    </td>--%>
-<%--                    <td><%=besoin.getDaty()%>--%>
-<%--                    </td>--%>
-
-<%--                </tr>--%>
-<%--                <%--%>
-<%--                    }--%>
-<%--                %>--%>
-
-<%--                </tbody>--%>
-<%--            </table>--%>
-<%--        </div>--%>
-<%--    </div>--%>
 </form>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const firstSelect = document.getElementById('posteMere');
-        const secondSelect = document.getElementById('nomPoste');
+        const posteMere = document.getElementById('posteMere');
+        const posteFilleDiv = document.getElementById("posteFilleDiv");
+        var secondSelects = document.querySelectorAll('#posteFille');
+        var posteFille = secondSelects[secondSelects.length-1];
 
-        firstSelect.addEventListener('change', function () {
-            const selectedValue = firstSelect.value;
+        posteMere.addEventListener('change', function () {
+            const selectedValue = posteMere.value;
 
 
             let url = "/api/poste-fille/nomposte-corres?idPosteMere=" + selectedValue;
             console.log("URL générée :", url);
 
             console.log(selectedValue)
-            console.log("EEEEEEEE")
 
             fetch(url)
                 .then(response => {
@@ -139,14 +90,14 @@
                     return response.json();
                 })
                 .then(data => {
-                    secondSelect.innerHTML = '<option disabled selected >Veuillez choisir une poste secondaire</option>';
-                    console.log("data"+data.toString());
+                    posteFille.innerHTML = '<option disabled selected >Veuillez choisir une poste secondaire</option>';
+                    console.log(data.valueOf());
                     // Ajouter les nouvelles options
                     data.forEach(item => {
                         const option = document.createElement('option');
-                        option.value = item.id;
+                        option.value = item.compte;
                         option.textContent = item.libelle;
-                        secondSelect.appendChild(option);
+                        posteFille.appendChild(option);
                     });
                 })
                 .catch(error => {
@@ -154,5 +105,74 @@
                     alert('Une erreur est survenue lors du chargement des données.');
                 });
         });
+
+        posteFille.addEventListener('change', function () {
+            fetchCompteFille(posteFille, posteFilleDiv);
+        });
+
+        function fetchCompteFille(posteFille, posteFilleDiv) {
+            console.log(posteFille.value);
+
+            let selectedValue = posteFille.value;
+            let url = "/api/poste-fille/compte-corres?compteMere=" + selectedValue;
+            console.log("URL générée :", url);
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des données');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    var br = document.createElement('br');
+                    posteFilleDiv.appendChild(br);
+
+                    if (data.length > 0) {
+                        var newSelect = document.createElement('select');
+                        newSelect.name = "posteFille";
+                        newSelect.id = "posteFille";
+                        newSelect.classList.add('form-select');
+
+                        var defaultOption = document.createElement('option');
+                        defaultOption.disabled = true;
+                        defaultOption.selected = true;
+                        defaultOption.textContent = "Veuillez choisir une poste secondaire";
+                        newSelect.appendChild(defaultOption);
+
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.compte;
+                            option.textContent = item.libelle;
+                            newSelect.appendChild(option);
+                        });
+
+                        posteFilleDiv.appendChild(newSelect);
+
+                        newSelect.addEventListener('change', function () {
+                            fetchCompteFille(newSelect, posteFilleDiv);
+                        });
+                    } else {
+                        var libelleDiv = document.getElementById("libelle");
+
+                        var label = document.createElement('label');
+                        label.classList.add('form-label');
+                        label.setAttribute('for', 'libelle');
+                        label.textContent = 'Libelle :';
+
+                        var input = document.createElement('input');
+                        input.id = 'libelle';
+                        input.classList.add('form-control');
+                        input.name = 'libelle';
+
+                        libelleDiv.appendChild(label);
+                        libelleDiv.appendChild(input);
+                    }
+
+                }).catch(error => {
+                console.error(error);
+                alert('Une erreur est survenue lors du chargement des données.');
+            });
+        }
     });
 </script>

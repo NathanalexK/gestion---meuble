@@ -6,13 +6,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @Entity
 @Table(name = "poste_fille")
 public class PosteFille {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_poste_fille", nullable = false)
@@ -24,6 +23,9 @@ public class PosteFille {
     @Column(name = "montant")
     private Double montant;
 
+    @Column(name = "compte", unique = true)
+    private Integer compte;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mere")
     private Poste idMere;
@@ -31,5 +33,9 @@ public class PosteFille {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_exercice")
     private Exercice idExercice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_compte_mere", referencedColumnName = "compte")
+    private PosteFille compteMere;
 
 }

@@ -1,4 +1,4 @@
-package com.source.meuble.etatFinancier.posteFille;
+package com.source.meuble.etatFinancier.posteFille.utils;
 
 public class PosteFilleDTO {
     public int idPosteMere;

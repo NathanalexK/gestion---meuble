@@ -4,7 +4,7 @@ import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.auth.LayoutService;
 import com.source.meuble.etatFinancier.bilan.BilanEtatFinancier;
 import com.source.meuble.etatFinancier.bilan.BilanEtatFinancierService;
-import com.source.meuble.etatFinancier.posteFille.PosteFilleViewRepository;
+import com.source.meuble.etatFinancier.posteFille.utils.PosteFilleViewRepository;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
