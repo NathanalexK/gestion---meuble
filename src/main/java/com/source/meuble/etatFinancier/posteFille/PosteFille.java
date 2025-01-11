@@ -20,19 +20,12 @@ public class PosteFille {
     @Column(name = "libelle", length = 50)
     private String libelle;
 
-    @Column(name = "montant")
-    private Double montant;
-
     @Column(name = "compte", unique = true)
     private Integer compte;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_mere")
     private Poste idMere;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_exercice")
-    private Exercice idExercice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compte_mere", referencedColumnName = "compte")

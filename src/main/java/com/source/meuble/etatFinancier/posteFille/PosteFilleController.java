@@ -4,13 +4,13 @@ import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.auth.LayoutService;
 import com.source.meuble.etatFinancier.Poste.Poste;
 import com.source.meuble.etatFinancier.Poste.PosteService;
-import com.source.meuble.etatFinancier.nomPoste.NomPoste;
 import com.source.meuble.etatFinancier.nomPoste.NomPosteRepository;
+import com.source.meuble.etatFinancier.posteFille.PosteFilleValue.PosteFilleValue;
+import com.source.meuble.etatFinancier.posteFille.PosteFilleValue.PosteFilleValueService;
 import com.source.meuble.exception.NoExerciceFoundException;
 import com.source.meuble.exception.NoUserLoggedException;
 import com.source.meuble.util.Layout;
 import com.source.meuble.util.Redirection;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.SneakyThrows;
@@ -26,6 +26,9 @@ import java.util.Optional;
 public class PosteFilleController {
     @Autowired
     private PosteFilleService posteFilleService;
+
+    @Autowired
+    private PosteFilleValueService posteFilleValueService;
 
     private final LayoutService layoutService;
     private final PosteService posteService;
@@ -49,7 +52,7 @@ public class PosteFilleController {
         return mav;
     }
 
-    @PostMapping("/save")
+    /*@PostMapping("/save")
     public String save(
             @RequestParam("posteMere") Poste mere,
             @RequestParam("posteFille") NomPoste nomPoste,
@@ -67,7 +70,7 @@ public class PosteFilleController {
 
         posteFilleRepository.save(posteFille);
         return "redirect:/poste-fille/form";
-    }
+    }*/
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
@@ -101,19 +104,27 @@ public class PosteFilleController {
             PosteFille posteFille = posteFilleOptional.get();
             if(libelle == null || libelle.isEmpty()){
 
-                posteFille.setMontant(montant);
-                posteFilleService.save(posteFille);
+                PosteFilleValue posteFilleValue = new PosteFilleValue();
+                posteFilleValue.setCompte(posteFille.getId());
+                posteFilleValue.setMontant(montant);
+                posteFilleValue.setIdExercice(exercice);
+
+                posteFilleValueService.save(posteFilleValue);
 
             }else {
 
-                PosteFille pf = new PosteFille();
-                pf.setId(null);
-                pf.setLibelle(libelle);
-                pf.setCompteMere(posteFille);
-                pf.setMontant(montant);
-                pf.setIdExercice(exercice);
+                PosteFille newPosteFille = new PosteFille();
+                newPosteFille.setLibelle(libelle);
+                newPosteFille.setCompteMere(posteFille);
 
-                posteFilleService.save(pf);
+                newPosteFille = posteFilleService.save(newPosteFille);
+
+                PosteFilleValue posteFilleValue = new PosteFilleValue();
+                posteFilleValue.setCompte(newPosteFille.getId());
+                posteFilleValue.setMontant(montant);
+                posteFilleValue.setIdExercice(exercice);
+
+                posteFilleValueService.save(posteFilleValue);
             }
         }
 
