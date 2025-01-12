@@ -156,38 +156,37 @@
             </thead>
             <tbody>
             <% for (PosteCpl poste : analyseEtaFinancier.getResultat()) { %>
-            <tr>
-                <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
-                <th><%=poste.getTotal()%></th>
-            </tr>
-            <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) {
-                if (pf.getMontant()!=0) { %>
-
-            <tr>
-                <td class="sub-item">
-                    <a class="btn" href="/poste-fille/delete/<%=pf.getId()%>">
-                        <i class="bx bx-x"></i>
-                    </a>
-                    <%=pf.getLibelle()%>
-                </td>
-                <td><%= pf.getMontant()%></td>
-            </tr>
-            <%
-                List<PosteFille> sousPostes = pf.getPosteFilles();
-                if (sousPostes != null && !sousPostes.isEmpty()) {
-                    for (PosteFille sousPoste : sousPostes) {
-            %>
-            <% if(sousPoste.getMontant()!=0){ %>
-            <tr>
-                <td class="sub-item sub-level">
-                    &emsp;<a class="btn" href="/poste-fille/delete/<%=sousPoste.getId()%>">
-                    <i class="bx bx-x"></i>
-                </a>
-                    <%=sousPoste.getLibelle()%>
-                </td>
-                <td><%= sousPoste.getMontant() %></td>
-            </tr>
-            <%
+                <tr>
+                    <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
+                    <th><%=poste.getTotal()%></th>
+                </tr>
+                    <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) {
+                        if (pf.getMontant()!=0) { %>
+                        <tr>
+                            <td class="sub-item">
+                                <a class="btn" href="/poste-fille/delete/<%=pf.getId()%>">
+                                    <i class="bx bx-x"></i>
+                                </a>
+                                <%=pf.getLibelle()%>
+                            </td>
+                            <td><%= pf.getMontant()%></td>
+                        </tr>
+                        <%
+                            List<PosteFille> sousPostes = pf.getPosteFilles();
+                            if (sousPostes != null && !sousPostes.isEmpty()) {
+                                for (PosteFille sousPoste : sousPostes) {
+                        %>
+                        <% if(sousPoste.getMontant()!=0){ %>
+                        <tr>
+                            <td class="sub-item sub-level">
+                                &emsp;<a class="btn" href="/poste-fille/delete/<%=sousPoste.getId()%>">
+                                <i class="bx bx-x"></i>
+                            </a>
+                                <%=sousPoste.getLibelle()%>
+                            </td>
+                            <td><%= sousPoste.getMontant() %></td>
+                        </tr>
+                        <%
                                     }
                                 }
                             }

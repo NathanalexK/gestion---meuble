@@ -1,0 +1,3706 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 15.2
+-- Dumped by pg_dump version 15.2
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: calculer_montants_recurrents(integer, integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.calculer_montants_recurrents(v_compte integer, v_id_compte_mere integer) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+rec_poste_fille RECORD;
+BEGIN
+FOR rec_poste_fille IN
+SELECT compte, montant, id_mere
+FROM v_poste_fille
+WHERE id_compte_mere = v_compte
+    LOOP
+UPDATE temp_montants
+SET somme_montant = somme_montant + rec_poste_fille.montant
+WHERE id_compte_mere = v_id_compte_mere;
+
+PERFORM calculer_montants_recurrents(
+            rec_poste_fille.compte,
+            v_id_compte_mere
+        );
+END LOOP;
+
+    RETURN;
+END;
+$$;
+
+
+ALTER FUNCTION public.calculer_montants_recurrents(v_compte integer, v_id_compte_mere integer) OWNER TO postgres;
+
+--
+-- Name: calculer_montants_recurrents_par_fille(integer); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.calculer_montants_recurrents_par_fille(v_compte integer) RETURNS numeric
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+rec_poste_fille RECORD;
+    total_montant NUMERIC := 0;
+BEGIN
+FOR rec_poste_fille IN
+SELECT compte, montant
+FROM v_poste_fille
+WHERE id_compte_mere = v_compte
+    LOOP
+        total_montant := total_montant + rec_poste_fille.montant;
+
+total_montant := total_montant + calculer_montants_recurrents_par_fille(rec_poste_fille.compte);
+END LOOP;
+
+RETURN total_montant;
+END;
+$$;
+
+
+ALTER FUNCTION public.calculer_montants_recurrents_par_fille(v_compte integer) OWNER TO postgres;
+
+--
+-- Name: calculer_somme_poste_fille(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION public.calculer_somme_poste_fille() RETURNS TABLE(id_compte_mere integer, id_mere integer, somme_montant numeric)
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+rec_poste_fille RECORD;
+BEGIN
+    CREATE TEMP TABLE temp_montants (
+        id_compte_mere INT PRIMARY KEY,
+        id_mere INT,
+        somme_montant DECIMAL(15, 2) DEFAULT 0.00
+    );
+
+INSERT INTO temp_montants (id_compte_mere, id_mere, somme_montant)
+SELECT p.compte, p.id_mere, p.montant
+FROM v_poste_fille p
+WHERE p.id_compte_mere IS NULL;
+
+FOR rec_poste_fille IN
+SELECT p.compte, p.id_mere
+FROM v_poste_fille p
+WHERE p.id_compte_mere IS NULL
+    LOOP
+        PERFORM calculer_montants_recurrents(
+            rec_poste_fille.compte,
+            rec_poste_fille.compte
+        );
+END LOOP;
+
+RETURN QUERY
+SELECT t.id_compte_mere, t.id_mere, t.somme_montant
+FROM temp_montants t;
+
+DROP TABLE temp_montants;
+
+RETURN;
+END;
+$$;
+
+
+ALTER FUNCTION public.calculer_somme_poste_fille() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: centre; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.centre (
+    id_centre integer NOT NULL,
+    nom character varying(50),
+    categorie integer
+);
+
+
+ALTER TABLE public.centre OWNER TO postgres;
+
+--
+-- Name: imputation; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.imputation (
+    id_imputation integer NOT NULL,
+    id_centre integer,
+    id_type_rubrique integer,
+    pourcentage numeric(5,2)
+);
+
+
+ALTER TABLE public.imputation OWNER TO postgres;
+
+--
+-- Name: rubrique; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rubrique (
+    id_rubrique integer NOT NULL,
+    id_type_rubrique integer,
+    prix_unitaire numeric(11,2),
+    quantite numeric(17,2),
+    date_achat date,
+    id_exercice integer
+);
+
+
+ALTER TABLE public.rubrique OWNER TO postgres;
+
+--
+-- Name: type_rubrique; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.type_rubrique (
+    id_type_rubrique integer NOT NULL,
+    libelle character varying(20),
+    nature integer,
+    incorporabilite integer,
+    id_unite_oeuvre integer
+);
+
+
+ALTER TABLE public.type_rubrique OWNER TO postgres;
+
+--
+-- Name: analyse_ensemble; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.analyse_ensemble AS
+ SELECT rubrique.id_rubrique,
+    rubrique.id_type_rubrique,
+    rubrique.prix_unitaire,
+    rubrique.quantite,
+    rubrique.date_achat,
+    rubrique.id_exercice,
+    type_rubrique.nature,
+    type_rubrique.incorporabilite,
+    imputation.id_imputation,
+    imputation.pourcentage,
+    centre.id_centre,
+    centre.nom,
+    centre.categorie,
+    (rubrique.prix_unitaire * rubrique.quantite) AS montant,
+    ((rubrique.prix_unitaire * rubrique.quantite) * (imputation.pourcentage / (100)::numeric)) AS reel
+   FROM (((public.rubrique
+     JOIN public.type_rubrique ON ((rubrique.id_type_rubrique = type_rubrique.id_type_rubrique)))
+     JOIN public.imputation ON ((rubrique.id_type_rubrique = imputation.id_type_rubrique)))
+     JOIN public.centre ON ((imputation.id_centre = centre.id_centre)));
+
+
+ALTER TABLE public.analyse_ensemble OWNER TO postgres;
+
+--
+-- Name: besoin; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.besoin (
+    id_besoin integer NOT NULL,
+    quantite numeric(10,2),
+    etat integer,
+    daty date,
+    id_departement integer,
+    id_produit integer
+);
+
+
+ALTER TABLE public.besoin OWNER TO postgres;
+
+--
+-- Name: besoin_id_besoin_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.besoin_id_besoin_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.besoin_id_besoin_seq OWNER TO postgres;
+
+--
+-- Name: besoin_id_besoin_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.besoin_id_besoin_seq OWNED BY public.besoin.id_besoin;
+
+
+--
+-- Name: besoin_recrutement; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.besoin_recrutement (
+    id_besoin_recrutement integer NOT NULL,
+    id_role integer NOT NULL,
+    date_demande date NOT NULL,
+    annees_experience integer,
+    id_diplome integer NOT NULL
+);
+
+
+ALTER TABLE public.besoin_recrutement OWNER TO postgres;
+
+--
+-- Name: besoin_recrutement_id_besoin_recrutement_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.besoin_recrutement_id_besoin_recrutement_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.besoin_recrutement_id_besoin_recrutement_seq OWNER TO postgres;
+
+--
+-- Name: besoin_recrutement_id_besoin_recrutement_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.besoin_recrutement_id_besoin_recrutement_seq OWNED BY public.besoin_recrutement.id_besoin_recrutement;
+
+
+--
+-- Name: bon_commande; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.bon_commande (
+    id_bc integer NOT NULL,
+    id_proformat integer,
+    id_fournisseur integer,
+    id_client integer,
+    etat integer,
+    date_commande date,
+    date_livraison date
+);
+
+
+ALTER TABLE public.bon_commande OWNER TO postgres;
+
+--
+-- Name: bon_commande_fille; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.bon_commande_fille (
+    id_bc_fille integer NOT NULL,
+    id_bc integer,
+    prix numeric(18,2),
+    quantite numeric(10,2),
+    id_produit integer
+);
+
+
+ALTER TABLE public.bon_commande_fille OWNER TO postgres;
+
+--
+-- Name: bon_commande_fille_id_bc_fille_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.bon_commande_fille_id_bc_fille_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bon_commande_fille_id_bc_fille_seq OWNER TO postgres;
+
+--
+-- Name: bon_commande_fille_id_bc_fille_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.bon_commande_fille_id_bc_fille_seq OWNED BY public.bon_commande_fille.id_bc_fille;
+
+
+--
+-- Name: bon_commande_id_bc_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.bon_commande_id_bc_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bon_commande_id_bc_seq OWNER TO postgres;
+
+--
+-- Name: bon_commande_id_bc_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.bon_commande_id_bc_seq OWNED BY public.bon_commande.id_bc;
+
+
+--
+-- Name: bon_reception; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.bon_reception (
+    id_br integer NOT NULL,
+    id_bc integer,
+    date_reception date,
+    etat integer DEFAULT 0
+);
+
+
+ALTER TABLE public.bon_reception OWNER TO postgres;
+
+--
+-- Name: bon_reception_fille; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.bon_reception_fille (
+    id_br_fille integer NOT NULL,
+    id_br integer,
+    quantite numeric(10,2),
+    prix numeric(18,2),
+    id_produit integer
+);
+
+
+ALTER TABLE public.bon_reception_fille OWNER TO postgres;
+
+--
+-- Name: bon_reception_fille_id_br_fille_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.bon_reception_fille_id_br_fille_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bon_reception_fille_id_br_fille_seq OWNER TO postgres;
+
+--
+-- Name: bon_reception_fille_id_br_fille_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.bon_reception_fille_id_br_fille_seq OWNED BY public.bon_reception_fille.id_br_fille;
+
+
+--
+-- Name: bon_reception_id_br_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.bon_reception_id_br_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.bon_reception_id_br_seq OWNER TO postgres;
+
+--
+-- Name: bon_reception_id_br_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.bon_reception_id_br_seq OWNED BY public.bon_reception.id_br;
+
+
+--
+-- Name: centre_id_centre_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.centre_id_centre_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.centre_id_centre_seq OWNER TO postgres;
+
+--
+-- Name: centre_id_centre_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.centre_id_centre_seq OWNED BY public.centre.id_centre;
+
+
+--
+-- Name: client; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.client (
+    id_client integer NOT NULL,
+    nom character varying(50),
+    daty date,
+    compte character varying(7)
+);
+
+
+ALTER TABLE public.client OWNER TO postgres;
+
+--
+-- Name: client_id_client_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.client_id_client_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.client_id_client_seq OWNER TO postgres;
+
+--
+-- Name: client_id_client_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.client_id_client_seq OWNED BY public.client.id_client;
+
+
+--
+-- Name: contrat_employe; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.contrat_employe (
+    id_contrat_employe integer NOT NULL,
+    date_debut date,
+    date_fin date,
+    id_personnel integer NOT NULL,
+    id_type integer NOT NULL
+);
+
+
+ALTER TABLE public.contrat_employe OWNER TO postgres;
+
+--
+-- Name: contrat_employe_id_contrat_employe_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.contrat_employe_id_contrat_employe_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.contrat_employe_id_contrat_employe_seq OWNER TO postgres;
+
+--
+-- Name: contrat_employe_id_contrat_employe_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.contrat_employe_id_contrat_employe_seq OWNED BY public.contrat_employe.id_contrat_employe;
+
+
+--
+-- Name: cv; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.cv (
+    id_cv integer NOT NULL,
+    date_postulation date NOT NULL,
+    nom character varying(255),
+    prenom character varying(255),
+    date_naissance date,
+    adresse character varying(255),
+    annees_experience integer,
+    id_offre_emploi integer NOT NULL,
+    id_diplome integer NOT NULL
+);
+
+
+ALTER TABLE public.cv OWNER TO postgres;
+
+--
+-- Name: cv_id_cv_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.cv_id_cv_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.cv_id_cv_seq OWNER TO postgres;
+
+--
+-- Name: cv_id_cv_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.cv_id_cv_seq OWNED BY public.cv.id_cv;
+
+
+--
+-- Name: diplome; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.diplome (
+    id_diplome integer NOT NULL,
+    libelle character varying(50) NOT NULL,
+    niveau integer NOT NULL
+);
+
+
+ALTER TABLE public.diplome OWNER TO postgres;
+
+--
+-- Name: diplome_id_diplome_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.diplome_id_diplome_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.diplome_id_diplome_seq OWNER TO postgres;
+
+--
+-- Name: diplome_id_diplome_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.diplome_id_diplome_seq OWNED BY public.diplome.id_diplome;
+
+
+--
+-- Name: entretien; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.entretien (
+    id_entretien integer NOT NULL,
+    date_entretien date,
+    id_cv integer NOT NULL
+);
+
+
+ALTER TABLE public.entretien OWNER TO postgres;
+
+--
+-- Name: entretien_id_entretien_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.entretien_id_entretien_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.entretien_id_entretien_seq OWNER TO postgres;
+
+--
+-- Name: entretien_id_entretien_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.entretien_id_entretien_seq OWNED BY public.entretien.id_entretien;
+
+
+--
+-- Name: etat_stock; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.etat_stock (
+    id_etat_stock integer NOT NULL,
+    date_enregistrement date,
+    quantite integer,
+    prix_unitaire numeric(11,2),
+    id_produit integer,
+    qte numeric(15,2)
+);
+
+
+ALTER TABLE public.etat_stock OWNER TO postgres;
+
+--
+-- Name: etat_stock_id_etat_stock_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.etat_stock_id_etat_stock_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.etat_stock_id_etat_stock_seq OWNER TO postgres;
+
+--
+-- Name: etat_stock_id_etat_stock_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.etat_stock_id_etat_stock_seq OWNED BY public.etat_stock.id_etat_stock;
+
+
+--
+-- Name: exercice; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.exercice (
+    id_exercice integer NOT NULL,
+    annee integer,
+    date_debut date
+);
+
+
+ALTER TABLE public.exercice OWNER TO postgres;
+
+--
+-- Name: exercice_id_exercice_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.exercice_id_exercice_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.exercice_id_exercice_seq OWNER TO postgres;
+
+--
+-- Name: exercice_id_exercice_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.exercice_id_exercice_seq OWNED BY public.exercice.id_exercice;
+
+
+--
+-- Name: facture; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.facture (
+    id_facture integer NOT NULL,
+    id_bc integer,
+    id_br integer,
+    id_fournisseur integer,
+    id_client integer,
+    date_facture date,
+    etat integer DEFAULT 0
+);
+
+
+ALTER TABLE public.facture OWNER TO postgres;
+
+--
+-- Name: facture_fille; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.facture_fille (
+    id_facture_fille integer NOT NULL,
+    id_facture integer,
+    quantite numeric(10,2),
+    prix numeric(18,2),
+    id_produit integer
+);
+
+
+ALTER TABLE public.facture_fille OWNER TO postgres;
+
+--
+-- Name: facture_fille_id_facture_fille_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.facture_fille_id_facture_fille_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.facture_fille_id_facture_fille_seq OWNER TO postgres;
+
+--
+-- Name: facture_fille_id_facture_fille_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.facture_fille_id_facture_fille_seq OWNED BY public.facture_fille.id_facture_fille;
+
+
+--
+-- Name: facture_id_facture_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.facture_id_facture_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.facture_id_facture_seq OWNER TO postgres;
+
+--
+-- Name: facture_id_facture_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.facture_id_facture_seq OWNED BY public.facture.id_facture;
+
+
+--
+-- Name: fournisseur; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.fournisseur (
+    id_fournisseur integer NOT NULL,
+    nom character varying(50),
+    daty date,
+    compte character varying(7)
+);
+
+
+ALTER TABLE public.fournisseur OWNER TO postgres;
+
+--
+-- Name: fournisseur_id_fournisseur_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.fournisseur_id_fournisseur_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.fournisseur_id_fournisseur_seq OWNER TO postgres;
+
+--
+-- Name: fournisseur_id_fournisseur_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.fournisseur_id_fournisseur_seq OWNED BY public.fournisseur.id_fournisseur;
+
+
+--
+-- Name: imputation_id_imputation_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.imputation_id_imputation_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.imputation_id_imputation_seq OWNER TO postgres;
+
+--
+-- Name: imputation_id_imputation_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.imputation_id_imputation_seq OWNED BY public.imputation.id_imputation;
+
+
+--
+-- Name: liste_general; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.liste_general AS
+SELECT
+    NULL::bigint AS id,
+    NULL::integer AS id_exeercice,
+    NULL::character varying(20) AS libelle,
+    NULL::integer AS id_type_rubrique,
+    NULL::numeric AS total_rubrique,
+    NULL::integer AS incorporabilite;
+
+
+ALTER TABLE public.liste_general OWNER TO postgres;
+
+--
+-- Name: list_analytique; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.list_analytique AS
+ SELECT row_number() OVER () AS id,
+    lg.id_type_rubrique,
+    imputation.pourcentage,
+    imputation.id_centre,
+    ((lg.total_rubrique / (100)::numeric) * imputation.pourcentage) AS total_par_centre,
+    lg.incorporabilite
+   FROM (public.imputation
+     JOIN public.liste_general lg ON ((imputation.id_type_rubrique = lg.id_type_rubrique)))
+  GROUP BY imputation.id_centre, imputation.pourcentage, lg.id_type_rubrique, lg.total_rubrique, lg.incorporabilite;
+
+
+ALTER TABLE public.list_analytique OWNER TO postgres;
+
+--
+-- Name: mouvement_stock; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.mouvement_stock (
+    id_mouvement_stock integer NOT NULL,
+    date_enregistrement date,
+    prix_unitaire numeric(11,2),
+    nature integer,
+    id_produit integer,
+    entree numeric(15,2),
+    sortie numeric(15,2),
+    designation character varying(100),
+    quantite numeric(15,2)
+);
+
+
+ALTER TABLE public.mouvement_stock OWNER TO postgres;
+
+--
+-- Name: mouvement_stock_id_mouvement_stock_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.mouvement_stock_id_mouvement_stock_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mouvement_stock_id_mouvement_stock_seq OWNER TO postgres;
+
+--
+-- Name: mouvement_stock_id_mouvement_stock_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.mouvement_stock_id_mouvement_stock_seq OWNED BY public.mouvement_stock.id_mouvement_stock;
+
+
+--
+-- Name: nom_poste; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.nom_poste (
+    id_nom_poste integer NOT NULL,
+    id_poste_mere integer,
+    libelle character varying(50)
+);
+
+
+ALTER TABLE public.nom_poste OWNER TO postgres;
+
+--
+-- Name: nom_poste_id_nom_poste_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.nom_poste_id_nom_poste_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.nom_poste_id_nom_poste_seq OWNER TO postgres;
+
+--
+-- Name: nom_poste_id_nom_poste_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.nom_poste_id_nom_poste_seq OWNED BY public.nom_poste.id_nom_poste;
+
+
+--
+-- Name: offre_emploi; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.offre_emploi (
+    id_offre_emploi integer NOT NULL,
+    date_publication date NOT NULL,
+    id_besoin_recrutement integer NOT NULL,
+    id_bc integer
+);
+
+
+ALTER TABLE public.offre_emploi OWNER TO postgres;
+
+--
+-- Name: offre_emploi_id_offre_emploi_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.offre_emploi_id_offre_emploi_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.offre_emploi_id_offre_emploi_seq OWNER TO postgres;
+
+--
+-- Name: offre_emploi_id_offre_emploi_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.offre_emploi_id_offre_emploi_seq OWNED BY public.offre_emploi.id_offre_emploi;
+
+
+--
+-- Name: personnel; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.personnel (
+    id_personnel integer NOT NULL,
+    nom character varying(255),
+    prenom character varying(255),
+    date_naissance date,
+    adresse character varying(255),
+    date_embauche date,
+    salaire numeric(15,2),
+    id_departement integer,
+    poste character varying(50),
+    id_cv integer NOT NULL
+);
+
+
+ALTER TABLE public.personnel OWNER TO postgres;
+
+--
+-- Name: personnel_id_personnel_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.personnel_id_personnel_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.personnel_id_personnel_seq OWNER TO postgres;
+
+--
+-- Name: personnel_id_personnel_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.personnel_id_personnel_seq OWNED BY public.personnel.id_personnel;
+
+
+--
+-- Name: poste; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.poste (
+    id_poste integer NOT NULL,
+    libelle character varying(50),
+    categorie smallint,
+    CONSTRAINT poste_categorie_check CHECK ((categorie = ANY (ARRAY[0, 1, 2])))
+);
+
+
+ALTER TABLE public.poste OWNER TO postgres;
+
+--
+-- Name: poste_cpl; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.poste_cpl AS
+ SELECT poste.id_poste AS id,
+    cpl.id_mere,
+    cpl.total
+   FROM (public.poste
+     JOIN ( SELECT calculer_somme_poste_fille.id_mere,
+            sum(calculer_somme_poste_fille.somme_montant) AS total
+           FROM public.calculer_somme_poste_fille() calculer_somme_poste_fille(id_compte_mere, id_mere, somme_montant)
+          GROUP BY calculer_somme_poste_fille.id_mere) cpl ON ((poste.id_poste = cpl.id_mere)));
+
+
+ALTER TABLE public.poste_cpl OWNER TO postgres;
+
+--
+-- Name: poste_fille; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.poste_fille (
+    id_poste_fille integer NOT NULL,
+    id_mere integer,
+    id_compte_mere integer,
+    compte integer,
+    libelle character varying(255)
+);
+
+
+ALTER TABLE public.poste_fille OWNER TO postgres;
+
+--
+-- Name: poste_fille_id_poste_fille_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.poste_fille_id_poste_fille_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.poste_fille_id_poste_fille_seq OWNER TO postgres;
+
+--
+-- Name: poste_fille_id_poste_fille_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.poste_fille_id_poste_fille_seq OWNED BY public.poste_fille.id_poste_fille;
+
+
+--
+-- Name: poste_fille_value; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.poste_fille_value (
+    id integer NOT NULL,
+    compte integer,
+    montant numeric(15,2),
+    id_exercice integer
+);
+
+
+ALTER TABLE public.poste_fille_value OWNER TO postgres;
+
+--
+-- Name: poste_fille_value_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.poste_fille_value_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.poste_fille_value_id_seq OWNER TO postgres;
+
+--
+-- Name: poste_fille_value_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.poste_fille_value_id_seq OWNED BY public.poste_fille_value.id;
+
+
+--
+-- Name: poste_id_poste_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.poste_id_poste_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.poste_id_poste_seq OWNER TO postgres;
+
+--
+-- Name: poste_id_poste_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.poste_id_poste_seq OWNED BY public.poste.id_poste;
+
+
+--
+-- Name: produit; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.produit (
+    id_produit integer NOT NULL,
+    libelle character varying(30),
+    id_unite_oeuvre integer,
+    type integer
+);
+
+
+ALTER TABLE public.produit OWNER TO postgres;
+
+--
+-- Name: produit_id_produit_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.produit_id_produit_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.produit_id_produit_seq OWNER TO postgres;
+
+--
+-- Name: produit_id_produit_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.produit_id_produit_seq OWNED BY public.produit.id_produit;
+
+
+--
+-- Name: proformat; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.proformat (
+    id_proformat integer NOT NULL,
+    id_fournisseur integer,
+    id_client integer,
+    daty date,
+    etat integer DEFAULT 0
+);
+
+
+ALTER TABLE public.proformat OWNER TO postgres;
+
+--
+-- Name: proformat_fille; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.proformat_fille (
+    id_proformat_fille integer NOT NULL,
+    id_proformat integer,
+    id_produit integer,
+    prix numeric(18,2),
+    qte numeric(15,2)
+);
+
+
+ALTER TABLE public.proformat_fille OWNER TO postgres;
+
+--
+-- Name: proformat_fille_id_proformat_fille_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.proformat_fille_id_proformat_fille_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.proformat_fille_id_proformat_fille_seq OWNER TO postgres;
+
+--
+-- Name: proformat_fille_id_proformat_fille_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.proformat_fille_id_proformat_fille_seq OWNED BY public.proformat_fille.id_proformat_fille;
+
+
+--
+-- Name: proformat_id_proformat_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.proformat_id_proformat_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.proformat_id_proformat_seq OWNER TO postgres;
+
+--
+-- Name: proformat_id_proformat_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.proformat_id_proformat_seq OWNED BY public.proformat.id_proformat;
+
+
+--
+-- Name: resulat_test; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.resulat_test (
+    id_resultat_test integer NOT NULL,
+    points numeric(5,2),
+    id_test integer NOT NULL
+);
+
+
+ALTER TABLE public.resulat_test OWNER TO postgres;
+
+--
+-- Name: resulat_test_id_resultat_test_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.resulat_test_id_resultat_test_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.resulat_test_id_resultat_test_seq OWNER TO postgres;
+
+--
+-- Name: resulat_test_id_resultat_test_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.resulat_test_id_resultat_test_seq OWNED BY public.resulat_test.id_resultat_test;
+
+
+--
+-- Name: role; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.role (
+    id smallint NOT NULL,
+    nom character varying(35)
+);
+
+
+ALTER TABLE public.role OWNER TO postgres;
+
+--
+-- Name: rubrique_id_rubrique_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.rubrique_id_rubrique_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.rubrique_id_rubrique_seq OWNER TO postgres;
+
+--
+-- Name: rubrique_id_rubrique_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.rubrique_id_rubrique_seq OWNED BY public.rubrique.id_rubrique;
+
+
+--
+-- Name: test; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.test (
+    id_test integer NOT NULL,
+    date_test date,
+    id_cv integer
+);
+
+
+ALTER TABLE public.test OWNER TO postgres;
+
+--
+-- Name: test_id_test_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.test_id_test_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.test_id_test_seq OWNER TO postgres;
+
+--
+-- Name: test_id_test_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.test_id_test_seq OWNED BY public.test.id_test;
+
+
+--
+-- Name: type_contrat; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.type_contrat (
+    id_type integer NOT NULL,
+    nom integer NOT NULL,
+    abreviation character varying(50)
+);
+
+
+ALTER TABLE public.type_contrat OWNER TO postgres;
+
+--
+-- Name: type_contrat_id_type_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.type_contrat_id_type_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.type_contrat_id_type_seq OWNER TO postgres;
+
+--
+-- Name: type_contrat_id_type_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.type_contrat_id_type_seq OWNED BY public.type_contrat.id_type;
+
+
+--
+-- Name: type_contrat_nom_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.type_contrat_nom_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.type_contrat_nom_seq OWNER TO postgres;
+
+--
+-- Name: type_contrat_nom_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.type_contrat_nom_seq OWNED BY public.type_contrat.nom;
+
+
+--
+-- Name: type_mvt; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.type_mvt (
+    id smallint NOT NULL,
+    nom character varying(20)
+);
+
+
+ALTER TABLE public.type_mvt OWNER TO postgres;
+
+--
+-- Name: type_rubrique_id_type_rubrique_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.type_rubrique_id_type_rubrique_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.type_rubrique_id_type_rubrique_seq OWNER TO postgres;
+
+--
+-- Name: type_rubrique_id_type_rubrique_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.type_rubrique_id_type_rubrique_seq OWNED BY public.type_rubrique.id_type_rubrique;
+
+
+--
+-- Name: unite_oeuvre; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.unite_oeuvre (
+    id_unite_oeuvre integer NOT NULL,
+    nom character varying(20)
+);
+
+
+ALTER TABLE public.unite_oeuvre OWNER TO postgres;
+
+--
+-- Name: unite_oeuvre_id_unite_oeuvre_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.unite_oeuvre_id_unite_oeuvre_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.unite_oeuvre_id_unite_oeuvre_seq OWNER TO postgres;
+
+--
+-- Name: unite_oeuvre_id_unite_oeuvre_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.unite_oeuvre_id_unite_oeuvre_seq OWNED BY public.unite_oeuvre.id_unite_oeuvre;
+
+
+--
+-- Name: utilisateur; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.utilisateur (
+    id integer NOT NULL,
+    username character varying(100),
+    password character varying(100),
+    id_role smallint
+);
+
+
+ALTER TABLE public.utilisateur OWNER TO postgres;
+
+--
+-- Name: utilisateur_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.utilisateur_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.utilisateur_id_seq OWNER TO postgres;
+
+--
+-- Name: utilisateur_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.utilisateur_id_seq OWNED BY public.utilisateur.id;
+
+
+--
+-- Name: v_poste_fille; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.v_poste_fille AS
+ SELECT pf.id_poste_fille,
+    pf.id_mere,
+    pf.id_compte_mere,
+    pf.compte,
+    pf.libelle,
+    COALESCE(pfv.montant, (0)::numeric) AS montant
+   FROM (public.poste_fille pf
+     LEFT JOIN public.poste_fille_value pfv ON ((pf.id_poste_fille = pfv.compte)))
+  ORDER BY pf.id_poste_fille;
+
+
+ALTER TABLE public.v_poste_fille OWNER TO postgres;
+
+--
+-- Name: v_poste_fille_montant; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.v_poste_fille_montant AS
+ SELECT pf.id_poste_fille,
+    pf.id_mere,
+    pf.id_compte_mere,
+    pf.compte,
+    pf.libelle,
+    (COALESCE(pfv.montant, (0)::numeric) + public.calculer_montants_recurrents_par_fille(pf.compte)) AS montant,
+    1 AS id_exercice
+   FROM (public.poste_fille pf
+     LEFT JOIN public.poste_fille_value pfv ON ((pf.id_poste_fille = pfv.compte)))
+  ORDER BY pf.id_poste_fille;
+
+
+ALTER TABLE public.v_poste_fille_montant OWNER TO postgres;
+
+--
+-- Name: v_repartition; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.v_repartition AS
+ SELECT row_number() OVER () AS row_number,
+    by_centre.id_centre,
+    by_centre.id_exercice,
+    by_centre.nom,
+    by_centre.montant,
+    by_centre.categorie,
+    round(((by_centre.montant * (100)::numeric) / operationnel.operationnel), 2) AS cle,
+    ((structure.structure * round(((by_centre.montant * (100)::numeric) / operationnel.operationnel), 2)) / (100)::numeric) AS structure,
+    (by_centre.montant + ((structure.structure * round(((by_centre.montant * (100)::numeric) / operationnel.operationnel), 2)) / (100)::numeric)) AS cout_total
+   FROM ((( SELECT analyse_ensemble.id_centre,
+            analyse_ensemble.id_exercice,
+            analyse_ensemble.nom,
+            sum(analyse_ensemble.reel) AS montant,
+            analyse_ensemble.categorie
+           FROM public.analyse_ensemble
+          GROUP BY analyse_ensemble.id_centre, analyse_ensemble.id_exercice, analyse_ensemble.categorie, analyse_ensemble.nom
+         HAVING (analyse_ensemble.categorie = 1)) by_centre
+     JOIN ( SELECT sum(analyse_ensemble.reel) AS operationnel
+           FROM public.analyse_ensemble
+          WHERE (analyse_ensemble.categorie = 1)) operationnel ON (true))
+     JOIN ( SELECT sum(analyse_ensemble.reel) AS structure
+           FROM public.analyse_ensemble
+          WHERE (analyse_ensemble.categorie = 0)) structure ON (true));
+
+
+ALTER TABLE public.v_repartition OWNER TO postgres;
+
+--
+-- Name: v_repartition_total; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.v_repartition_total AS
+ SELECT row_number() OVER () AS id,
+    v_repartition.id_exercice,
+    sum(v_repartition.montant) AS s_direct,
+    sum(v_repartition.structure) AS s_structure,
+    sum(v_repartition.cout_total) AS s_cout_total
+   FROM public.v_repartition
+  GROUP BY v_repartition.id_exercice;
+
+
+ALTER TABLE public.v_repartition_total OWNER TO postgres;
+
+--
+-- Name: v_variable_fixe; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW public.v_variable_fixe AS
+ SELECT row_number() OVER () AS row_number,
+    rubrique.id_exercice,
+    type_rubrique.nature,
+    sum((rubrique.prix_unitaire * rubrique.quantite)) AS valeur
+   FROM (public.rubrique
+     JOIN public.type_rubrique ON ((rubrique.id_type_rubrique = type_rubrique.id_type_rubrique)))
+  GROUP BY rubrique.id_exercice, type_rubrique.nature;
+
+
+ALTER TABLE public.v_variable_fixe OWNER TO postgres;
+
+--
+-- Name: besoin id_besoin; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin ALTER COLUMN id_besoin SET DEFAULT nextval('public.besoin_id_besoin_seq'::regclass);
+
+
+--
+-- Name: besoin_recrutement id_besoin_recrutement; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin_recrutement ALTER COLUMN id_besoin_recrutement SET DEFAULT nextval('public.besoin_recrutement_id_besoin_recrutement_seq'::regclass);
+
+
+--
+-- Name: bon_commande id_bc; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande ALTER COLUMN id_bc SET DEFAULT nextval('public.bon_commande_id_bc_seq'::regclass);
+
+
+--
+-- Name: bon_commande_fille id_bc_fille; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande_fille ALTER COLUMN id_bc_fille SET DEFAULT nextval('public.bon_commande_fille_id_bc_fille_seq'::regclass);
+
+
+--
+-- Name: bon_reception id_br; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception ALTER COLUMN id_br SET DEFAULT nextval('public.bon_reception_id_br_seq'::regclass);
+
+
+--
+-- Name: bon_reception_fille id_br_fille; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception_fille ALTER COLUMN id_br_fille SET DEFAULT nextval('public.bon_reception_fille_id_br_fille_seq'::regclass);
+
+
+--
+-- Name: centre id_centre; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.centre ALTER COLUMN id_centre SET DEFAULT nextval('public.centre_id_centre_seq'::regclass);
+
+
+--
+-- Name: client id_client; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.client ALTER COLUMN id_client SET DEFAULT nextval('public.client_id_client_seq'::regclass);
+
+
+--
+-- Name: contrat_employe id_contrat_employe; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.contrat_employe ALTER COLUMN id_contrat_employe SET DEFAULT nextval('public.contrat_employe_id_contrat_employe_seq'::regclass);
+
+
+--
+-- Name: cv id_cv; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cv ALTER COLUMN id_cv SET DEFAULT nextval('public.cv_id_cv_seq'::regclass);
+
+
+--
+-- Name: diplome id_diplome; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.diplome ALTER COLUMN id_diplome SET DEFAULT nextval('public.diplome_id_diplome_seq'::regclass);
+
+
+--
+-- Name: entretien id_entretien; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.entretien ALTER COLUMN id_entretien SET DEFAULT nextval('public.entretien_id_entretien_seq'::regclass);
+
+
+--
+-- Name: etat_stock id_etat_stock; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.etat_stock ALTER COLUMN id_etat_stock SET DEFAULT nextval('public.etat_stock_id_etat_stock_seq'::regclass);
+
+
+--
+-- Name: exercice id_exercice; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exercice ALTER COLUMN id_exercice SET DEFAULT nextval('public.exercice_id_exercice_seq'::regclass);
+
+
+--
+-- Name: facture id_facture; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture ALTER COLUMN id_facture SET DEFAULT nextval('public.facture_id_facture_seq'::regclass);
+
+
+--
+-- Name: facture_fille id_facture_fille; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_fille ALTER COLUMN id_facture_fille SET DEFAULT nextval('public.facture_fille_id_facture_fille_seq'::regclass);
+
+
+--
+-- Name: fournisseur id_fournisseur; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fournisseur ALTER COLUMN id_fournisseur SET DEFAULT nextval('public.fournisseur_id_fournisseur_seq'::regclass);
+
+
+--
+-- Name: imputation id_imputation; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.imputation ALTER COLUMN id_imputation SET DEFAULT nextval('public.imputation_id_imputation_seq'::regclass);
+
+
+--
+-- Name: mouvement_stock id_mouvement_stock; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvement_stock ALTER COLUMN id_mouvement_stock SET DEFAULT nextval('public.mouvement_stock_id_mouvement_stock_seq'::regclass);
+
+
+--
+-- Name: nom_poste id_nom_poste; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.nom_poste ALTER COLUMN id_nom_poste SET DEFAULT nextval('public.nom_poste_id_nom_poste_seq'::regclass);
+
+
+--
+-- Name: offre_emploi id_offre_emploi; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.offre_emploi ALTER COLUMN id_offre_emploi SET DEFAULT nextval('public.offre_emploi_id_offre_emploi_seq'::regclass);
+
+
+--
+-- Name: personnel id_personnel; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.personnel ALTER COLUMN id_personnel SET DEFAULT nextval('public.personnel_id_personnel_seq'::regclass);
+
+
+--
+-- Name: poste id_poste; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste ALTER COLUMN id_poste SET DEFAULT nextval('public.poste_id_poste_seq'::regclass);
+
+
+--
+-- Name: poste_fille id_poste_fille; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille ALTER COLUMN id_poste_fille SET DEFAULT nextval('public.poste_fille_id_poste_fille_seq'::regclass);
+
+
+--
+-- Name: poste_fille_value id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille_value ALTER COLUMN id SET DEFAULT nextval('public.poste_fille_value_id_seq'::regclass);
+
+
+--
+-- Name: produit id_produit; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produit ALTER COLUMN id_produit SET DEFAULT nextval('public.produit_id_produit_seq'::regclass);
+
+
+--
+-- Name: proformat id_proformat; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat ALTER COLUMN id_proformat SET DEFAULT nextval('public.proformat_id_proformat_seq'::regclass);
+
+
+--
+-- Name: proformat_fille id_proformat_fille; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat_fille ALTER COLUMN id_proformat_fille SET DEFAULT nextval('public.proformat_fille_id_proformat_fille_seq'::regclass);
+
+
+--
+-- Name: resulat_test id_resultat_test; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.resulat_test ALTER COLUMN id_resultat_test SET DEFAULT nextval('public.resulat_test_id_resultat_test_seq'::regclass);
+
+
+--
+-- Name: rubrique id_rubrique; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rubrique ALTER COLUMN id_rubrique SET DEFAULT nextval('public.rubrique_id_rubrique_seq'::regclass);
+
+
+--
+-- Name: test id_test; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.test ALTER COLUMN id_test SET DEFAULT nextval('public.test_id_test_seq'::regclass);
+
+
+--
+-- Name: type_contrat id_type; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_contrat ALTER COLUMN id_type SET DEFAULT nextval('public.type_contrat_id_type_seq'::regclass);
+
+
+--
+-- Name: type_contrat nom; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_contrat ALTER COLUMN nom SET DEFAULT nextval('public.type_contrat_nom_seq'::regclass);
+
+
+--
+-- Name: type_rubrique id_type_rubrique; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_rubrique ALTER COLUMN id_type_rubrique SET DEFAULT nextval('public.type_rubrique_id_type_rubrique_seq'::regclass);
+
+
+--
+-- Name: unite_oeuvre id_unite_oeuvre; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.unite_oeuvre ALTER COLUMN id_unite_oeuvre SET DEFAULT nextval('public.unite_oeuvre_id_unite_oeuvre_seq'::regclass);
+
+
+--
+-- Name: utilisateur id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.utilisateur ALTER COLUMN id SET DEFAULT nextval('public.utilisateur_id_seq'::regclass);
+
+
+--
+-- Data for Name: besoin; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.besoin (id_besoin, quantite, etat, daty, id_departement, id_produit) FROM stdin;
+6	20.00	0	2024-10-31	1	2
+5	15.00	2	2024-10-31	0	1
+7	22.00	2	2024-11-01	0	1
+8	16.00	2	2024-11-01	0	2
+9	10.00	2	2024-11-03	0	2
+10	7.00	2	2024-11-03	1	2
+11	50.00	2	2024-11-04	4	3
+12	1.00	2	2024-11-10	0	5
+13	1.00	2	2024-11-11	1	4
+\.
+
+
+--
+-- Data for Name: besoin_recrutement; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.besoin_recrutement (id_besoin_recrutement, id_role, date_demande, annees_experience, id_diplome) FROM stdin;
+1	1	2024-01-15	2	1
+2	2	2024-02-10	5	2
+3	3	2024-03-05	3	3
+\.
+
+
+--
+-- Data for Name: bon_commande; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.bon_commande (id_bc, id_proformat, id_fournisseur, id_client, etat, date_commande, date_livraison) FROM stdin;
+3	3	1	\N	2	2024-10-21	\N
+6	7	1	\N	4	2024-11-01	2024-11-02
+7	8	1	\N	4	2024-11-02	2024-11-02
+10	9	1	\N	0	\N	\N
+11	10	1	\N	4	2024-11-03	2024-11-04
+8	8	1	\N	2	2024-11-03	2024-11-03
+9	6	1	\N	3	2024-11-03	2024-11-03
+5	6	1	\N	4	2024-11-01	2024-11-03
+12	11	1	\N	0	\N	\N
+13	11	1	\N	3	2024-11-04	2024-11-04
+14	12	1	\N	1	\N	\N
+15	12	1	\N	0	\N	\N
+16	12	1	\N	0	\N	\N
+17	12	1	\N	0	\N	\N
+18	12	1	\N	0	\N	\N
+19	12	1	\N	0	\N	\N
+20	12	1	\N	0	\N	\N
+21	12	1	\N	0	\N	\N
+22	13	1	\N	0	\N	\N
+\.
+
+
+--
+-- Data for Name: bon_commande_fille; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.bon_commande_fille (id_bc_fille, id_bc, prix, quantite, id_produit) FROM stdin;
+7	5	1500.00	15.00	1
+8	6	4300.00	15.00	1
+9	6	9200.00	22.00	1
+10	7	4800.00	22.00	1
+11	7	7200.00	16.00	2
+12	8	4800.00	22.00	1
+13	8	7200.00	16.00	2
+14	9	1500.00	15.00	1
+15	10	5500.00	15.00	1
+16	11	4900.00	7.00	2
+17	12	500.00	50.00	3
+18	13	500.00	50.00	3
+19	14	5000.00	1.00	5
+20	15	5000.00	1.00	5
+21	16	5000.00	1.00	5
+22	17	5000.00	1.00	5
+23	18	5000.00	1.00	5
+24	19	5000.00	1.00	5
+25	20	5000.00	1.00	5
+26	21	5000.00	1.00	5
+27	22	5000.00	1.00	4
+\.
+
+
+--
+-- Data for Name: bon_reception; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.bon_reception (id_br, id_bc, date_reception, etat) FROM stdin;
+2	5	2024-11-14	2
+3	6	2024-11-02	2
+4	7	2024-11-02	2
+5	11	2024-11-04	0
+6	11	2024-11-04	0
+7	8	2024-11-03	0
+8	9	2024-11-03	0
+11	9	2024-11-03	1
+12	5	2024-11-03	1
+13	5	2024-11-03	1
+10	5	2024-11-03	2
+\.
+
+
+--
+-- Data for Name: bon_reception_fille; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.bon_reception_fille (id_br_fille, id_br, quantite, prix, id_produit) FROM stdin;
+3	2	15.00	1500.00	1
+4	3	15.00	4300.00	1
+5	3	22.00	9200.00	1
+6	4	22.00	4800.00	1
+7	4	16.00	7200.00	2
+8	5	7.00	4900.00	2
+9	6	7.00	4900.00	2
+10	7	22.00	4800.00	1
+11	7	16.00	7200.00	2
+12	8	15.00	1500.00	1
+14	10	15.00	1500.00	1
+15	11	15.00	1500.00	1
+16	12	15.00	1500.00	1
+17	13	15.00	1500.00	1
+\.
+
+
+--
+-- Data for Name: centre; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.centre (id_centre, nom, categorie) FROM stdin;
+1	ADM/DIST	0
+2	USINE	1
+3	ATELIER	1
+\.
+
+
+--
+-- Data for Name: client; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.client (id_client, nom, daty, compte) FROM stdin;
+\.
+
+
+--
+-- Data for Name: contrat_employe; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.contrat_employe (id_contrat_employe, date_debut, date_fin, id_personnel, id_type) FROM stdin;
+1	2024-05-01	2025-05-01	1	1
+2	2024-06-01	\N	2	2
+3	2024-07-01	2024-12-31	3	3
+\.
+
+
+--
+-- Data for Name: cv; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.cv (id_cv, date_postulation, nom, prenom, date_naissance, adresse, annees_experience, id_offre_emploi, id_diplome) FROM stdin;
+1	2024-02-15	Dupont	Jean	1990-05-10	123 Rue A	3	1	1
+2	2024-03-20	Martin	Paul	1985-07-22	456 Rue B	5	2	2
+3	2024-04-18	Durand	Sophie	1992-09-05	789 Rue C	1	3	3
+4	2024-11-10	Jeff	Besosy	2024-11-10	Lot 3245 Impossible Union	1	1	1
+5	2024-11-10	Jeff	Besosy	2024-11-10	Lot 3245 Impossible Union	1	1	1
+6	2024-11-10	Jeff	Besosy	2024-11-10	Lot 3245 Impossible Union	1	1	1
+\.
+
+
+--
+-- Data for Name: diplome; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.diplome (id_diplome, libelle, niveau) FROM stdin;
+1	Licence Informatique	1
+2	Master en Gestion	2
+3	Doctorat en Physique	3
+\.
+
+
+--
+-- Data for Name: entretien; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.entretien (id_entretien, date_entretien, id_cv) FROM stdin;
+1	2024-03-10	1
+2	2024-04-10	2
+3	2024-05-10	3
+\.
+
+
+--
+-- Data for Name: etat_stock; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.etat_stock (id_etat_stock, date_enregistrement, quantite, prix_unitaire, id_produit, qte) FROM stdin;
+1	2024-11-14	\N	1500.00	1	15.00
+2	2024-11-02	\N	4300.00	1	30.00
+3	2024-11-02	\N	9200.00	1	37.00
+4	2024-11-02	\N	4800.00	1	37.00
+5	2024-11-02	\N	7200.00	2	16.00
+6	2024-11-02	\N	4800.00	1	15.00
+7	2024-11-02	\N	7200.00	2	16.00
+8	2024-11-02	\N	4800.00	1	37.00
+9	2024-11-02	\N	7200.00	2	32.00
+10	2024-11-02	\N	4300.00	1	30.00
+11	2024-11-02	\N	9200.00	1	37.00
+12	2024-11-14	\N	1500.00	1	30.00
+13	2024-11-03	\N	1500.00	1	30.00
+14	2024-11-03	\N	1500.00	1	30.00
+15	2024-11-03	\N	1500.00	1	30.00
+16	2024-11-03	\N	1500.00	1	45.00
+\.
+
+
+--
+-- Data for Name: exercice; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.exercice (id_exercice, annee, date_debut) FROM stdin;
+1	2024	2024-01-01
+2	2025	2025-01-01
+4	2026	2026-01-01
+\.
+
+
+--
+-- Data for Name: facture; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.facture (id_facture, id_bc, id_br, id_fournisseur, id_client, date_facture, etat) FROM stdin;
+8	7	4	1	\N	2024-11-02	2
+7	6	3	1	\N	2024-11-02	2
+6	5	2	1	\N	2024-11-14	2
+9	5	10	1	\N	2024-11-03	0
+\.
+
+
+--
+-- Data for Name: facture_fille; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.facture_fille (id_facture_fille, id_facture, quantite, prix, id_produit) FROM stdin;
+6	6	15.00	1500.00	1
+7	7	15.00	4300.00	1
+8	7	22.00	9200.00	1
+9	8	22.00	4800.00	1
+10	8	16.00	7200.00	2
+11	9	15.00	1500.00	1
+\.
+
+
+--
+-- Data for Name: fournisseur; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.fournisseur (id_fournisseur, nom, daty, compte) FROM stdin;
+1	Fournisseur A	2024-10-21	40101
+\.
+
+
+--
+-- Data for Name: imputation; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.imputation (id_imputation, id_centre, id_type_rubrique, pourcentage) FROM stdin;
+1	2	1	90.00
+2	3	1	10.00
+3	2	2	50.00
+4	3	2	50.00
+5	1	3	20.00
+6	2	3	50.00
+7	3	3	30.00
+8	1	4	0.00
+9	2	4	0.00
+10	3	4	0.00
+11	1	5	40.00
+12	2	5	50.00
+13	3	5	10.00
+\.
+
+
+--
+-- Data for Name: mouvement_stock; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.mouvement_stock (id_mouvement_stock, date_enregistrement, prix_unitaire, nature, id_produit, entree, sortie, designation, quantite) FROM stdin;
+3	2024-11-02	4300.00	0	1	15.00	0.00	\N	15.00
+4	2024-11-02	9200.00	0	1	22.00	0.00	\N	22.00
+5	2024-11-02	4800.00	0	1	22.00	0.00	\N	22.00
+2	2024-11-14	1500.00	0	1	15.00	0.00	\N	15.00
+6	2024-11-02	7200.00	0	2	16.00	0.00	\N	16.00
+9	2024-11-02	4800.00	0	1	\N	\N	\N	22.00
+10	2024-11-02	7200.00	0	2	\N	\N	\N	16.00
+11	2024-11-02	4300.00	0	1	\N	\N	\N	15.00
+12	2024-11-02	9200.00	0	1	\N	\N	\N	22.00
+13	2024-11-14	1500.00	0	1	\N	\N	\N	15.00
+14	2024-11-03	1500.00	0	1	\N	\N	\N	15.00
+15	2024-11-03	1500.00	0	1	\N	\N	\N	15.00
+16	2024-11-03	1500.00	0	1	\N	\N	\N	15.00
+17	2024-11-03	1500.00	0	1	\N	\N	\N	15.00
+\.
+
+
+--
+-- Data for Name: nom_poste; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.nom_poste (id_nom_poste, id_poste_mere, libelle) FROM stdin;
+1	1	Immobilisations corporelles
+2	1	Immobilisations incorporelles
+3	2	Stocks
+4	2	Créances clients
+5	2	Trésorerie
+6	3	Emprunts bancaires
+7	4	Fournisseurs
+8	4	Dettes fiscales et sociales
+9	5	Chiffre d’affaires
+10	6	Charges d’exploitation
+11	6	Charges financières
+12	6	Impots
+13	7	Capital social
+\.
+
+
+--
+-- Data for Name: offre_emploi; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.offre_emploi (id_offre_emploi, date_publication, id_besoin_recrutement, id_bc) FROM stdin;
+6	2024-11-10	2	19
+2	2024-03-01	2	19
+3	2024-04-01	3	19
+1	2024-02-01	1	19
+7	2024-11-11	1	20
+8	2024-11-11	1	21
+9	2024-11-11	2	22
+\.
+
+
+--
+-- Data for Name: personnel; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.personnel (id_personnel, nom, prenom, date_naissance, adresse, date_embauche, salaire, id_departement, poste, id_cv) FROM stdin;
+1	Dupont	Jean	1990-05-10	123 Rue A	2024-05-01	3000.00	1	Développeur	1
+2	Martin	Paul	1985-07-22	456 Rue B	2024-06-01	4500.00	2	Gestionnaire	2
+3	Durand	Sophie	1992-09-05	789 Rue C	2024-07-01	3200.00	3	Chercheur	3
+\.
+
+
+--
+-- Data for Name: poste; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.poste (id_poste, libelle, categorie) FROM stdin;
+1	Actifs non courants	0
+2	Actifs courants	0
+3	Passifs non courants	1
+4	Passifs courants	1
+5	Revenus	2
+6	Charges	2
+7	Capitaux propres	1
+\.
+
+
+--
+-- Data for Name: poste_fille; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.poste_fille (id_poste_fille, id_mere, id_compte_mere, compte, libelle) FROM stdin;
+91	2	\N	31	MatiŠres premiŠres et fournitures
+92	\N	31	601	MatiŠres premiŠres
+93	\N	31	602	Autres approvisionnements
+40	1	\N	20	Immobilisations incorporelles
+41	\N	20	203	Frais de d‚veloppement immobilisables
+42	\N	20	204	Logiciels informatiques et assimil‚s
+43	\N	20	205	Concessions et droits similaires, brevets, licences, marques
+44	\N	20	207	Fonds commercial
+45	\N	20	208	Autres immobilisations incorporelles
+46	1	\N	21	Immobilisations corporelles
+47	\N	21	211	Terrains
+48	\N	21	212	Agencements et am‚nagements de terrain
+49	\N	21	213	Constructions
+50	\N	21	215	Installations techniques
+51	\N	21	218	Autres immobilisations corporelles
+52	1	\N	22	Immobilisations mises en concession
+53	\N	22	221	Terrains en concession
+54	\N	22	222	Agencements et am‚nagements de terrain en concession
+55	\N	22	223	Constructions en concession
+56	\N	22	225	Installations techniques en concession
+57	\N	22	228	Autres immobilisations corporelles en concession
+58	\N	22	229	Droits du conc‚dant
+59	1	\N	23	Immobilisations en cours
+60	\N	23	232	Immobilisations corporelles en cours
+61	\N	23	237	Immobilisations incorporelles en cours
+62	\N	23	238	Avances et acomptes vers‚s sur commandes d'immobilisations
+63	1	\N	26	Participations et cr‚ances rattach‚es … des participations
+64	\N	26	261	Titres de participation
+65	\N	26	262	Autres formes de participations
+66	\N	26	265	Titres de participation ‚valu‚s par ‚quivalence
+67	\N	26	266	Cr‚ances rattach‚es … des participations groupe
+68	\N	26	267	Cr‚ances rattach‚es … des participations hors groupe
+69	\N	26	268	Cr‚ances rattach‚es … des soci‚t‚s en participation
+70	\N	26	269	Versements restant … effectuer sur titres de participation non lib‚r‚s
+71	1	\N	27	Autres immobilisations financiŠres
+72	\N	27	271	Titres immobilis‚s autres que les titres immobilis‚s de l'activit‚ de portefeuille
+73	\N	27	272	Titres repr‚sentatifs de droit de cr‚ance (obligations, bons)
+74	\N	27	273	Titres immobilis‚s de l'activit‚ de portefeuille
+75	\N	27	274	Prˆts
+76	\N	27	275	D‚p“ts et cautionnements vers‚s
+77	\N	27	276	Autres cr‚ances immobilis‚es
+78	\N	27	277	Actions propres (ou parts propres)
+79	\N	27	279	Versements restant … effectuer sur titres immobilis‚s non lib‚r‚s
+80	1	\N	28	Amortissement des immobilisations
+81	\N	28	280	Amortissement des immobilisations incorporelles
+82	\N	28	281	Amortissement des immobilisations corporelles
+83	\N	28	282	Amortissement des immobilisations mises en concession
+84	1	\N	29	Pertes de valeur sur immobilisations
+85	\N	29	290	Perte de valeur sur immobilisations incorporelles
+86	\N	29	291	Perte de valeur sur immobilisations corporelles
+87	\N	29	292	D‚pr‚ciation sur immobilisations mises en concession
+88	\N	29	293	Perte de valeur sur immobilisations en cours
+89	\N	29	296	Perte de valeur sur participations et cr‚ances rattach‚es … participations
+90	\N	29	297	Perte de valeur sur autres immobilisations financiŠres
+94	\N	31	606	Achats non stock‚s de matiŠres et fournitures
+95	2	\N	32	Autres approvisionnements
+96	\N	32	321	MatiŠres consommables
+97	\N	32	322	Fournitures consommables
+98	\N	32	326	Emballages
+99	2	\N	33	En cours de production de biens
+100	\N	33	331	Produits en cours
+101	\N	33	335	Travaux en cours
+102	2	\N	34	En cours de production de services
+103	\N	34	341	Etudes en cours
+104	\N	34	345	Prestations de service en cours
+105	2	\N	35	Stocks de produits
+106	\N	35	351	Produits interm‚diaires
+107	\N	35	355	Produits finis
+108	\N	35	358	Produits r‚siduels ou matiŠres de r‚cup‚ration (d‚chets, rebuts)
+109	2	\N	37	Stocks de marchandises
+110	2	\N	38	Stocks … l'ext‚rieur (en cours de route, en d‚p“t ou en consignation)
+111	2	\N	39	Pertes de valeur sur stocks et en cours
+112	\N	39	391	Pertes de valeur MatiŠres premiŠres et fournitures
+113	\N	39	392	Pertes de valeur Autres approvisionnements
+114	\N	39	393	Pertes de valeur En cours de production de biens
+115	\N	39	394	Pertes de valeur En cours de production de services
+116	\N	39	395	Pertes de valeur Stocks de produits
+117	\N	39	397	Pertes de valeur Stocks de marchandises
+118	\N	39	398	Pertes de valeur Stocks … l'ext‚rieur
+119	2	\N	40	Fournisseurs et comptes rattach‚s
+120	\N	40	409	Fournisseurs d‚biteurs : avances et acomptes, RRR … obtenir, autres cr‚ances
+121	2	\N	41	Clients et comptes rattach‚s
+122	\N	41	411	Clients
+123	\N	41	413	Clients effets … recevoir
+124	\N	41	416	Clients douteux
+125	\N	41	417	Cr‚ances sur travaux non encore facturables
+126	\N	41	418	Clients - produits non encore factur‚s
+127	2	\N	46	D‚biteurs divers et cr‚diteurs divers
+128	\N	46	462	Cr‚ances sur cessions d'immobilisations
+129	\N	46	465	Cr‚ances sur cessions de valeurs mobiliŠres de placement
+130	\N	46	467	Autres comptes d‚biteurs ou cr‚diteurs
+131	2	\N	50	Valeurs mobiliŠres de placement
+132	\N	50	501	Parts dans des entreprises li‚es
+133	\N	50	503	Actions
+134	\N	50	504	Autres titres conf‚rant un droit de propri‚t‚
+234	\N	60	604	Achats d'‚tudes et de prestations de service
+135	\N	50	505	Obligations et bons ‚mis par la soci‚t‚ et rachet‚s par elle
+136	\N	50	506	Obligations
+137	\N	50	507	Bons du tr‚sor et bons de caisse … court terme
+138	\N	50	508	Autres valeurs mobiliŠres de placement et cr‚ances assimil‚es
+139	\N	50	509	Versements restant … effectuer sur VMP non lib‚r‚es
+140	2	\N	51	Banques, ‚tablissements financiers et assimil‚s
+141	\N	51	511	Valeurs … l'encaissement
+142	\N	51	512	Banques comptes courants
+143	\N	51	515	Caisse du Tr‚sor Public et ‚tablissements publics
+144	\N	51	517	Autres organismes financiers
+145	\N	51	518	Int‚rˆts courus
+146	\N	51	519	Concours bancaires courants
+147	2	\N	52	Instruments de tr‚sorerie
+148	2	\N	53	Caisse
+149	2	\N	54	R‚gies d'avances et accr‚ditifs
+150	2	\N	58	Virements internes
+151	\N	58	581	Virements de fonds
+152	\N	58	588	Autres virements internes
+153	2	\N	59	Pertes de valeur sur comptes financiers
+154	\N	59	591	Pertes de valeur sur valeurs en banque et ‚tablissements financiers
+155	\N	59	594	Pertes de valeur sur r‚gies d'avances et accr‚ditifs
+156	3	\N	15	Provisions pour charges - passifs non courants
+157	\N	15	153	Provisions pour pensions et obligations similaires
+158	\N	15	155	Provisions pour imp“ts
+159	\N	15	156	Provisions pour renouvellement des immobilisations (concession)
+160	\N	15	158	Autres provisions pour charges - passifs non courants
+161	3	\N	16	Emprunts et dettes assimil‚s
+162	\N	16	161	Emprunts obligataires convertibles
+163	\N	16	163	Autres emprunts obligataires
+164	\N	16	164	Emprunts auprŠs des ‚tablissements de cr‚dit
+165	\N	16	165	D‚p“ts et cautionnements re‡us
+166	\N	16	167	Dettes sur contrat de location-financement
+167	\N	16	168	Autres emprunts et dettes assimil‚s
+168	\N	16	169	Primes de remboursement des obligations
+169	3	\N	17	Dettes rattach‚es … des participations
+170	\N	17	171	Dettes rattach‚es … des participations groupe
+171	\N	17	172	Dettes rattach‚es … des participations hors groupe
+172	\N	17	173	Dettes rattach‚es … des soci‚t‚s en participation
+173	\N	17	178	Autres dettes rattach‚es … des participations
+174	3	\N	18	Comptes de liaison des ‚tablissements et soci‚t‚s en participation
+175	\N	18	181	Comptes de liaison entre ‚tablissements
+176	\N	18	188	Comptes de liaison entre soci‚t‚s en participation
+179	4	\N	400	Fournisseurs et comptes rattach‚s
+180	\N	400	401	Fournisseurs de biens et services
+181	\N	400	403	Fournisseurs effets … payer
+182	\N	400	404	Fournisseurs d'immobilisations
+183	\N	400	405	Fournisseurs d'immobilisations effets … payer
+184	\N	400	408	Fournisseurs factures non parvenues
+186	4	\N	410	Clients et comptes rattach‚s
+187	\N	410	419	Clients cr‚diteurs
+188	4	\N	42	Personnel et comptes rattach‚s
+189	\N	42	421	Personnel, r‚mun‚rations dues
+190	\N	42	422	Fonds sociaux - ouvres sociales
+191	\N	42	425	Personnel, avances et acomptes accord‚s
+192	\N	42	426	Personnel, d‚p“ts re‡us
+193	\N	42	427	Personnel, oppositions
+194	\N	42	428	Personnel, charges … payer et produits … recevoir
+195	4	\N	43	Organismes sociaux et comptes rattach‚s
+196	\N	43	431	Organismes sociaux A
+197	\N	43	432	Organismes sociaux B
+198	\N	43	438	Organismes sociaux, charges … payer
+199	4	\N	44	Etat, collectivit‚s publiques, organismes internationaux
+200	\N	44	441	Etat, subventions … recevoir
+201	\N	44	442	Etat, imp“ts et taxes recouvrables sur des tiers
+202	\N	44	443	Op‚rations particuliŠres avec l'Etat et autres organismes publics
+203	\N	44	444	Etat, imp“ts sur les r‚sultats
+204	\N	44	445	Etat, taxes sur le chiffre d'affaires
+205	\N	44	447	Autres imp“ts, taxes et versements assimil‚s
+206	\N	44	448	Etat, charges … payer et produits … recevoir
+207	4	\N	45	Groupe et Associ‚s
+208	\N	45	451	Op‚rations Groupe
+209	\N	45	455	Associ‚s - comptes courants
+210	\N	45	456	Associ‚s, op‚rations sur le capital
+211	\N	45	457	Associ‚s, dividendes … payer
+212	\N	45	458	Associ‚s, op‚rations faites en commun ou en groupement
+214	4	\N	460	D‚biteurs divers et cr‚diteurs divers
+215	\N	460	464	Dettes sur acquisitions de valeurs mobiliŠres de placement
+216	\N	460	468	Divers charges … payer ou produits … recevoir
+217	4	\N	47	Comptes transitoires ou d'attente
+218	4	\N	48	Charges ou produits constat‚s d'avance et provisions
+219	\N	48	481	Provisions - passifs courants
+220	\N	48	486	Charges constat‚es d'avance
+221	\N	48	487	Produits constat‚s d'avance
+222	4	\N	49	Pertes de valeur sur comptes de tiers
+223	\N	49	491	Pertes de valeur sur comptes de clients
+224	\N	49	495	Pertes de valeur sur comptes du groupe et des associ‚s
+225	\N	49	496	Pertes de valeur sur comptes de d‚biteurs divers
+230	5	\N	60	Achats consomm‚s
+231	\N	60	6010	MatiŠres premiŠres
+232	\N	60	6020	Autres approvisionnements
+233	\N	60	603	Variations des stocks
+235	\N	60	605	Achats de mat‚riels, ‚quipements et travaux
+236	\N	60	6060	Achats non stock‚s de matiŠres et fournitures
+237	\N	60	607	Achats de marchandises
+238	\N	60	608	Frais accessoires d'achat
+239	\N	60	609	Rabais, remises, ristournes obtenus sur achats
+240	5	\N	61	Services ext‚rieurs
+241	\N	61	611	Sous-traitance g‚n‚rale
+242	\N	61	613	Locations
+243	\N	61	614	Charges locatives et charges de copropri‚t‚
+244	\N	61	615	Entretien, r‚parations et maintenance
+245	\N	61	616	Primes d'assurances
+246	\N	61	617	Etudes et recherches
+247	\N	61	618	Documentation et divers
+248	\N	61	619	Rabais, remises, ristournes obtenus sur services ext‚rieurs
+249	5	\N	62	Autres services ext‚rieurs
+250	\N	62	621	Personnel ext‚rieur … l'entreprise
+251	\N	62	622	R‚mun‚rations d'interm‚diaires et honoraires
+252	\N	62	623	Publicit‚, publication, relations publiques
+253	\N	62	624	Transports de biens et transport collectif du personnel
+254	\N	62	625	D‚placements, missions et r‚ceptions
+255	\N	62	626	Frais postaux et de t‚l‚communications
+256	\N	62	627	Services bancaires et assimil‚s
+257	\N	62	628	Cotisations et divers
+258	\N	62	629	Rabais, remises, ristournes obtenus sur autres services ext‚rieurs
+259	5	\N	63	Imp“ts, taxes et versements assimil‚s
+260	\N	63	631	Imp“ts, taxes et versements assimil‚s sur r‚mun‚rations
+261	\N	63	635	Autres imp“ts et taxes
+262	5	\N	64	Charges de personnel
+263	\N	64	641	R‚mun‚rations du personnel
+264	\N	64	644	R‚mun‚rations des dirigeants
+265	\N	64	645	Cotisations aux organismes sociaux
+266	\N	64	646	Charges sociales sur r‚mun‚rations des dirigeants
+267	\N	64	647	Autres charges sociales
+268	\N	64	648	Autres charges de personnel
+269	5	\N	65	Autres charges des activit‚s ordinaires
+270	\N	65	651	Redevances pour concessions, brevets, licences, logiciels et valeurs similaires
+271	\N	65	652	Moins-values sur cessions d'actifs non courants
+272	\N	65	653	Jetons de pr‚sence
+273	\N	65	654	Pertes sur cr‚ances irr‚couvrables
+274	\N	65	655	Quote-part de r‚sultat sur op‚rations faites en commun
+275	\N	65	656	Amendes et p‚nalit‚s, subventions accord‚es, dons et lib‚ralit‚s
+276	\N	65	657	Charges exceptionnelles de gestion courante
+277	\N	65	658	Autres charges de gestion courante
+278	5	\N	66	Charges financiŠres
+279	\N	66	661	Charges d'int‚rˆts
+280	\N	66	664	Pertes sur cr‚ances li‚es … des participations
+281	\N	66	665	Moins-values sur titres de placement
+282	\N	66	666	Pertes de change
+283	\N	66	667	Moins-values sur instruments financiers et assimil‚s
+284	\N	66	668	Autres charges financiŠres
+285	5	\N	67	El‚ments extraordinaires (charges)
+286	5	\N	68	Dotations aux amortissements, provisions, pertes de valeur
+287	\N	68	681	Dotations - actifs non courants
+288	\N	68	685	Dotations - actifs courants
+289	5	\N	69	Imp“ts sur les b‚n‚fices
+290	\N	69	692	Imposition diff‚r‚e actif
+291	\N	69	693	Imposition diff‚r‚e passif
+292	\N	69	695	Imp“ts sur les b‚n‚fices bas‚s sur le r‚sultat des activit‚s ordinaires
+293	\N	69	698	Autres imp“ts sur les r‚sultats
+294	6	\N	70	Ventes de produits fabriqu‚s, marchandises, prestations
+295	\N	70	701	Ventes de produits finis
+296	\N	70	702	Ventes de produits interm‚diaires
+297	\N	70	703	Ventes de produits r‚siduels
+298	\N	70	704	Vente de travaux
+299	\N	70	705	Vente d'‚tudes
+300	\N	70	706	Vente de prestations de service
+301	\N	70	707	Ventes de marchandises
+302	\N	70	708	Produits des activit‚s annexes
+303	\N	70	709	Rabais, remises et ristournes accord‚s
+304	6	\N	71	Production stock‚e (ou d‚stockage)
+305	\N	71	713	Variation de stocks d'en-cours
+306	\N	71	714	Variation de stocks de produits
+307	6	\N	72	Production immobilis‚e
+308	\N	72	721	Production immobilis‚e d'actif incorporel
+309	\N	72	722	Production immobilis‚e d'actif corporel
+310	6	\N	74	Subventions d'exploitation
+311	\N	74	741	Subvention d'‚quilibre
+312	\N	74	748	Autres subventions d'exploitation
+313	6	\N	75	Autres produits op‚rationnels
+314	\N	75	751	Redevances pour concessions, brevets, licences, logiciels et valeurs similaires
+315	\N	75	752	Plus-values sur cessions d'actifs non courants
+316	\N	75	753	Jetons de pr‚sence et r‚mun‚rations d'administrateurs ou de g‚rant
+317	\N	75	754	Quotes-parts de subventions d'investissement vir‚es au r‚sultat de l'exercice
+318	\N	75	755	Quote-part de r‚sultat sur op‚rations faites en commun
+319	\N	75	756	Lib‚ralit‚s per‡ues, rentr‚es sur cr‚ances amorties
+320	\N	75	757	Produits exceptionnels sur op‚rations de gestion
+321	\N	75	758	Autres produits de gestion courante
+322	6	\N	76	Produits financiers
+323	\N	76	761	Produits de participations
+324	\N	76	762	Produits des autres immobilisations financiŠres
+325	\N	76	763	Revenus des autres cr‚ances
+326	\N	76	764	Revenus et plus-values des valeurs mobiliŠres de placement
+327	\N	76	766	Gains de change
+328	\N	76	767	Produits nets sur cessions de valeurs mobiliŠres de placement
+329	\N	76	768	Autres produits financiers
+330	6	\N	77	El‚ments extraordinaires (produits)
+331	6	\N	78	Reprises sur provisions et pertes de valeur
+332	\N	78	781	Reprise d'exploitation - actifs non courants
+333	\N	78	785	Reprise d'exploitation - actifs courants
+334	\N	78	786	Reprises financiŠres
+335	7	\N	10	Capital, r‚serves et assimil‚s
+336	\N	10	101	Capital
+337	\N	10	104	Primes li‚es au capital social
+338	\N	10	105	Ecart d'‚valuation
+339	\N	10	106	R‚serves
+340	\N	10	107	Ecart d'‚quivalence
+341	\N	10	108	Compte de l'exploitant
+342	\N	10	109	Actionnaires, capital souscrit non appel‚
+343	7	\N	11	Report … nouveau
+344	\N	11	119	Report … nouveau solde d‚biteur
+345	\N	11	110	Report … nouveau solde cr‚diteur
+346	7	\N	12	R‚sultat de l'exercice
+347	\N	12	120	R‚sultat de l'exercice (b‚n‚fice)
+348	\N	12	129	R‚sultat de l'exercice (perte)
+349	7	\N	13	Produits et charges diff‚r‚s - hors cycle d'exploitation
+350	\N	13	131	Subventions d'‚quipement
+351	\N	13	132	Autres subventions d'investissement
+352	\N	13	133	Imp“ts diff‚r‚s actif
+353	\N	13	134	Imp“ts diff‚r‚s passif
+354	\N	13	138	Autres produits et charges diff‚r‚s
+\.
+
+
+--
+-- Data for Name: poste_fille_value; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.poste_fille_value (id, compte, montant, id_exercice) FROM stdin;
+15	84	100000.00	1
+16	153	50000.00	1
+17	174	60000.00	1
+18	222	60000.00	1
+19	289	20000.00	1
+20	331	30000.00	1
+21	346	50000.00	1
+\.
+
+
+--
+-- Data for Name: produit; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.produit (id_produit, libelle, id_unite_oeuvre, type) FROM stdin;
+1	Bois	4	\N
+2	Fer	4	\N
+3	Carton	4	\N
+5	Publicite télé	4	1
+4	Publicite radio	4	1
+\.
+
+
+--
+-- Data for Name: proformat; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.proformat (id_proformat, id_fournisseur, id_client, daty, etat) FROM stdin;
+3	1	\N	2024-10-21	0
+4	1	\N	2024-10-22	0
+7	1	\N	2024-11-01	2
+8	1	\N	2024-11-02	2
+6	1	\N	2024-11-01	2
+9	1	\N	2024-11-03	2
+10	1	\N	2024-11-03	2
+11	1	\N	2024-11-04	2
+12	1	\N	2024-11-10	2
+13	1	\N	2024-11-11	2
+\.
+
+
+--
+-- Data for Name: proformat_fille; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.proformat_fille (id_proformat_fille, id_proformat, id_produit, prix, qte) FROM stdin;
+8	6	1	1500.00	15.00
+9	7	1	4300.00	15.00
+10	7	1	9200.00	22.00
+11	8	1	4800.00	22.00
+12	8	2	7200.00	16.00
+13	9	1	5500.00	15.00
+14	10	2	4900.00	7.00
+15	11	3	500.00	50.00
+16	12	5	5000.00	1.00
+17	13	4	5000.00	1.00
+\.
+
+
+--
+-- Data for Name: resulat_test; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.resulat_test (id_resultat_test, points, id_test) FROM stdin;
+1	85.50	1
+2	90.00	2
+3	75.25	3
+\.
+
+
+--
+-- Data for Name: role; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.role (id, nom) FROM stdin;
+0	DIRECTEUR
+1	DEPT_ACHAT
+2	DEPT_FINANCE
+3	DEPT_VENTE
+4	DEPT_LOGISTIQUE
+5	PRODUCTION
+6	RH
+\.
+
+
+--
+-- Data for Name: rubrique; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.rubrique (id_rubrique, id_type_rubrique, prix_unitaire, quantite, date_achat, id_exercice) FROM stdin;
+1	1	25000.00	2.00	\N	1
+2	2	35000.00	3.00	\N	1
+3	1	25000.00	4.00	\N	1
+5	4	24000.00	4.00	\N	1
+4	3	55000.00	3.00	\N	1
+6	5	2000.00	20.00	\N	1
+\.
+
+
+--
+-- Data for Name: test; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.test (id_test, date_test, id_cv) FROM stdin;
+1	2024-03-01	1
+2	2024-04-01	2
+3	2024-05-01	3
+\.
+
+
+--
+-- Data for Name: type_contrat; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.type_contrat (id_type, nom, abreviation) FROM stdin;
+1	1	CDD
+2	2	CDI
+3	3	Freelance
+\.
+
+
+--
+-- Data for Name: type_mvt; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.type_mvt (id, nom) FROM stdin;
+0	ENTREE
+1	SORTIE
+\.
+
+
+--
+-- Data for Name: type_rubrique; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.type_rubrique (id_type_rubrique, libelle, nature, incorporabilite, id_unite_oeuvre) FROM stdin;
+1	ACHAT SEMANCE	1	0	1
+2	ACHAT BOIS	1	1	1
+3	EAU ET ELECTRICITE	1	1	1
+4	Loyer	0	0	1
+5	test	0	1	1
+\.
+
+
+--
+-- Data for Name: unite_oeuvre; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.unite_oeuvre (id_unite_oeuvre, nom) FROM stdin;
+1	KG
+2	Kwh
+3	L
+4	unite
+\.
+
+
+--
+-- Data for Name: utilisateur; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.utilisateur (id, username, password, id_role) FROM stdin;
+1	admin	test	0
+2	achat	1234	1
+3	finance	1234	2
+4	logistique	1234	4
+\.
+
+
+--
+-- Name: besoin_id_besoin_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.besoin_id_besoin_seq', 13, true);
+
+
+--
+-- Name: besoin_recrutement_id_besoin_recrutement_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.besoin_recrutement_id_besoin_recrutement_seq', 3, true);
+
+
+--
+-- Name: bon_commande_fille_id_bc_fille_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.bon_commande_fille_id_bc_fille_seq', 27, true);
+
+
+--
+-- Name: bon_commande_id_bc_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.bon_commande_id_bc_seq', 22, true);
+
+
+--
+-- Name: bon_reception_fille_id_br_fille_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.bon_reception_fille_id_br_fille_seq', 18, true);
+
+
+--
+-- Name: bon_reception_id_br_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.bon_reception_id_br_seq', 14, true);
+
+
+--
+-- Name: centre_id_centre_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.centre_id_centre_seq', 4, true);
+
+
+--
+-- Name: client_id_client_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.client_id_client_seq', 1, false);
+
+
+--
+-- Name: contrat_employe_id_contrat_employe_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.contrat_employe_id_contrat_employe_seq', 3, true);
+
+
+--
+-- Name: cv_id_cv_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.cv_id_cv_seq', 6, true);
+
+
+--
+-- Name: diplome_id_diplome_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.diplome_id_diplome_seq', 3, true);
+
+
+--
+-- Name: entretien_id_entretien_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.entretien_id_entretien_seq', 3, true);
+
+
+--
+-- Name: etat_stock_id_etat_stock_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.etat_stock_id_etat_stock_seq', 16, true);
+
+
+--
+-- Name: exercice_id_exercice_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.exercice_id_exercice_seq', 4, true);
+
+
+--
+-- Name: facture_fille_id_facture_fille_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.facture_fille_id_facture_fille_seq', 11, true);
+
+
+--
+-- Name: facture_id_facture_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.facture_id_facture_seq', 9, true);
+
+
+--
+-- Name: fournisseur_id_fournisseur_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.fournisseur_id_fournisseur_seq', 1, true);
+
+
+--
+-- Name: imputation_id_imputation_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.imputation_id_imputation_seq', 13, true);
+
+
+--
+-- Name: mouvement_stock_id_mouvement_stock_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.mouvement_stock_id_mouvement_stock_seq', 18, true);
+
+
+--
+-- Name: nom_poste_id_nom_poste_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.nom_poste_id_nom_poste_seq', 13, true);
+
+
+--
+-- Name: offre_emploi_id_offre_emploi_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.offre_emploi_id_offre_emploi_seq', 9, true);
+
+
+--
+-- Name: personnel_id_personnel_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.personnel_id_personnel_seq', 3, true);
+
+
+--
+-- Name: poste_fille_id_poste_fille_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.poste_fille_id_poste_fille_seq', 354, true);
+
+
+--
+-- Name: poste_fille_value_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.poste_fille_value_id_seq', 21, true);
+
+
+--
+-- Name: poste_id_poste_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.poste_id_poste_seq', 7, true);
+
+
+--
+-- Name: produit_id_produit_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.produit_id_produit_seq', 5, true);
+
+
+--
+-- Name: proformat_fille_id_proformat_fille_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.proformat_fille_id_proformat_fille_seq', 17, true);
+
+
+--
+-- Name: proformat_id_proformat_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.proformat_id_proformat_seq', 13, true);
+
+
+--
+-- Name: resulat_test_id_resultat_test_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.resulat_test_id_resultat_test_seq', 3, true);
+
+
+--
+-- Name: rubrique_id_rubrique_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.rubrique_id_rubrique_seq', 6, true);
+
+
+--
+-- Name: test_id_test_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.test_id_test_seq', 3, true);
+
+
+--
+-- Name: type_contrat_id_type_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.type_contrat_id_type_seq', 3, true);
+
+
+--
+-- Name: type_contrat_nom_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.type_contrat_nom_seq', 1, false);
+
+
+--
+-- Name: type_rubrique_id_type_rubrique_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.type_rubrique_id_type_rubrique_seq', 5, true);
+
+
+--
+-- Name: unite_oeuvre_id_unite_oeuvre_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.unite_oeuvre_id_unite_oeuvre_seq', 4, true);
+
+
+--
+-- Name: utilisateur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.utilisateur_id_seq', 4, true);
+
+
+--
+-- Name: besoin besoin_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin
+    ADD CONSTRAINT besoin_pkey PRIMARY KEY (id_besoin);
+
+
+--
+-- Name: besoin_recrutement besoin_recrutement_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin_recrutement
+    ADD CONSTRAINT besoin_recrutement_pkey PRIMARY KEY (id_besoin_recrutement);
+
+
+--
+-- Name: bon_commande_fille bon_commande_fille_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande_fille
+    ADD CONSTRAINT bon_commande_fille_pkey PRIMARY KEY (id_bc_fille);
+
+
+--
+-- Name: bon_commande bon_commande_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande
+    ADD CONSTRAINT bon_commande_pkey PRIMARY KEY (id_bc);
+
+
+--
+-- Name: bon_reception_fille bon_reception_fille_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception_fille
+    ADD CONSTRAINT bon_reception_fille_pkey PRIMARY KEY (id_br_fille);
+
+
+--
+-- Name: bon_reception bon_reception_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception
+    ADD CONSTRAINT bon_reception_pkey PRIMARY KEY (id_br);
+
+
+--
+-- Name: centre centre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.centre
+    ADD CONSTRAINT centre_pkey PRIMARY KEY (id_centre);
+
+
+--
+-- Name: client client_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.client
+    ADD CONSTRAINT client_pkey PRIMARY KEY (id_client);
+
+
+--
+-- Name: contrat_employe contrat_employe_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.contrat_employe
+    ADD CONSTRAINT contrat_employe_pkey PRIMARY KEY (id_contrat_employe);
+
+
+--
+-- Name: cv cv_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cv
+    ADD CONSTRAINT cv_pkey PRIMARY KEY (id_cv);
+
+
+--
+-- Name: diplome diplome_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.diplome
+    ADD CONSTRAINT diplome_pkey PRIMARY KEY (id_diplome);
+
+
+--
+-- Name: entretien entretien_id_cv_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.entretien
+    ADD CONSTRAINT entretien_id_cv_key UNIQUE (id_cv);
+
+
+--
+-- Name: entretien entretien_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.entretien
+    ADD CONSTRAINT entretien_pkey PRIMARY KEY (id_entretien);
+
+
+--
+-- Name: etat_stock etat_stock_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.etat_stock
+    ADD CONSTRAINT etat_stock_pkey PRIMARY KEY (id_etat_stock);
+
+
+--
+-- Name: exercice exercice_annee_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exercice
+    ADD CONSTRAINT exercice_annee_key UNIQUE (annee);
+
+
+--
+-- Name: exercice exercice_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.exercice
+    ADD CONSTRAINT exercice_pkey PRIMARY KEY (id_exercice);
+
+
+--
+-- Name: facture_fille facture_fille_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_fille
+    ADD CONSTRAINT facture_fille_pkey PRIMARY KEY (id_facture_fille);
+
+
+--
+-- Name: facture facture_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture
+    ADD CONSTRAINT facture_pkey PRIMARY KEY (id_facture);
+
+
+--
+-- Name: fournisseur fournisseur_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.fournisseur
+    ADD CONSTRAINT fournisseur_pkey PRIMARY KEY (id_fournisseur);
+
+
+--
+-- Name: imputation imputation_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.imputation
+    ADD CONSTRAINT imputation_pkey PRIMARY KEY (id_imputation);
+
+
+--
+-- Name: mouvement_stock mouvement_stock_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvement_stock
+    ADD CONSTRAINT mouvement_stock_pkey PRIMARY KEY (id_mouvement_stock);
+
+
+--
+-- Name: nom_poste nom_poste_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.nom_poste
+    ADD CONSTRAINT nom_poste_pkey PRIMARY KEY (id_nom_poste);
+
+
+--
+-- Name: offre_emploi offre_emploi_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.offre_emploi
+    ADD CONSTRAINT offre_emploi_pkey PRIMARY KEY (id_offre_emploi);
+
+
+--
+-- Name: personnel personnel_id_cv_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.personnel
+    ADD CONSTRAINT personnel_id_cv_key UNIQUE (id_cv);
+
+
+--
+-- Name: personnel personnel_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.personnel
+    ADD CONSTRAINT personnel_pkey PRIMARY KEY (id_personnel);
+
+
+--
+-- Name: poste_fille poste_fille_compte_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille
+    ADD CONSTRAINT poste_fille_compte_key UNIQUE (compte);
+
+
+--
+-- Name: poste_fille poste_fille_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille
+    ADD CONSTRAINT poste_fille_pkey PRIMARY KEY (id_poste_fille);
+
+
+--
+-- Name: poste_fille_value poste_fille_value_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille_value
+    ADD CONSTRAINT poste_fille_value_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: poste poste_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste
+    ADD CONSTRAINT poste_pkey PRIMARY KEY (id_poste);
+
+
+--
+-- Name: produit produit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produit
+    ADD CONSTRAINT produit_pkey PRIMARY KEY (id_produit);
+
+
+--
+-- Name: proformat_fille proformat_fille_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat_fille
+    ADD CONSTRAINT proformat_fille_pkey PRIMARY KEY (id_proformat_fille);
+
+
+--
+-- Name: proformat proformat_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat
+    ADD CONSTRAINT proformat_pkey PRIMARY KEY (id_proformat);
+
+
+--
+-- Name: resulat_test resulat_test_id_test_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.resulat_test
+    ADD CONSTRAINT resulat_test_id_test_key UNIQUE (id_test);
+
+
+--
+-- Name: resulat_test resulat_test_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.resulat_test
+    ADD CONSTRAINT resulat_test_pkey PRIMARY KEY (id_resultat_test);
+
+
+--
+-- Name: role role_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.role
+    ADD CONSTRAINT role_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rubrique rubrique_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rubrique
+    ADD CONSTRAINT rubrique_pkey PRIMARY KEY (id_rubrique);
+
+
+--
+-- Name: test test_id_cv_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.test
+    ADD CONSTRAINT test_id_cv_key UNIQUE (id_cv);
+
+
+--
+-- Name: test test_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.test
+    ADD CONSTRAINT test_pkey PRIMARY KEY (id_test);
+
+
+--
+-- Name: type_contrat type_contrat_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_contrat
+    ADD CONSTRAINT type_contrat_pkey PRIMARY KEY (id_type);
+
+
+--
+-- Name: type_mvt type_mvt_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_mvt
+    ADD CONSTRAINT type_mvt_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: type_rubrique type_rubrique_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_rubrique
+    ADD CONSTRAINT type_rubrique_pkey PRIMARY KEY (id_type_rubrique);
+
+
+--
+-- Name: unite_oeuvre unite_oeuvre_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.unite_oeuvre
+    ADD CONSTRAINT unite_oeuvre_pkey PRIMARY KEY (id_unite_oeuvre);
+
+
+--
+-- Name: utilisateur utilisateur_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.utilisateur
+    ADD CONSTRAINT utilisateur_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: liste_general _RETURN; Type: RULE; Schema: public; Owner: postgres
+--
+
+CREATE OR REPLACE VIEW public.liste_general AS
+ SELECT row_number() OVER () AS id,
+    r.id_exercice AS id_exeercice,
+    tr.libelle,
+    tr.id_type_rubrique,
+    sum((r.prix_unitaire * r.quantite)) AS total_rubrique,
+    tr.incorporabilite
+   FROM (public.rubrique r
+     JOIN public.type_rubrique tr ON ((r.id_type_rubrique = tr.id_type_rubrique)))
+  GROUP BY r.id_exercice, tr.libelle, tr.id_type_rubrique;
+
+
+--
+-- Name: besoin besoin_id_departement_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin
+    ADD CONSTRAINT besoin_id_departement_fkey FOREIGN KEY (id_departement) REFERENCES public.role(id);
+
+
+--
+-- Name: besoin besoin_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin
+    ADD CONSTRAINT besoin_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: besoin_recrutement besoin_recrutement_id_diplome_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.besoin_recrutement
+    ADD CONSTRAINT besoin_recrutement_id_diplome_fkey FOREIGN KEY (id_diplome) REFERENCES public.diplome(id_diplome);
+
+
+--
+-- Name: bon_commande_fille bon_commande_fille_id_bc_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande_fille
+    ADD CONSTRAINT bon_commande_fille_id_bc_fkey FOREIGN KEY (id_bc) REFERENCES public.bon_commande(id_bc);
+
+
+--
+-- Name: bon_commande_fille bon_commande_fille_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande_fille
+    ADD CONSTRAINT bon_commande_fille_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: bon_commande bon_commande_id_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande
+    ADD CONSTRAINT bon_commande_id_client_fkey FOREIGN KEY (id_client) REFERENCES public.client(id_client);
+
+
+--
+-- Name: bon_commande bon_commande_id_fournisseur_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande
+    ADD CONSTRAINT bon_commande_id_fournisseur_fkey FOREIGN KEY (id_fournisseur) REFERENCES public.fournisseur(id_fournisseur);
+
+
+--
+-- Name: bon_commande bon_commande_id_proformat_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_commande
+    ADD CONSTRAINT bon_commande_id_proformat_fkey FOREIGN KEY (id_proformat) REFERENCES public.proformat(id_proformat);
+
+
+--
+-- Name: bon_reception_fille bon_reception_fille_id_br_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception_fille
+    ADD CONSTRAINT bon_reception_fille_id_br_fkey FOREIGN KEY (id_br) REFERENCES public.bon_reception(id_br);
+
+
+--
+-- Name: bon_reception_fille bon_reception_fille_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception_fille
+    ADD CONSTRAINT bon_reception_fille_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: bon_reception bon_reception_id_bc_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.bon_reception
+    ADD CONSTRAINT bon_reception_id_bc_fkey FOREIGN KEY (id_bc) REFERENCES public.bon_commande(id_bc);
+
+
+--
+-- Name: contrat_employe contrat_employe_id_personnel_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.contrat_employe
+    ADD CONSTRAINT contrat_employe_id_personnel_fkey FOREIGN KEY (id_personnel) REFERENCES public.personnel(id_personnel);
+
+
+--
+-- Name: contrat_employe contrat_employe_id_type_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.contrat_employe
+    ADD CONSTRAINT contrat_employe_id_type_fkey FOREIGN KEY (id_type) REFERENCES public.type_contrat(id_type);
+
+
+--
+-- Name: cv cv_id_diplome_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cv
+    ADD CONSTRAINT cv_id_diplome_fkey FOREIGN KEY (id_diplome) REFERENCES public.diplome(id_diplome);
+
+
+--
+-- Name: cv cv_id_offre_emploi_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.cv
+    ADD CONSTRAINT cv_id_offre_emploi_fkey FOREIGN KEY (id_offre_emploi) REFERENCES public.offre_emploi(id_offre_emploi);
+
+
+--
+-- Name: entretien entretien_id_cv_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.entretien
+    ADD CONSTRAINT entretien_id_cv_fkey FOREIGN KEY (id_cv) REFERENCES public.cv(id_cv);
+
+
+--
+-- Name: etat_stock etat_stock_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.etat_stock
+    ADD CONSTRAINT etat_stock_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: facture_fille facture_fille_id_facture_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_fille
+    ADD CONSTRAINT facture_fille_id_facture_fkey FOREIGN KEY (id_facture) REFERENCES public.facture(id_facture);
+
+
+--
+-- Name: facture_fille facture_fille_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture_fille
+    ADD CONSTRAINT facture_fille_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: facture facture_id_bc_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture
+    ADD CONSTRAINT facture_id_bc_fkey FOREIGN KEY (id_bc) REFERENCES public.bon_commande(id_bc);
+
+
+--
+-- Name: facture facture_id_br_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture
+    ADD CONSTRAINT facture_id_br_fkey FOREIGN KEY (id_br) REFERENCES public.bon_reception(id_br);
+
+
+--
+-- Name: facture facture_id_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture
+    ADD CONSTRAINT facture_id_client_fkey FOREIGN KEY (id_client) REFERENCES public.client(id_client);
+
+
+--
+-- Name: facture facture_id_fournisseur_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.facture
+    ADD CONSTRAINT facture_id_fournisseur_fkey FOREIGN KEY (id_fournisseur) REFERENCES public.fournisseur(id_fournisseur);
+
+
+--
+-- Name: imputation imputation_id_centre_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.imputation
+    ADD CONSTRAINT imputation_id_centre_fkey FOREIGN KEY (id_centre) REFERENCES public.centre(id_centre);
+
+
+--
+-- Name: imputation imputation_id_type_rubrique_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.imputation
+    ADD CONSTRAINT imputation_id_type_rubrique_fkey FOREIGN KEY (id_type_rubrique) REFERENCES public.type_rubrique(id_type_rubrique);
+
+
+--
+-- Name: mouvement_stock mouvement_stock_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.mouvement_stock
+    ADD CONSTRAINT mouvement_stock_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: nom_poste nom_poste_id_poste_mere_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.nom_poste
+    ADD CONSTRAINT nom_poste_id_poste_mere_fkey FOREIGN KEY (id_poste_mere) REFERENCES public.poste(id_poste);
+
+
+--
+-- Name: offre_emploi offre_emploi_id_bc_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.offre_emploi
+    ADD CONSTRAINT offre_emploi_id_bc_fkey FOREIGN KEY (id_bc) REFERENCES public.bon_commande(id_bc);
+
+
+--
+-- Name: offre_emploi offre_emploi_id_besoin_recrutement_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.offre_emploi
+    ADD CONSTRAINT offre_emploi_id_besoin_recrutement_fkey FOREIGN KEY (id_besoin_recrutement) REFERENCES public.besoin_recrutement(id_besoin_recrutement);
+
+
+--
+-- Name: personnel personnel_id_cv_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.personnel
+    ADD CONSTRAINT personnel_id_cv_fkey FOREIGN KEY (id_cv) REFERENCES public.cv(id_cv);
+
+
+--
+-- Name: poste_fille poste_fille_id_compte_mere_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille
+    ADD CONSTRAINT poste_fille_id_compte_mere_fkey FOREIGN KEY (id_compte_mere) REFERENCES public.poste_fille(compte);
+
+
+--
+-- Name: poste_fille poste_fille_id_mere_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.poste_fille
+    ADD CONSTRAINT poste_fille_id_mere_fkey FOREIGN KEY (id_mere) REFERENCES public.poste(id_poste);
+
+
+--
+-- Name: produit produit_id_unite_oeuvre_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.produit
+    ADD CONSTRAINT produit_id_unite_oeuvre_fkey FOREIGN KEY (id_unite_oeuvre) REFERENCES public.unite_oeuvre(id_unite_oeuvre);
+
+
+--
+-- Name: proformat_fille proformat_fille_id_produit_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat_fille
+    ADD CONSTRAINT proformat_fille_id_produit_fkey FOREIGN KEY (id_produit) REFERENCES public.produit(id_produit);
+
+
+--
+-- Name: proformat_fille proformat_fille_id_proformat_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat_fille
+    ADD CONSTRAINT proformat_fille_id_proformat_fkey FOREIGN KEY (id_proformat) REFERENCES public.proformat(id_proformat);
+
+
+--
+-- Name: proformat proformat_id_client_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat
+    ADD CONSTRAINT proformat_id_client_fkey FOREIGN KEY (id_client) REFERENCES public.client(id_client);
+
+
+--
+-- Name: proformat proformat_id_fournisseur_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.proformat
+    ADD CONSTRAINT proformat_id_fournisseur_fkey FOREIGN KEY (id_fournisseur) REFERENCES public.fournisseur(id_fournisseur);
+
+
+--
+-- Name: resulat_test resulat_test_id_test_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.resulat_test
+    ADD CONSTRAINT resulat_test_id_test_fkey FOREIGN KEY (id_test) REFERENCES public.test(id_test);
+
+
+--
+-- Name: rubrique rubrique_id_exercice_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rubrique
+    ADD CONSTRAINT rubrique_id_exercice_fkey FOREIGN KEY (id_exercice) REFERENCES public.exercice(id_exercice);
+
+
+--
+-- Name: rubrique rubrique_id_type_rubrique_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rubrique
+    ADD CONSTRAINT rubrique_id_type_rubrique_fkey FOREIGN KEY (id_type_rubrique) REFERENCES public.type_rubrique(id_type_rubrique);
+
+
+--
+-- Name: test test_id_cv_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.test
+    ADD CONSTRAINT test_id_cv_fkey FOREIGN KEY (id_cv) REFERENCES public.cv(id_cv);
+
+
+--
+-- Name: type_rubrique type_rubrique_id_unite_oeuvre_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.type_rubrique
+    ADD CONSTRAINT type_rubrique_id_unite_oeuvre_fkey FOREIGN KEY (id_unite_oeuvre) REFERENCES public.unite_oeuvre(id_unite_oeuvre);
+
+
+--
+-- Name: utilisateur utilisateur_id_role_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.utilisateur
+    ADD CONSTRAINT utilisateur_id_role_fkey FOREIGN KEY (id_role) REFERENCES public.role(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
