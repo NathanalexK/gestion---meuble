@@ -21,19 +21,21 @@ public interface PosteFilleRepository extends JpaRepository<PosteFille, Integer>
     @Query("select p from PosteFille p where p.id <> ?1")
     List<PosteFille> findByIdNot(Integer id);
 
-    @Query("SELECT pf FROM PosteFille pf WHERE pf.idExercice = ?1 ")
-    List<PosteFille> findAllByExercice(Exercice e);
 
-    @Query(value = "select nom_poste.libelle,poste_fille.id_poste_fille, nom_poste.id_poste_mere as id_mere, poste_fille.id_exercice,coalesce(poste_fille.montant, 0) as montant from nom_poste left join poste_fille" +
-            "on nom_poste.libelle = poste_fille.libelle;", nativeQuery = true)
-    List<Centre> findAllFor(int categ);
-
-    @Query("SELECT new com.source.meuble.etatFinancier.posteFille.utils.PosteFilleSelectDTO(p.compte, p.libelle) FROM PosteFille p WHERE p.idMere.id = :idMere AND p.idExercice = :idExercice AND p.montant = 0")
+    @Query("SELECT new com.source.meuble.etatFinancier.posteFille.utils.PosteFilleSelectDTO(p.compte, p.libelle) " +
+            "FROM PosteFille p " +
+            "WHERE p.idMere.id = :idMere " +
+            "AND p.id NOT IN (SELECT pv2.compte FROM PosteFilleValue pv2 where pv2.idExercice = :idExercice) ")
     List<PosteFilleSelectDTO> findByIdMereAndIdExercice(@Param("idMere") Integer idMere, @Param("idExercice") Exercice idExercice);
 
-    @Query("SELECT new com.source.meuble.etatFinancier.posteFille.utils.PosteFilleSelectDTO(p.compte, p.libelle) FROM PosteFille p WHERE p.compteMere.compte = :compte AND p.idExercice = :idExercice AND p.montant = 0")
+
+    @Query("SELECT new com.source.meuble.etatFinancier.posteFille.utils.PosteFilleSelectDTO(p.compte, p.libelle) " +
+            "FROM PosteFille p " +
+            "WHERE p.compteMere.compte = :compte " +
+            "AND p.id NOT IN (SELECT pv2.compte FROM PosteFilleValue pv2 WHERE pv2.idExercice = :idExercice) ")
     List<PosteFilleSelectDTO> findByCompteAndIdExercice(@Param("compte") Integer idCompte, @Param("idExercice") Exercice idExercice);
 
     @Query("SELECT p from PosteFille p WHERE p.compte = :compte")
     Optional<PosteFille> findByCompte(@Param("compte") Integer compte);
+
 }

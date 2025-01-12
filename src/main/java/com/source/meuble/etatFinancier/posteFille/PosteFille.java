@@ -1,10 +1,12 @@
 package com.source.meuble.etatFinancier.posteFille;
 
-import com.source.meuble.analytique.exercice.Exercice;
 import com.source.meuble.etatFinancier.Poste.Poste;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,9 +22,6 @@ public class PosteFille {
     @Column(name = "libelle", length = 50)
     private String libelle;
 
-    @Column(name = "montant")
-    private Double montant;
-
     @Column(name = "compte", unique = true)
     private Integer compte;
 
@@ -31,11 +30,18 @@ public class PosteFille {
     private Poste idMere;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_exercice")
-    private Exercice idExercice;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compte_mere", referencedColumnName = "compte")
     private PosteFille compteMere;
 
+    @OneToMany(mappedBy = "compteMere", fetch = FetchType.EAGER)
+    private List<PosteFille> posteFilles = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "compte", referencedColumnName = "compte", insertable = false, updatable = false)
+    private PosteFilleMontant posteFilleMontant;
+
+    @Transient
+    public Double getMontant() {
+        return posteFilleMontant != null ? posteFilleMontant.getMontant() : null;
+    }
 }

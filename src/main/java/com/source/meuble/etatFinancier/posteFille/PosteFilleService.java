@@ -21,8 +21,8 @@ public class PosteFilleService {
         return posteFilleRepository.findByCompteAndIdExercice(compte, exercie);
     }
 
-    public void save(PosteFille posteFille){
-        posteFilleRepository.save(posteFille);
+    public PosteFille save(PosteFille posteFille){
+        return posteFilleRepository.save(posteFille);
     }
 
     public Optional<PosteFille> findByCompte(String s){

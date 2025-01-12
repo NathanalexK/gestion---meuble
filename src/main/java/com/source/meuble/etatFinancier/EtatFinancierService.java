@@ -57,14 +57,14 @@ public class EtatFinancierService {
 
         if (!posteFilleRepository.findByLibelle("Resultat de l'exercice").isEmpty()) {
             PosteFille pf = posteFilleRepository.findByLibelle("Resultat de l'exercice").get(0);
-            pf.setMontant(ef.getBef().getResultatNet());
+//            pf.setMontant(ef.getBef().getResultatNet());
             posteFilleRepository.save(pf);
         } else {
             PosteFille pf = new PosteFille();
             pf.setIdMere(posteRepository.findById(7).get());
-            pf.setIdExercice(exercice);
+//            pf.setIdExercice(exercice);
             pf.setLibelle("Resultat de l'exercice");
-            pf.setMontant(ef.getBef().getResultatNet());
+//            pf.setMontant(ef.getBef().getResultatNet());
             posteFilleRepository.save(pf);
         }
 
@@ -94,10 +94,7 @@ public class EtatFinancierService {
 
     public List<Double> getActif() {
         String sql = """
-                select categorie,sum(montant) from poste_fille
-                join poste on poste_fille.id_mere = poste.id_poste
-                group by categorie
-                order by categorie asc;""";
+                select p.categorie, sum(p.total) from poste_cpl p group by p.categorie order by p.categorie asc;""";
 
         List<Double> result = new ArrayList<>();
         jdbcTemplate.query(sql, new RowCallbackHandler() {

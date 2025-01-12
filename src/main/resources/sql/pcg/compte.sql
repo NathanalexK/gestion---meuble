@@ -61,12 +61,6 @@ VALUES
         (null, 29, 296, 'Perte de valeur sur participations et créances rattachées à participations', 0, 1),
         (null, 29, 297, 'Perte de valeur sur autres immobilisations financières', 0, 1);
 
-
-
-
-
-
-
 --actif courant
     (2, null, 31, 'Matières premières et fournitures', 0, 1),
         (null, 31, 601, 'Matières premières', 0, 1),
@@ -151,12 +145,6 @@ VALUES
         (null, 59, 591, 'Pertes de valeur sur valeurs en banque et établissements financiers', 0, 1),
         (null, 59, 594, 'Pertes de valeur sur régies d''avances et accréditifs', 0, 1);
 
-
-
-
-
-
-
 --passif non-courant
 
     (3, null, 15, 'Provisions pour charges - passifs non courants', 0, 1),
@@ -183,10 +171,6 @@ VALUES
    (3, null, 18, 'Comptes de liaison des établissements et sociétés en participation', 0, 1),
        (null, 18, 181, 'Comptes de liaison entre établissements', 0, 1),
        (null, 18, 188, 'Comptes de liaison entre sociétés en participation', 0, 1);
-
-
-
-
 
 --passif courant
 
@@ -244,8 +228,6 @@ VALUES
         (null, 49, 491, 'Pertes de valeur sur comptes de clients', 0, 1),
         (null, 49, 495, 'Pertes de valeur sur comptes du groupe et des associés', 0, 1),
         (null, 49, 496, 'Pertes de valeur sur comptes de débiteurs divers', 0, 1);
-
-
 
 --charge
 
@@ -323,9 +305,6 @@ VALUES
         (null, 69, 695, 'Impôts sur les bénéfices basés sur le résultat des activités ordinaires', 0, 1),
         (null, 69, 698, 'Autres impôts sur les résultats', 0, 1),
 
-
-
-
 --produit
 
     (6, null, 70, 'Ventes de produits fabriqués, marchandises, prestations', 0, 1),
@@ -377,10 +356,6 @@ VALUES
         (null, 78, 785, 'Reprise d''exploitation - actifs courants', 0, 1),
         (null, 78, 786, 'Reprises financières', 0, 1);
 
-
-
-
-
 --capitaux propre
 
     (7, null, 10, 'Capital, réserves et assimilés', 0, 1),
@@ -406,10 +381,3 @@ VALUES
         (null, 13, 133, 'Impôts différés actif', 0, 1),
         (null, 13, 134, 'Impôts différés passif', 0, 1),
         (null, 13, 138, 'Autres produits et charges différés', 0, 1),
-
-
-
-
-
-
-
