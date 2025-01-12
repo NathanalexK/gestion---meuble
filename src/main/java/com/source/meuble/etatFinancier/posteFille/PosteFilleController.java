@@ -74,12 +74,13 @@ public class PosteFilleController {
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable int id) {
-        Optional<PosteFille> posteFille = posteFilleRepository.findById(id);
+        /*Optional<PosteFille> posteFille = posteFilleRepository.findById(id);
         if (posteFille.isPresent()) {
             posteFilleRepository.delete(posteFille.get());
-        }
+        }*/
 
-        return "redirect:/etat-financier";
+        posteFilleValueService.deleteByCompte(id);
+        return "redirect:/etat-financier/analyse";
     }
 
     @SneakyThrows

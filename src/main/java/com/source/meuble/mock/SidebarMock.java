@@ -224,7 +224,7 @@ public class SidebarMock {
                         )
                         .addSubmenu(
                                 new Menu("Analyse")
-                                        .withLien("/etat-financier")
+                                        .withLien("/etat-financier/analyse")
 //                                        .withRoles(UserRole.DIRECTION, UserRole.RH)
                         )
         );

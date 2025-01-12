@@ -1,10 +1,8 @@
 <%@ page import="com.source.meuble.etatFinancier.EtatFinancierDTO" %>
-<%@ page import="com.source.meuble.etatFinancier.Poste.Poste" %>
 <%@ page import="com.source.meuble.etatFinancier.posteFille.PosteFille" %>
 <%@ page import="com.source.meuble.analytique.exercice.Exercice" %>
 <%@ page import="com.source.meuble.etatFinancier.Poste.PosteCpl" %>
 <%@ page import="com.source.meuble.etatFinancier.nomPoste.NomPoste" %>
-<%@ page import="com.source.meuble.etatFinancier.bilan.BilanEtatFinancier" %>
 <%@ page import="com.source.meuble.etatFinancier.bilan.BilanEtatFinancierImpl" %>
 <%
     Exercice exercice = (Exercice) request.getAttribute("exercice");

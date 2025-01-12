@@ -83,3 +83,46 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT * FROM calculer_somme_poste_fille();
+
+
+
+
+
+-- Montant de chaque poste fille
+CREATE OR REPLACE FUNCTION calculer_montants_recurrents_par_fille(
+    v_compte INT
+)
+RETURNS NUMERIC AS
+$$
+DECLARE
+rec_poste_fille RECORD;
+    total_montant NUMERIC := 0;
+BEGIN
+FOR rec_poste_fille IN
+SELECT compte, montant
+FROM v_poste_fille
+WHERE id_compte_mere = v_compte
+    LOOP
+        total_montant := total_montant + rec_poste_fille.montant;
+
+total_montant := total_montant + calculer_montants_recurrents_par_fille(rec_poste_fille.compte);
+END LOOP;
+
+RETURN total_montant;
+END;
+$$ LANGUAGE plpgsql;
+
+create view v_poste_fille_montant as
+SELECT
+    pf.id_poste_fille,
+    pf.id_mere,
+    pf.id_compte_mere,
+    pf.compte,
+    pf.libelle,
+    COALESCE(pfv.montant, 0) + calculer_montants_recurrents_par_fille(pf.compte) AS montant
+FROM
+    poste_fille AS pf
+        LEFT JOIN poste_fille_value AS pfv
+                  ON pf.id_poste_fille = pfv.compte
+ORDER BY
+    pf.id_poste_fille;

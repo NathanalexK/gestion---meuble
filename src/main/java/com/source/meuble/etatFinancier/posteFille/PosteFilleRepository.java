@@ -37,4 +37,5 @@ public interface PosteFilleRepository extends JpaRepository<PosteFille, Integer>
 
     @Query("SELECT p from PosteFille p WHERE p.compte = :compte")
     Optional<PosteFille> findByCompte(@Param("compte") Integer compte);
+
 }

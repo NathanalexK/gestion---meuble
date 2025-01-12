@@ -20,7 +20,12 @@ public interface PosteCplRepository extends JpaRepository<PosteCpl, Integer> {
     List<PosteCpl> findByIdMere_CategorieLessThanEqualAndIdMere_PosteFilles_IdExercice(Integer categorie, Exercice idExercice);*/
 
     @Query("""
-            select p from PosteCpl p inner join p.idMere.posteFilles posteFilles join PosteFilleValue pv on posteFilles.compte = pv.compte
+            select p from PosteCpl p inner join p.idMere.posteFilles posteFilles join PosteFilleValue pv on posteFilles.id = pv.compte
             where p.idMere.categorie = ?1 and pv.idExercice = ?2""")
     List<PosteCpl> findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(Integer categorie, Exercice idExercice);
+
+
+
+    @Query("select sum(p.total) from PosteCpl p where p.idMere.categorie = ?1")
+    Double sumTotalByCategorie(Integer categorie);
 }
