@@ -41,10 +41,12 @@ public class AnalyseEtatFinancierService {
     public List<Double> generateTotaux(){
         double actif = posteCplRepository.sumTotalByCategorie(0);
         double passif = posteCplRepository.sumTotalByCategorie(1);
+        double resultats = posteCplRepository.sumTotalByCategorie(2);
 
         List<Double> totaux = new ArrayList<Double>();
         totaux.add(actif);
         totaux.add(passif);
+        totaux.add(resultats);
         return totaux;
     }
 
