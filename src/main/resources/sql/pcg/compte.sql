@@ -236,7 +236,7 @@ VALUES
 --charge
 INSERT INTO poste_fille (id_mere, id_compte_mere, compte, libelle)
 VALUES
-    (5, null, 60, 'Achats consommés'),
+    (6, null, 60, 'Achats consommés'),
         (null, 60, 6010, 'Matières premières'),
         (null, 60, 6020, 'Autres approvisionnements'),
         (null, 60, 603, 'Variations des stocks'),
@@ -247,7 +247,7 @@ VALUES
         (null, 60, 608, 'Frais accessoires d''achat'),
         (null, 60, 609, 'Rabais, remises, ristournes obtenus sur achats'),
 
-    (5, null, 61, 'Services extérieurs'),
+    (6, null, 61, 'Services extérieurs'),
         (null, 61, 611, 'Sous-traitance générale'),
         (null, 61, 613, 'Locations'),
         (null, 61, 614, 'Charges locatives et charges de copropriété'),
@@ -257,7 +257,7 @@ VALUES
         (null, 61, 618, 'Documentation et divers'),
         (null, 61, 619, 'Rabais, remises, ristournes obtenus sur services extérieurs'),
 
-    (5, null, 62, 'Autres services extérieurs'),
+    (6, null, 62, 'Autres services extérieurs'),
         (null, 62, 621, 'Personnel extérieur à l''entreprise'),
         (null, 62, 622, 'Rémunérations d''intermédiaires et honoraires'),
         (null, 62, 623, 'Publicité, publication, relations publiques'),
@@ -268,11 +268,11 @@ VALUES
         (null, 62, 628, 'Cotisations et divers'),
         (null, 62, 629, 'Rabais, remises, ristournes obtenus sur autres services extérieurs'),
 
-    (5, null, 63, 'Impôts, taxes et versements assimilés'),
+    (6, null, 63, 'Impôts, taxes et versements assimilés'),
         (null, 63, 631, 'Impôts, taxes et versements assimilés sur rémunérations'),
         (null, 63, 635, 'Autres impôts et taxes'),
 
-    (5, null, 64, 'Charges de personnel'),
+    (6, null, 64, 'Charges de personnel'),
         (null, 64, 641, 'Rémunérations du personnel'),
         (null, 64, 644, 'Rémunérations des dirigeants'),
         (null, 64, 645, 'Cotisations aux organismes sociaux'),
@@ -280,7 +280,7 @@ VALUES
         (null, 64, 647, 'Autres charges sociales'),
         (null, 64, 648, 'Autres charges de personnel'),
 
-    (5, null, 65, 'Autres charges des activités ordinaires'),
+    (6, null, 65, 'Autres charges des activités ordinaires'),
         (null, 65, 651, 'Redevances pour concessions, brevets, licences, logiciels et valeurs similaires'),
         (null, 65, 652, 'Moins-values sur cessions d''actifs non courants'),
         (null, 65, 653, 'Jetons de présence'),
@@ -290,7 +290,7 @@ VALUES
         (null, 65, 657, 'Charges exceptionnelles de gestion courante'),
         (null, 65, 658, 'Autres charges de gestion courante'),
 
-    (5, null, 66, 'Charges financières'),
+    (6, null, 66, 'Charges financières'),
         (null, 66, 661, 'Charges d''intérêts'),
         (null, 66, 664, 'Pertes sur créances liées à des participations'),
         (null, 66, 665, 'Moins-values sur titres de placement'),
@@ -298,13 +298,13 @@ VALUES
         (null, 66, 667, 'Moins-values sur instruments financiers et assimilés'),
         (null, 66, 668, 'Autres charges financières'),
 
-    (5, null, 67, 'Eléments extraordinaires (charges)'),
+    (6, null, 67, 'Eléments extraordinaires (charges)'),
 
-    (5, null, 68, 'Dotations aux amortissements, provisions, pertes de valeur'),
+    (6, null, 68, 'Dotations aux amortissements, provisions, pertes de valeur'),
         (null, 68, 681, 'Dotations - actifs non courants'),
         (null, 68, 685, 'Dotations - actifs courants'),
 
-    (5, null, 69, 'Impôts sur les bénéfices'),
+    (6, null, 69, 'Impôts sur les bénéfices'),
         (null, 69, 692, 'Imposition différée actif'),
         (null, 69, 693, 'Imposition différée passif'),
         (null, 69, 695, 'Impôts sur les bénéfices basés sur le résultat des activités ordinaires'),
@@ -313,7 +313,7 @@ VALUES
 --produit
 INSERT INTO poste_fille (id_mere, id_compte_mere, compte, libelle)
 VALUES
-    (6, null, 70, 'Ventes de produits fabriqués, marchandises, prestations'),
+    (5, null, 70, 'Ventes de produits fabriqués, marchandises, prestations'),
         (null, 70, 701, 'Ventes de produits finis'),
         (null, 70, 702, 'Ventes de produits intermédiaires'),
         (null, 70, 703, 'Ventes de produits résiduels'),
@@ -324,19 +324,19 @@ VALUES
         (null, 70, 708, 'Produits des activités annexes'),
         (null, 70, 709, 'Rabais, remises et ristournes accordés'),
 
-    (6, null, 71, 'Production stockée (ou déstockage)'),
+    (5, null, 71, 'Production stockée (ou déstockage)'),
         (null, 71, 713, 'Variation de stocks d''en-cours'),
         (null, 71, 714, 'Variation de stocks de produits'),
 
-    (6, null, 72, 'Production immobilisée'),
+    (5, null, 72, 'Production immobilisée'),
         (null, 72, 721, 'Production immobilisée d''actif incorporel'),
         (null, 72, 722, 'Production immobilisée d''actif corporel'),
 
-    (6, null, 74, 'Subventions d''exploitation'),
+    (5, null, 74, 'Subventions d''exploitation'),
         (null, 74, 741, 'Subvention d''équilibre'),
         (null, 74, 748, 'Autres subventions d''exploitation'),
 
-    (6, null, 75, 'Autres produits opérationnels'),
+    (5, null, 75, 'Autres produits opérationnels'),
         (null, 75, 751, 'Redevances pour concessions, brevets, licences, logiciels et valeurs similaires'),
         (null, 75, 752, 'Plus-values sur cessions d''actifs non courants'),
         (null, 75, 753, 'Jetons de présence et rémunérations d''administrateurs ou de gérant'),
@@ -346,7 +346,7 @@ VALUES
         (null, 75, 757, 'Produits exceptionnels sur opérations de gestion'),
         (null, 75, 758, 'Autres produits de gestion courante'),
 
-    (6, null, 76, 'Produits financiers'),
+    (5, null, 76, 'Produits financiers'),
         (null, 76, 761, 'Produits de participations'),
         (null, 76, 762, 'Produits des autres immobilisations financières'),
         (null, 76, 763, 'Revenus des autres créances'),
@@ -355,9 +355,9 @@ VALUES
         (null, 76, 767, 'Produits nets sur cessions de valeurs mobilières de placement'),
         (null, 76, 768, 'Autres produits financiers'),
 
-    (6, null, 77, 'Eléments extraordinaires (produits)'),
+    (5, null, 77, 'Eléments extraordinaires (produits)'),
 
-    (6, null, 78, 'Reprises sur provisions et pertes de valeur'),
+    (5, null, 78, 'Reprises sur provisions et pertes de valeur'),
         (null, 78, 781, 'Reprise d''exploitation - actifs non courants'),
         (null, 78, 785, 'Reprise d''exploitation - actifs courants'),
         (null, 78, 786, 'Reprises financières');

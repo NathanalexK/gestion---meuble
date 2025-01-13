@@ -29,3 +29,5 @@ create table poste_fille_value(
 );
 
 pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f "C:\Users\Miarantsoa\ITU\S5\Gestion entreprise\gestion-talent\src\main\resources\sql\030125.dmp mr_meuble"
+pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f "D:\travail\030125_last_1.dmp" mr_meuble
+
