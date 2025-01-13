@@ -119,7 +119,8 @@ SELECT
     pf.id_compte_mere,
     pf.compte,
     pf.libelle,
-    COALESCE(pfv.montant, 0) + calculer_montants_recurrents_par_fille(pf.compte) AS montant
+    COALESCE(pfv.montant, 0) + calculer_montants_recurrents_par_fille(pf.compte) AS montant,
+    1 as id_exercice
 FROM
     poste_fille AS pf
         LEFT JOIN poste_fille_value AS pfv
