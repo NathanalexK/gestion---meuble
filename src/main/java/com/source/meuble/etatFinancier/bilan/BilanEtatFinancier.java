@@ -89,6 +89,8 @@ public abstract class BilanEtatFinancier {
 
     //7.
     public Double getCouvertureDesInterets() {
+        System.out.println("Resultat Exploitation: " + this.getResultatExploitation());
+        System.out.println("Charge Financiere: " + this.getChargeFinanciere());
         return this.getResultatExploitation() / this.getChargeFinanciere();
     }
 

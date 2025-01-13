@@ -31,8 +31,9 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier {
         this.idExercice = idExercice;
 
         initRevenu();
-        initBenefice();
         initResultatNet();
+        System.out.println("Resutat Net: " + resultatNet);
+        initBenefice();
         initTotalActifs();
         initTotalPassifs();
         initPassifCourrant();
@@ -55,14 +56,20 @@ public class BilanEtatFinancierImpl extends BilanEtatFinancier {
 
     Double initBenefice() {
         // TODO: Implementation Benfice
-        setBenefice(0.0);
-        return 0.0;
+        Double resultatNet = this.getResultatNet();
+        if(resultatNet > 0) {
+            setResultatNet(resultatNet);
+            return resultatNet;
+        }
+        return 0.00;
+//        setBenefice(0.0);
+//        return 0.0;
     }
 
     Double initResultatNet() {
-        String sql = "select (select COALESCE(SUM(montant), 0) as montant from v_poste_fille_montant where id_mere = 5 and id_exercice ="
+        String sql = "select (select COALESCE(SUM(montant), 0) as montant from v_poste_fille_montant where id_mere = 6 and id_exercice ="
                 + idExercice + ")" +
-                " - (select COALESCE(SUM(montant), 0) as montant from v_poste_fille_montant where id_mere = 6 and id_exercice =" + idExercice
+                " - (select COALESCE(SUM(montant), 0) as montant from v_poste_fille_montant where id_mere = 5 and id_exercice =" + idExercice
                 + ") as montant";
         setResultatNet(fetchMontant(sql));
         return resultatNet;

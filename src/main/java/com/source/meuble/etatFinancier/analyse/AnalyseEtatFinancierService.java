@@ -9,12 +9,15 @@ import com.source.meuble.etatFinancier.bilan.BilanEtatFinancierImpl;
 import com.source.meuble.etatFinancier.posteFille.PosteFille;
 import com.source.meuble.etatFinancier.posteFille.PosteFilleMontantRepository;
 import com.source.meuble.etatFinancier.posteFille.PosteFilleRepository;
+import com.source.meuble.etatFinancier.posteFille.PosteFilleValue.PosteFilleValue;
+import com.source.meuble.etatFinancier.posteFille.PosteFilleValue.PosteFilleValueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AnalyseEtatFinancierService {
@@ -27,6 +30,8 @@ public class AnalyseEtatFinancierService {
     private PosteFilleRepository posteFilleRepository;
     @Autowired
     private PosteFilleMontantRepository posteFilleMontantRepository;
+    @Autowired
+    private PosteFilleValueRepository posteFilleValueRepository;
 
     public boolean isValide(){
         double actif = posteCplRepository.sumTotalByCategorie(0);
@@ -67,6 +72,25 @@ public class AnalyseEtatFinancierService {
         analyseEtaFinancier.setTotaux(this.generateTotaux());
         analyseEtaFinancier.setBilanEtatFinancier(new BilanEtatFinancierImpl(jdbcTemplate, 1));
 
+        PosteFille pf = posteFilleRepository.findByCompte(12).get();
+        Optional<PosteFilleValue> pfvOpt = posteFilleValueRepository.findByCompte(pf.getId());
+
+        if(pfvOpt.isPresent()) {
+            PosteFilleValue pfv = pfvOpt.get();
+            pfv.setMontant(analyseEtaFinancier.getTotaux().get(2));
+            posteFilleValueRepository.save(pfv);
+        }else {
+            PosteFilleValue pfv = new PosteFilleValue();
+            pfv.setCompte(pf.getId());
+            pfv.setIdExercice(exercice);
+            pfv.setMontant(analyseEtaFinancier.getTotaux().get(2));
+            posteFilleValueRepository.save(pfv);
+        }
+//            pfv.setM;
+
+
+
+
 
 
         analyseEtaFinancier.setActifs(posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(0, exercice));
@@ -79,8 +103,8 @@ public class AnalyseEtatFinancierService {
         for (PosteCpl pc : revenu) {
             resultat.add(pc);
 //            System.out.println(pc.get);
-            for (PosteFille pf : pc.getIdMere().getPosteFilles()) {
-                System.out.println(pf.getCompte() + " " + pf.getLibelle() + " " + pf.getIdMere().getId());
+            for (PosteFille pff : pc.getIdMere().getPosteFilles()) {
+                System.out.println(pff.getCompte() + " " + pff.getLibelle() + " " + pff.getIdMere().getId());
             }
         }
 

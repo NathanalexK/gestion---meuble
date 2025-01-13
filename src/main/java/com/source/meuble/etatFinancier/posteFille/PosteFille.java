@@ -50,7 +50,7 @@ public class PosteFille {
     public String getHtml(int depth){
         String html = "<tr>" +
                 " <td class=\"sub-item\">" +
-                "   <a class=\"btn\" href=\"/poste-fille/delete/"+this.getId()+"\" style=\"margin-left:"+20*depth+"px\">" +
+                "   <a class=\"btn\" href=\"/poste-fille/delete/"+this.getId()+"\" style=\"margin-left:"+30*depth+"px\">" +
                 "       <i class=\"bx bx-x\"></i>" +
                 "   </a>" + this.getLibelle() +
                 " </td>" +

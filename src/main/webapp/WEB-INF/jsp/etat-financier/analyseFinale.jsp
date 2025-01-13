@@ -33,7 +33,9 @@
             <%=analyseEtaFinancier.getMessageValidite()%>
         </div>
         <% } %>
+        <h2 class="">Actif</h2>
         <table class="table table-bordered">
+
             <caption>Actifs</caption>
             <thead>
             <tr>
@@ -48,7 +50,7 @@
                     <th><%=poste.getTotal()%></th>
                 </tr>
                     <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) {
-                        if(pf.getMontant()!=0) {
+                        if(pf.getMontant()!=0 || true) {
                             out.println(pf.getHtml(1));
                         }
                     }
@@ -61,7 +63,7 @@
             </tr>
             </tfoot>
         </table>
-
+        <h2>Passif</h2>
         <table class="table table-bordered">
             <caption>Passifs</caption>
             <thead>
@@ -77,7 +79,7 @@
                         <th><%=poste.getTotal()%></th>
                     </tr>
                     <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) {
-                        if(pf.getMontant()!=0) {
+                        if(pf.getMontant()!=0 || true) {
                             out.println(pf.getHtml(1));
                         }
                     }
@@ -101,13 +103,13 @@
             </tr>
             </thead>
             <tbody>
-                <% for (PosteCpl poste : analyseEtaFinancier.getActifs()) { %>
+                <% for (PosteCpl poste : analyseEtaFinancier.getResultat()) { %>
                     <tr>
                         <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
                         <th><%=poste.getTotal()%></th>
                     </tr>
                     <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) {
-                        if(pf.getMontant()!=0) {
+                        if(pf.getMontant()!=0 || true) {
                             out.println(pf.getHtml(1));
                         }
                     }

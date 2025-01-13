@@ -128,7 +128,7 @@ public class PosteFilleController {
                 PosteFille newPosteFille = new PosteFille();
                 newPosteFille.setLibelle(libelle);
                 newPosteFille.setCompteMere(posteFille);
-
+                newPosteFille.setCompte(Integer.parseInt(compte));
                 newPosteFille = posteFilleService.save(newPosteFille);
 
                 PosteFilleValue posteFilleValue = new PosteFilleValue();
