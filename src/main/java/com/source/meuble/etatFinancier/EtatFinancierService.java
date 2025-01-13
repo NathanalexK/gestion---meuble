@@ -94,7 +94,7 @@ public class EtatFinancierService {
 
         ef.setResultatNet(resultat.get(0).getTotal() - resultat.get(1).getTotal());
         ef.setBilan(bilan);
-        ef.setResultat(charges);
+        ef.setResultat(resultat);
         ef.setActif(actif);
         ef.setPassif(passif);
 

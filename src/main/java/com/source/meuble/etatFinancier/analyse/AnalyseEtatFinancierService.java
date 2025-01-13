@@ -33,11 +33,14 @@ public class AnalyseEtatFinancierService {
     @Autowired
     private PosteFilleValueRepository posteFilleValueRepository;
 
-    public boolean isValide(){
-        double actif = posteCplRepository.sumTotalByCategorie(0);
-        double passif = posteCplRepository.sumTotalByCategorie(1);
+    public boolean isValide(AnalyseEtaFinancier analyseEtaFinancier){
+        double actif = analyseEtaFinancier.getTotaux().get(0);
+        double passif = analyseEtaFinancier.getTotaux().get(1);
 
-        if(actif>passif){
+        System.out.println("actif"+actif);
+        System.out.println("Passif"+passif);
+
+        if(actif != passif){
             return false;
         }
         return true;
@@ -67,7 +70,6 @@ public class AnalyseEtatFinancierService {
     public AnalyseEtaFinancier generateAnalyseEtatFinancier(Exercice exercice){
         AnalyseEtaFinancier analyseEtaFinancier = new AnalyseEtaFinancier();
 
-        analyseEtaFinancier.setValide(this.isValide());
         analyseEtaFinancier.setMessageValidite(this.generateMessageValidite());
         analyseEtaFinancier.setTotaux(this.generateTotaux());
         analyseEtaFinancier.setBilanEtatFinancier(new BilanEtatFinancierImpl(jdbcTemplate, 1));
@@ -86,6 +88,9 @@ public class AnalyseEtatFinancierService {
             pfv.setMontant(analyseEtaFinancier.getTotaux().get(2));
             posteFilleValueRepository.save(pfv);
         }
+
+        analyseEtaFinancier.setValide(this.isValide(analyseEtaFinancier));
+
 //            pfv.setM;
 
 
@@ -96,22 +101,27 @@ public class AnalyseEtatFinancierService {
         analyseEtaFinancier.setActifs(posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(0, exercice));
         analyseEtaFinancier.setPassifs(posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(1, exercice));
 
-        List<PosteCpl> charges = posteCplRepository.findByIdMere_idAndIdMere_PosteFilles_IdExercice(5, exercice);
-        List<PosteCpl> revenu = posteCplRepository.findByIdMere_idAndIdMere_PosteFilles_IdExercice(6, exercice);
+        List<PosteCpl> charges = posteCplRepository.findByIdMere_idAndIdMere_PosteFilles_IdExercice(6, exercice);
+        List<PosteCpl> revenu = posteCplRepository.findByIdMere_idAndIdMere_PosteFilles_IdExercice(5, exercice);
         List<PosteCpl> resultat = new ArrayList<>();
-//        resultat.addAll(revenu);
-        for (PosteCpl pc : revenu) {
-            resultat.add(pc);
-//            System.out.println(pc.get);
-            for (PosteFille pff : pc.getIdMere().getPosteFilles()) {
-                System.out.println(pff.getCompte() + " " + pff.getLibelle() + " " + pff.getIdMere().getId());
-            }
-        }
 
-        for (PosteCpl pc : charges) {
-            resultat.add(pc);
-        }
-//        resultat.addAll(charges);
+
+        resultat.addAll(revenu);
+        System.out.println("Revenu size: " + revenu.size());
+//        for (PosteCpl pc : revenu) {
+//            resultat.add(pc);
+////            System.out.println(pc.get);
+//            for (PosteFille pff : pc.getIdMere().getPosteFilles()) {
+//                System.out.println(pff.getCompte() + " " + pff.getLibelle() + " " + pff.getIdMere().getId());
+//            }
+//        }
+
+//        for (PosteCpl pc : charges) {
+//            resultat.add(pc);
+//        }
+        resultat.addAll(charges);
+        System.out.println("Charge size: " + charges.size());
+        System.out.println("Result size " + resultat.size());
         analyseEtaFinancier.setResultat(resultat);
 
 

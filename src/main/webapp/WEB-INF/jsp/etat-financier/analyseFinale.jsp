@@ -103,7 +103,11 @@
             </tr>
             </thead>
             <tbody>
+            <%
+                System.out.println(analyseEtaFinancier.getResultat().size());
+            %>
                 <% for (PosteCpl poste : analyseEtaFinancier.getResultat()) { %>
+
                     <tr>
                         <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
                         <th><%=poste.getTotal()%></th>
