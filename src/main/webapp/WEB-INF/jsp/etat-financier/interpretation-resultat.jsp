@@ -21,6 +21,9 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-4 d-flex flex-column py-5">
+                <div class="h-10 border border-bottom-3 d-flex justify-content-start align-items-center cursor-pointer p-2" onclick="showSolutionGlobal()">
+                    <p>Solution globale</p>
+                </div>
                 <% for(int i=0 ; i < 7 ; i++) {%>
                     <div class="h-10 border border-bottom-3 d-flex justify-content-start align-items-center cursor-pointer p-2" onclick="showSolutions(<%=socles.get(i).getIdIndicateur()-1%>)">
                         <p><%=libelle[i]%>: <%=String.format("%.2f", socles.get(i).getData())%></p>

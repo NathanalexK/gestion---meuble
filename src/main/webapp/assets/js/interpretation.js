@@ -1,6 +1,7 @@
 const result = document.getElementById("rep")
 
 const recipient = []
+let global = "";
 
 const idIndicElements = document.querySelectorAll(".idIndic");
 const dataElements = document.querySelectorAll(".data");
@@ -69,7 +70,8 @@ async function sendAllDataViaAjax(indicators) {
         crossDomain: true,
         success: function(response) {
             console.log("Réponses reçues : ", response);
-            result.innerHTML = formatResponseText(response.solution);
+            global = formatResponseText(response.solution);
+            result.innerHTML = global;
         },
         error: function(xhr, status, error) {
             console.error("Une erreur est survenue : " + error);
@@ -83,4 +85,8 @@ async function sendAllDataViaAjax(indicators) {
 
 function showSolutions(id) {
     result.innerHTML = recipient[id];
+}
+
+function showSolutionGlobal(){
+    result.innerHTML = global;
 }
