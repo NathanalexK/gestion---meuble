@@ -99,6 +99,7 @@ public class PosteFilleController {
             throw new Exception("Poste fille est requis");
         }
         String libelle = request.getParameter("libelle");
+        String compte = request.getParameter("compte");
 
         Optional<PosteFille> posteFilleOptional = posteFilleService.findByCompte(posteFilles[posteFilles.length-1]);
         if(posteFilleOptional.isPresent()){
@@ -112,7 +113,17 @@ public class PosteFilleController {
 
                 posteFilleValueService.save(posteFilleValue);
 
-            }else {
+            }else if (montant == 0 && libelle != null){
+
+                PosteFille newPosteFille = new PosteFille();
+                newPosteFille.setLibelle(libelle);
+                newPosteFille.setCompteMere(posteFille);
+                newPosteFille.setCompte(Integer.parseInt(compte));
+                newPosteFille = posteFilleService.save(newPosteFille);
+
+                posteFilleRepository.save(newPosteFille);
+
+            } else {
 
                 PosteFille newPosteFille = new PosteFille();
                 newPosteFille.setLibelle(libelle);

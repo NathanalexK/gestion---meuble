@@ -46,4 +46,22 @@ public class PosteFille {
     public Double getMontant() {
         return posteFilleMontant != null ? posteFilleMontant.getMontant() : null;
     }
+
+    public String getHtml(int depth){
+        String html = "<tr>" +
+                " <td class=\"sub-item\">" +
+                "   <a class=\"btn\" href=\"/poste-fille/delete/"+this.getId()+"\" style=\"margin-left:"+20*depth+"px\">" +
+                "       <i class=\"bx bx-x\"></i>" +
+                "   </a>" + this.getLibelle() +
+                " </td>" +
+                " <td>"+ this.getMontant() +"</td>";
+                    if(this.getPosteFilles()!=null){
+                        for (int i = 0; i < this.getPosteFilles().size(); i++) {
+                            html+=this.getPosteFilles().get(i).getHtml(depth+1);
+                        }
+                    }
+               html+= " </tr>";
+
+        return html;
+    }
 }
