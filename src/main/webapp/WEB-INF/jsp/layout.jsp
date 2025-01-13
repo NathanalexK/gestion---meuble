@@ -95,6 +95,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/vendor/libs/apex-charts/apex-charts.css"/>
     <script src="${pageContext.request.contextPath}/assets/vendor/js/helpers.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/config.js"></script>
+    <script src="/assets/vendor/libs/jquery/jquery.js"></script>
 
 </head>
 <body>
@@ -177,7 +178,6 @@
 
 <!-- Vendors JS -->
 <script src="/assets/vendor/libs/apex-charts/apexcharts.js"></script>
-<script src="/assets/vendor/libs/jquery/jquery.js"></script>
 
 <!-- Main JS -->
 <script src="/assets/js/main.js"></script>
@@ -251,10 +251,6 @@
 
 <%--suggestions --%>
 <script>
-    function formatResponseText(text) {
-        return marked.parse(text)
-    }
-
     function displayMessage(text) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message bot-message';
@@ -271,44 +267,6 @@
 
         window.scrollTo(0, document.body.scrollHeight);
     }
-
-    $(document).ready(function() {
-        const $overlay = $('<div id="overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999;"></div>'); // z-index inférieur au loader
-        $('body').append($overlay);
-        const $loader = $('<div id="loader" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; border: 16px solid #f3f3f3; border-top: 16px solid #3498db; border-radius: 50%; width: 120px; height: 120px; animation: spin 2s linear infinite;"></div>');
-        $('body').append($loader);
-        $(".fetch-suggestions").on("click", function() {
-            $("#rep-div").html("");
-            $("#overlay").show();
-            $("#loader").show();
-            var id = $(this).data("id");
-            var pourcentage = $(this).data("pourcentage");
-            $.ajax({
-                url: "http://localhost:8000/suggestions",
-                type: "GET",
-                data: {
-                    id: id,
-                    pourcentage: pourcentage
-                },
-                xhrFields: {
-                    withCredentials: true
-                },
-                crossDomain: true,
-                success: function(response) {
-                    console.log("ty no valiny " + response.solution);
-                    const formatted = formatResponseText(response.solution);
-                    displayMessage(formatted);
-                },
-                error: function(xhr, status, error) {
-                    console.error("An error occurred: " + error);
-                },
-                complete: function() {
-                    $("#overlay").hide();
-                    $("#loader").hide();
-                }
-            });
-        });
-    });
 </script>
 
 <%
