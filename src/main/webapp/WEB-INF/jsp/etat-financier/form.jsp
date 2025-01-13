@@ -53,11 +53,16 @@
                             <option disabled selected>Veuillez choisir une poste secondaire</option>
                         </select>
                     </div>
-                    <di class="mb-3" id="libelle"></di>
+                    <div class="mb-3" id="libelle"></div>
+                    <div class="mb-3">
+                        <label class="form-label" for="qte-input">Compte :</label>
+                        <input type="number" step="0.01" id="compte" class="form-control" name="compte">
+                    </div>
                     <div class="mb-3">
                         <label class="form-label" for="qte-input">Montant (AR) :</label>
-                        <input type="number" step="0.01" id="qte-input" class="form-control" name="montant">
+                        <input type="number" step="0.01" id="qte-input" class="form-control" name="montant" value="0">
                     </div>
+
 
                     <button onclick="showAlertBeforeSubmit(event, 'proformatForm', questions)" type="button" class="btn btn-primary">Valider</button>
                 </div>
@@ -110,9 +115,21 @@
             fetchCompteFille(posteFille, posteFilleDiv);
         });
 
+        function changeValueCompte(posteFille){
+            const input = document.getElementById("compte");
+
+            // Vérifier si l'élément existe
+            if (input) {
+                // Changer la valeur du placeholder
+                input.value = posteFille.value;
+            } else {
+                console.error("L'élément input avec l'ID '" + inputId + "' n'a pas été trouvé.");
+            }
+        };
+
         function fetchCompteFille(posteFille, posteFilleDiv) {
             console.log(posteFille.value);
-
+            changeValueCompte(posteFille);
             let selectedValue = posteFille.value;
             let url = "/api/poste-fille/compte-corres?compteMere=" + selectedValue;
             console.log("URL générée :", url);
