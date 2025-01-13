@@ -71,7 +71,16 @@ public class EtatFinancierService {
         List<PosteCpl> bilan = new ArrayList<>();
         List<PosteCpl> actif = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(0, exercice);
         List<PosteCpl> passif = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(1, exercice);
-        List<PosteCpl> resultat = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(2, exercice);
+
+        List<PosteCpl> charges = posteCplRepository.findByIdMere_idAndIdMere_PosteFilles_IdExercice(5, exercice);
+        List<PosteCpl> revenu = posteCplRepository.findByIdMere_idAndIdMere_PosteFilles_IdExercice(6, exercice);
+        List<PosteCpl> resultat = new ArrayList<>();
+        resultat.addAll(revenu);
+//        resultat.addAll(charges);
+
+//        List<PosteCpl> resultat = posteCplRepository.findByIdMere_CategorieAndIdMere_PosteFilles_IdExercice(2, exercice);
+
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         System.out.println(resultat.size());
 
 
@@ -85,7 +94,7 @@ public class EtatFinancierService {
 
         ef.setResultatNet(resultat.get(0).getTotal() - resultat.get(1).getTotal());
         ef.setBilan(bilan);
-        ef.setResultat(resultat);
+        ef.setResultat(charges);
         ef.setActif(actif);
         ef.setPassif(passif);
 

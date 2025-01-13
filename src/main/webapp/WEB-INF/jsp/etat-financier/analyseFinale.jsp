@@ -161,7 +161,7 @@
                     <th><%=poste.getTotal()%></th>
                 </tr>
                     <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) {
-                        if (pf.getMontant()!=0) { %>
+<%--                        if (pf.getMontant()!=0) { %>--%>
                             <tr>
                                 <td class="sub-item">
                                     <a class="btn" href="/poste-fille/delete/<%=pf.getId()%>">
@@ -175,22 +175,20 @@
                                 List<PosteFille> sousPostes = pf.getPosteFilles();
                                 if (sousPostes != null && !sousPostes.isEmpty()) {
                                     for (PosteFille sousPoste : sousPostes) {
-                            %>
-                            <% if(sousPoste.getMontant()!=0){ %>
-                            <tr>
-                                <td class="sub-item sub-level">
-                                    &emsp;<a class="btn" href="/poste-fille/delete/<%=sousPoste.getId()%>">
-                                    <i class="bx bx-x"></i>
-                                </a>
-                                    <%=sousPoste.getLibelle()%>
-                                </td>
-                                <td><%= sousPoste.getMontant() %></td>
-                            </tr>
-                            <%
+                                        %>
+                                        <tr>
+                                            <td class="sub-item sub-level">
+                                                &emsp;<a class="btn" href="/poste-fille/delete/<%=sousPoste.getId()%>">
+                                                <i class="bx bx-x"></i>
+                                            </a>
+                                                <%=sousPoste.getLibelle()%>
+                                            </td>
+                                            <td><%= sousPoste.getMontant() %></td>
+                                        </tr>
+                                        <%
                                     }
                                 }
-                            }
-                        }
+//                        }
                     }
                 } %>
             </tbody>

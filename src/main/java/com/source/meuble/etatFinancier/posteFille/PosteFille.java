@@ -40,6 +40,8 @@ public class PosteFille {
     @JoinColumn(name = "compte", referencedColumnName = "compte", insertable = false, updatable = false)
     private PosteFilleMontant posteFilleMontant;
 
+
+
     @Transient
     public Double getMontant() {
         return posteFilleMontant != null ? posteFilleMontant.getMontant() : null;

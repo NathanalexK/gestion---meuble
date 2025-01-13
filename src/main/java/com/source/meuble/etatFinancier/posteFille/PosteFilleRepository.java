@@ -38,4 +38,9 @@ public interface PosteFilleRepository extends JpaRepository<PosteFille, Integer>
     @Query("SELECT p from PosteFille p WHERE p.compte = :compte")
     Optional<PosteFille> findByCompte(@Param("compte") Integer compte);
 
+    @Query(value = "SELECT sum()" +
+            "FROM rubrique" +
+            "WHERE CAST(compte AS TEXT) LIKE '6%'", nativeQuery = true)
+    Double sommeCharge();
+
 }

@@ -214,7 +214,7 @@
             <tr>
                 <th><%=poste.getIdMere().getLibelle()%> (Total)</th>
                 <th><%=poste.getTotal()%></th>
-            </tr>c
+            </tr>
             <% for (PosteFille pf : poste.getIdMere().getPosteFilles()) { %>
             <tr>
                 <td class="sub-item"><a class="btn" href=""><i class="bx bx-x"></i></a> <%=pf.getLibelle()%></td>
