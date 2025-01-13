@@ -1,3 +1,10 @@
+from typing import List
+from pydantic import BaseModel
+
+class IndicatorRequest(BaseModel):
+    id: int
+    pourcentage: float
+
 indicateurs_financiers = (
     {
         "id": 1,
@@ -84,3 +91,28 @@ def build_phrase(indicateur, pourcentage):
         f"donne-moi des solutions, au moins 3, pour améliorer {libelle}."
     )
     return phrase
+
+def build_phrase_global(indicators: List[IndicatorRequest]):
+    phrases = []
+    for indicator in indicators:
+        id_indicateur = indicator.id
+        pourcentage = indicator.pourcentage
+
+        # Trouver l'indicateur correspondant dans indicateurs_financiers
+        indicateur = next((i for i in indicateurs_financiers if i["id"] == id_indicateur), None)
+        if not indicateur:
+            phrases.append(f"Indicateur avec l'ID {id_indicateur} non trouvé.")
+            continue
+
+        # Déterminer le seuil
+        seuil = determine_seuil(indicateur, pourcentage)
+
+        # Construire la phrase pour cet indicateur
+        libelle = indicateur["libelle"]
+        phrase = (
+            f"Sur {libelle}, j'ai un seuil {seuil.capitalize()} ({pourcentage}%), "
+        )
+        phrases.append(phrase)
+
+    phrase_globale = "J'ai un état financier. " + " ".join(phrases) + ". Donne moi au moins 3 solutions pour améliorer mon état financier"
+    return phrase_globale
