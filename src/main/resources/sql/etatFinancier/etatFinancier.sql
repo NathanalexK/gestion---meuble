@@ -16,7 +16,7 @@ CREATE TABLE poste_fille(
     id_mere integer,
     id_compte_mere integer,
     compte integer unique ,
-    libelle varchar(255),
+    libelle text,
     FOREIGN KEY (id_mere) REFERENCES poste(id_poste),
     FOREIGN KEY (id_compte_mere) REFERENCES poste_fille(compte)
 );
@@ -29,3 +29,5 @@ create table poste_fille_value(
 );
 
 pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f "C:\Users\Miarantsoa\ITU\S5\Gestion entreprise\gestion-talent\src\main\resources\sql\030125.dmp mr_meuble"
+
+pg_dump -U postgres -h localhost -p 5432 -F c -b -v -f "D:\travail\130125_2.dmp mr_meuble"
